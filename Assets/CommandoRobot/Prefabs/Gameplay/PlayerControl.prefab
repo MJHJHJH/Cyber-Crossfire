@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6136277955985492314
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6136277955985492315}
+  - component: {fileID: 6136277955985492316}
+  m_Layer: 0
+  m_Name: PlayerControl
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6136277955985492315
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6136277955985492314}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6136277955985492316
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6136277955985492314}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee0df296759d3004b8364527cde332fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MyPlayerChar: {fileID: 0}
+  OtherControl: {fileID: 0}
+  Kills: 0
+  m_IsDead: 0
+  MainWeapons:
+  - {fileID: 0}
+  - {fileID: 0}
+  CurrentWeaponNum: 0
+  CurrentWeapon: {fileID: 0}
+  NextSpawnPoint: {fileID: 0}
+  LastDeathPosition: {x: 0, y: 0, z: 0}
+  State: 0
+  StateStartTime: 0
+  UsingPowerWeapon: 0
+  m_PlayerPrefab: {fileID: 9180820861068994198, guid: d84b666626dafd54f86643553147b067,
+    type: 3}

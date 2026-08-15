@@ -1,0 +1,61 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+namespace CommandoRobot
+{
+    public class EnemyAI_RingShooter : AIControlBase
+    {
+        public GameObject m_BulletPrefab1;
+        // Start is called before the first frame update
+        void Start()
+        {
+
+        }
+
+        // Update is called once per frame
+        void Update()
+        {
+            CheckAlert();
+
+            if (m_IsAlerted)
+            {
+
+                GetComponent<EnemyCharacter>().FaceTowardsPosition(PlayerCharacter.m_Current.transform.position);
+            }
+        }
+
+        public override void StartAlert()
+        {
+            base.StartAlert();
+
+            StartCoroutine(Co_AttackLoop());
+        }
+
+        IEnumerator Co_AttackLoop()
+        {
+            yield return new WaitForSeconds(1);
+            while (true)
+            {
+                GetComponent<CharacterBase>().m_CharAnimator.Play("anim-fire");
+                ShootRingBullet();
+                yield return new WaitForSeconds(3);
+            }
+        }
+
+        public void ShootRingBullet()
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                GameObject obj = Instantiate(m_BulletPrefab1);
+                obj.transform.position = transform.position + new Vector3(0, 1, 0);
+                obj.transform.forward = Quaternion.Euler(0, i * 45, 0) * Vector3.forward;
+                ProjectileBase projectile = obj.GetComponent<ProjectileBase>();
+                projectile.m_Creator = gameObject;
+                projectile.m_Speed = 6;
+                projectile.m_Damage = 1;
+                projectile.m_Range = 50;
+                Destroy(obj, 10);
+            }
+        }
+    }
+}
