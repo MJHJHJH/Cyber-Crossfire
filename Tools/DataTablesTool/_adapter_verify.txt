@@ -1,0 +1,49 @@
+﻿gen_adapters.ps1 verification report
+Generated: 2026-07-30 13:59:12
+
+=== EXIT CODE ===
+0
+
+=== SCRIPT OUTPUT ===
+[gen_adapters] scanning E:\Unity\ProjectGroup\AltasTest\Assets\DataTable\Core\Json\Tables.cs
+[gen_adapters] tables=3 -> Activity, Shop, UIPanel
+  wrote IActivity.cs
+  wrote ActivityTableAccess.cs
+  wrote IShop.cs
+  wrote ShopTableAccess.cs
+  wrote IUIPanel.cs
+  wrote UIPanelTableAccess.cs
+  wrote LubanTablesFactory.cs
+[gen_adapters] done.
+
+=== *.cs in Assets/DataTable/Core/Adapters ===
+ActivityTableAccess.cs
+IActivity.cs
+IShop.cs
+IUIPanel.cs
+LubanTablesFactory.cs
+ShopTableAccess.cs
+UIPanelTableAccess.cs
+
+=== FILE EXISTENCE ===
+IActivity.cs: True
+ActivityTableAccess.cs: True
+
+=== LubanTablesFactory.cs TABLE_LOCATIONS / Register ===
+private static readonly string[] TABLE_LOCATIONS = { "tbactivity", "tbshop", "tbuipanel" };
+var cache = new Dictionary<string, string>(TABLE_LOCATIONS.Length);
+foreach (string location in TABLE_LOCATIONS)
+registry.Register<IActivity>(ActivityTableAccess.From(tables.TbActivity));
+registry.Register<IShop>(ShopTableAccess.From(tables.TbShop));
+registry.Register<IUIPanel>(UIPanelTableAccess.From(tables.TbUIPanel));
+var cache = new Dictionary<string, byte[]>(TABLE_LOCATIONS.Length);
+foreach (string location in TABLE_LOCATIONS)
+registry.Register<IActivity>(ActivityTableAccess.From(tables.TbActivity));
+registry.Register<IShop>(ShopTableAccess.From(tables.TbShop));
+registry.Register<IUIPanel>(UIPanelTableAccess.From(tables.TbUIPanel));
+
+=== IShop.cs Shop_Record properties (ItemId / ItemCount) ===
+public int ItemId { get; }
+public int ItemCount { get; }
+
+(full Shop_Record props: Id, Name, Desc, ItemId, ItemCount, Pos)

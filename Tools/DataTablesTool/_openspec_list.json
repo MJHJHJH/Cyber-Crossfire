@@ -1,0 +1,36 @@
+﻿{
+  "changes": [
+    {
+      "name": "luban-datatable",
+      "completedTasks": 16,
+      "totalTasks": 17,
+      "lastModified": "2026-07-30T02:46:27.551Z",
+      "status": "in-progress"
+    },
+    {
+      "name": "extract-game-entry",
+      "completedTasks": 0,
+      "totalTasks": 10,
+      "lastModified": "2026-07-29T01:24:07.372Z",
+      "status": "in-progress"
+    },
+    {
+      "name": "add-chat-virtual-list",
+      "completedTasks": 17,
+      "totalTasks": 20,
+      "lastModified": "2026-07-23T02:37:22.884Z",
+      "status": "in-progress"
+    },
+    {
+      "name": "add-item-codex",
+      "completedTasks": 11,
+      "totalTasks": 17,
+      "lastModified": "2026-07-23T02:04:13.709Z",
+      "status": "in-progress"
+    }
+  ],
+  "root": {
+    "path": "E:\\Unity\\ProjectGroup\\AltasTest",
+    "source": "nearest"
+  }
+}

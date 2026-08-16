@@ -1,0 +1,44 @@
+﻿Luban pipeline status report
+Date: 2026-07-30
+Working dir: E:\Unity\ProjectGroup\AltasTest\Tools\DataTablesTool\DataTables
+
+=== Step exit codes ===
+1. gen_json.bat       EXITCODE=0  SUCCESS
+2. gen_bin.bat        EXITCODE=0  SUCCESS
+3. gen_adapters.ps1   EXITCODE=0  SUCCESS
+
+=== Key file existence ===
+Json/Tables.cs              EXISTS
+Bin/Tables.cs               EXISTS
+Adapters/IShop.cs           EXISTS
+Adapters/LubanTablesFactory.cs EXISTS
+Json/tbshop.json            EXISTS
+Bin/tbuipanel.bytes         EXISTS
+
+=== Assets\DataTable\Core listing ===
+Adapters\IShop.cs
+Adapters\IUIPanel.cs
+Adapters\LubanTablesFactory.cs
+Adapters\ShopTableAccess.cs
+Adapters\UIPanelTableAccess.cs
+Bin\Shop.cs
+Bin\Tables.cs
+Bin\TbShop.cs
+Bin\TbUIPanel.cs
+Bin\UIPanel.cs
+Bin\vector2.cs
+Bin\vector3.cs
+Bin\vector4.cs
+Bin\ShopDef\MyItem.cs
+Json\Shop.cs
+Json\Tables.cs
+Json\TbShop.cs
+Json\TbUIPanel.cs
+Json\UIPanel.cs
+Json\vector2.cs
+Json\vector3.cs
+Json\vector4.cs
+Json\ShopDef\MyItem.cs
+
+=== Overall ===
+ALL STEPS SUCCEEDED. No stderr captured (none failed).

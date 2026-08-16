@@ -1,0 +1,28 @@
+2026/07/29 22:16:04.976|INFO| ==========================================================================================
+2026/07/29 22:16:04.976|INFO|
+2026/07/29 22:16:04.976|INFO|  Luban is developed by Code Philosophy Technology Co., LTD. https://code-philosophy.com
+2026/07/29 22:16:04.976|INFO|
+2026/07/29 22:16:04.976|INFO| ==========================================================================================
+2026/07/29 22:16:05.065|INFO|load schema. collector: "default"
+2026/07/29 22:16:05.252|INFO|load datas begin
+2026/07/29 22:16:05.252|INFO|process code target:"cs-bin" begin
+2026/07/29 22:16:05.262|INFO|load datas end
+2026/07/29 22:16:05.262|INFO|validation begin
+2026/07/29 22:16:05.262|INFO|validation end
+2026/07/29 22:16:05.262|INFO|process data target:"bin" begin
+2026/07/29 22:16:05.271|INFO|[new] E:\Unity\ProjectGroup\AltasTest\Tools\DataTablesTool\DataTables\..\..\..\Assets\DataTable\Bin/demo_tbshop.bytes 
+2026/07/29 22:16:05.271|INFO|[new] E:\Unity\ProjectGroup\AltasTest\Tools\DataTablesTool\DataTables\..\..\..\Assets\DataTable\Bin/tbuipanel.bytes 
+2026/07/29 22:16:05.271|INFO|process data target:"bin" end
+2026/07/29 22:16:05.394|INFO|[new] E:\Unity\ProjectGroup\AltasTest\Tools\DataTablesTool\DataTables\..\..\..\Assets\GamePlay\DataTable\Generated\Bin/vector2.cs 
+2026/07/29 22:16:05.394|INFO|[new] E:\Unity\ProjectGroup\AltasTest\Tools\DataTablesTool\DataTables\..\..\..\Assets\GamePlay\DataTable\Generated\Bin/UIPanel.cs 
+2026/07/29 22:16:05.394|INFO|[new] E:\Unity\ProjectGroup\AltasTest\Tools\DataTablesTool\DataTables\..\..\..\Assets\GamePlay\DataTable\Generated\Bin/vector4.cs 
+2026/07/29 22:16:05.394|INFO|[new] E:\Unity\ProjectGroup\AltasTest\Tools\DataTablesTool\DataTables\..\..\..\Assets\GamePlay\DataTable\Generated\Bin/Tables.cs 
+2026/07/29 22:16:05.394|INFO|[new] E:\Unity\ProjectGroup\AltasTest\Tools\DataTablesTool\DataTables\..\..\..\Assets\GamePlay\DataTable\Generated\Bin/TbUIPanel.cs 
+2026/07/29 22:16:05.394|INFO|[new] E:\Unity\ProjectGroup\AltasTest\Tools\DataTablesTool\DataTables\..\..\..\Assets\GamePlay\DataTable\Generated\Bin/vector3.cs 
+2026/07/29 22:16:05.394|INFO|[new] E:\Unity\ProjectGroup\AltasTest\Tools\DataTablesTool\DataTables\..\..\..\Assets\GamePlay\DataTable\Generated\Bin/demo/Shop.cs 
+2026/07/29 22:16:05.394|INFO|[new] E:\Unity\ProjectGroup\AltasTest\Tools\DataTablesTool\DataTables\..\..\..\Assets\GamePlay\DataTable\Generated\Bin/demo/TbShop.cs 
+2026/07/29 22:16:05.394|INFO|[new] E:\Unity\ProjectGroup\AltasTest\Tools\DataTablesTool\DataTables\..\..\..\Assets\GamePlay\DataTable\Generated\Bin/Shop/MyItem.cs 
+2026/07/29 22:16:05.394|INFO|[new] E:\Unity\ProjectGroup\AltasTest\Tools\DataTablesTool\DataTables\..\..\..\Assets\GamePlay\DataTable\Generated\Bin/Shop/Item.cs 
+2026/07/29 22:16:05.394|INFO|process code target:"cs-bin" end
+2026/07/29 22:16:05.394|INFO|bye~
+gen_bin done.

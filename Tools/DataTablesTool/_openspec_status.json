@@ -1,0 +1,92 @@
+﻿{
+  "changeName": "luban-datatable",
+  "schemaName": "spec-driven",
+  "planningHome": {
+    "kind": "repo",
+    "root": "E:\\Unity\\ProjectGroup\\AltasTest",
+    "changesDir": "E:\\Unity\\ProjectGroup\\AltasTest\\openspec\\changes",
+    "defaultSchema": "spec-driven"
+  },
+  "changeRoot": "E:\\Unity\\ProjectGroup\\AltasTest\\openspec\\changes\\luban-datatable",
+  "artifactPaths": {
+    "proposal": {
+      "outputPath": "proposal.md",
+      "resolvedOutputPath": "E:\\Unity\\ProjectGroup\\AltasTest\\openspec\\changes\\luban-datatable\\proposal.md",
+      "existingOutputPaths": [
+        "E:\\Unity\\ProjectGroup\\AltasTest\\openspec\\changes\\luban-datatable\\proposal.md"
+      ]
+    },
+    "specs": {
+      "outputPath": "specs/**/*.md",
+      "resolvedOutputPath": "E:\\Unity\\ProjectGroup\\AltasTest\\openspec\\changes\\luban-datatable\\specs\\**\\*.md",
+      "existingOutputPaths": [
+        "E:\\Unity\\ProjectGroup\\AltasTest\\openspec\\changes\\luban-datatable\\specs\\luban-config\\spec.md"
+      ]
+    },
+    "design": {
+      "outputPath": "design.md",
+      "resolvedOutputPath": "E:\\Unity\\ProjectGroup\\AltasTest\\openspec\\changes\\luban-datatable\\design.md",
+      "existingOutputPaths": [
+        "E:\\Unity\\ProjectGroup\\AltasTest\\openspec\\changes\\luban-datatable\\design.md"
+      ]
+    },
+    "tasks": {
+      "outputPath": "tasks.md",
+      "resolvedOutputPath": "E:\\Unity\\ProjectGroup\\AltasTest\\openspec\\changes\\luban-datatable\\tasks.md",
+      "existingOutputPaths": [
+        "E:\\Unity\\ProjectGroup\\AltasTest\\openspec\\changes\\luban-datatable\\tasks.md"
+      ]
+    }
+  },
+  "isComplete": true,
+  "applyRequires": [
+    "tasks"
+  ],
+  "nextSteps": [
+    "All planning artifacts are complete; review tasks before implementation."
+  ],
+  "actionContext": {
+    "mode": "repo-local",
+    "sourceOfTruth": "repo",
+    "planningArtifacts": [
+      "proposal",
+      "design",
+      "specs",
+      "tasks"
+    ],
+    "linkedContext": [],
+    "allowedEditRoots": [
+      "E:\\Unity\\ProjectGroup\\AltasTest"
+    ],
+    "requiresAffectedAreaSelection": false,
+    "constraints": [
+      "Repo-local change artifacts and implementation edits are scoped to this project."
+    ]
+  },
+  "artifacts": [
+    {
+      "id": "proposal",
+      "outputPath": "proposal.md",
+      "status": "done"
+    },
+    {
+      "id": "design",
+      "outputPath": "design.md",
+      "status": "done"
+    },
+    {
+      "id": "specs",
+      "outputPath": "specs/**/*.md",
+      "status": "done"
+    },
+    {
+      "id": "tasks",
+      "outputPath": "tasks.md",
+      "status": "done"
+    }
+  ],
+  "root": {
+    "path": "E:\\Unity\\ProjectGroup\\AltasTest",
+    "source": "nearest"
+  }
+}

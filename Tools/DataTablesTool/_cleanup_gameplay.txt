@@ -1,0 +1,24 @@
+Cleanup GamePlay DataTable Luban leftovers
+Timestamp: 2026-07-30 13:21:52
+
+=== DELETED ===
+[DIR] Assets/GamePlay/DataTable/Generated (recursive)
+[FILE] Assets/GamePlay/DataTable/Generated.meta
+[FILE] Assets/GamePlay/DataTable/IShop.cs
+[FILE] Assets/GamePlay/DataTable/IShop.cs.meta
+[FILE] Assets/GamePlay/DataTable/IUIPanel.cs
+[FILE] Assets/GamePlay/DataTable/IUIPanel.cs.meta
+[FILE] Assets/GamePlay/DataTable/ShopTableAccess.cs
+[FILE] Assets/GamePlay/DataTable/ShopTableAccess.cs.meta
+[FILE] Assets/GamePlay/DataTable/UIPanelTableAccess.cs
+[FILE] Assets/GamePlay/DataTable/UIPanelTableAccess.cs.meta
+[FILE] Assets/GamePlay/DataTable/LubanTablesFactory.cs
+[FILE] Assets/GamePlay/DataTable/LubanTablesFactory.cs.meta
+[DIR] Assets/GamePlay/DataTable (empty folder removed)
+[FILE] Assets/GamePlay/DataTable.meta
+
+=== SKIPPED ===
+[SKIP] Editor folder not present
+
+=== REMAINING under Assets/GamePlay/DataTable ===
+(folder removed entirely - nothing remains)

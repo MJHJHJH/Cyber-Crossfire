@@ -1,0 +1,6 @@
+<module name="ShopDef">
+    <bean name="MyItem" valueType="1">
+        <var name="item_id" type="int"/>
+        <var name="count" type="int"/>
+    </bean>
+</module>

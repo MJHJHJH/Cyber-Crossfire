@@ -161,7 +161,7 @@ PlayerSettings:
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
-    Standalone: com.JoySmashGames.Alien-Shoote-rBot---Demo
+    Standalone: com.DefaultCompany.CommandoRobot
   buildNumber:
     Standalone: 0
     VisionOS: 0

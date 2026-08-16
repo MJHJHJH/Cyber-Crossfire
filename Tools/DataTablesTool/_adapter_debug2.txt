@@ -1,0 +1,28 @@
+
+Get-BeanFields beanType=Shop file=E:\Unity\ProjectGroup\AltasTest\Assets\DataTable\Core\Json\Shop.cs
+  parsed type=[int] name=[Id]
+  parsed type=[string] name=[Name]
+  parsed type=[string] name=[Desc]
+  parsed type=[ShopDef.MyItem] name=[Item]
+  parsed type=[System.Collections.Generic.List<int>] name=[Pos]
+  fields.Count=5 fields.GetType()=System.Object[]
+shopFields count=5
+SHOP FIELD name=Id type=int isPrim=True
+SHOP FIELD name=Name type=string isPrim=True
+SHOP FIELD name=Desc type=string isPrim=True
+SHOP FIELD name=Item type=ShopDef.MyItem isPrim=False
+Get-BeanFields beanType=ShopDef.MyItem file=E:\Unity\ProjectGroup\AltasTest\Assets\DataTable\Core\Json\ShopDef\MyItem.cs
+  parsed type=[int] name=[ItemId]
+  parsed type=[int] name=[Count]
+  fields.Count=2 fields.GetType()=System.Object[]
+  nested.Count=1 nested.GetType()=System.Object[]
+  nested[0] nf.GetType()=System.Object[] nf=  name=ItemId Count type=int int isPrim=False
+Get-BeanFields beanType=ShopDef.MyItem file=E:\Unity\ProjectGroup\AltasTest\Assets\DataTable\Core\Json\ShopDef\MyItem.cs
+  parsed type=[int] name=[ItemId]
+  parsed type=[int] name=[Count]
+  fields.Count=2 fields.GetType()=System.Object[]
+  nested2.GetType()=System.Object[] count=2
+  nested2 item type=System.Management.Automation.PSCustomObject value=@{type=int; name=ItemId} nameProp=ItemId
+  nested2 item type=System.Management.Automation.PSCustomObject value=@{type=int; name=Count} nameProp=Count
+SHOP FIELD name=Pos type=System.Collections.Generic.List<int> isPrim=True
+OK

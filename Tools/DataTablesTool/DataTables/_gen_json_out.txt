@@ -1,0 +1,28 @@
+2026/07/29 22:15:50.720|INFO| ==========================================================================================
+2026/07/29 22:15:50.721|INFO|
+2026/07/29 22:15:50.721|INFO|  Luban is developed by Code Philosophy Technology Co., LTD. https://code-philosophy.com
+2026/07/29 22:15:50.721|INFO|
+2026/07/29 22:15:50.721|INFO| ==========================================================================================
+2026/07/29 22:15:50.826|INFO|load schema. collector: "default"
+2026/07/29 22:15:51.011|INFO|load datas begin
+2026/07/29 22:15:51.011|INFO|process code target:"cs-simple-json" begin
+2026/07/29 22:15:51.020|INFO|load datas end
+2026/07/29 22:15:51.020|INFO|validation begin
+2026/07/29 22:15:51.020|INFO|validation end
+2026/07/29 22:15:51.020|INFO|process data target:"json" begin
+2026/07/29 22:15:51.020|INFO|[new] E:\Unity\ProjectGroup\AltasTest\Tools\DataTablesTool\DataTables\..\..\..\Assets\DataTable\Json/demo_tbshop.json 
+2026/07/29 22:15:51.020|INFO|[new] E:\Unity\ProjectGroup\AltasTest\Tools\DataTablesTool\DataTables\..\..\..\Assets\DataTable\Json/tbuipanel.json 
+2026/07/29 22:15:51.020|INFO|process data target:"json" end
+2026/07/29 22:15:51.107|INFO|[new] E:\Unity\ProjectGroup\AltasTest\Tools\DataTablesTool\DataTables\..\..\..\Assets\GamePlay\DataTable\Generated\Json/vector4.cs 
+2026/07/29 22:15:51.107|INFO|[new] E:\Unity\ProjectGroup\AltasTest\Tools\DataTablesTool\DataTables\..\..\..\Assets\GamePlay\DataTable\Generated\Json/Tables.cs 
+2026/07/29 22:15:51.107|INFO|[new] E:\Unity\ProjectGroup\AltasTest\Tools\DataTablesTool\DataTables\..\..\..\Assets\GamePlay\DataTable\Generated\Json/TbUIPanel.cs 
+2026/07/29 22:15:51.107|INFO|[new] E:\Unity\ProjectGroup\AltasTest\Tools\DataTablesTool\DataTables\..\..\..\Assets\GamePlay\DataTable\Generated\Json/vector3.cs 
+2026/07/29 22:15:51.107|INFO|[new] E:\Unity\ProjectGroup\AltasTest\Tools\DataTablesTool\DataTables\..\..\..\Assets\GamePlay\DataTable\Generated\Json/vector2.cs 
+2026/07/29 22:15:51.107|INFO|[new] E:\Unity\ProjectGroup\AltasTest\Tools\DataTablesTool\DataTables\..\..\..\Assets\GamePlay\DataTable\Generated\Json/UIPanel.cs 
+2026/07/29 22:15:51.107|INFO|[new] E:\Unity\ProjectGroup\AltasTest\Tools\DataTablesTool\DataTables\..\..\..\Assets\GamePlay\DataTable\Generated\Json/demo/TbShop.cs 
+2026/07/29 22:15:51.107|INFO|[new] E:\Unity\ProjectGroup\AltasTest\Tools\DataTablesTool\DataTables\..\..\..\Assets\GamePlay\DataTable\Generated\Json/demo/Shop.cs 
+2026/07/29 22:15:51.112|INFO|[new] E:\Unity\ProjectGroup\AltasTest\Tools\DataTablesTool\DataTables\..\..\..\Assets\GamePlay\DataTable\Generated\Json/Shop/Item.cs 
+2026/07/29 22:15:51.112|INFO|[new] E:\Unity\ProjectGroup\AltasTest\Tools\DataTablesTool\DataTables\..\..\..\Assets\GamePlay\DataTable\Generated\Json/Shop/MyItem.cs 
+2026/07/29 22:15:51.112|INFO|process code target:"cs-simple-json" end
+2026/07/29 22:15:51.112|INFO|bye~
+gen_json done.
