@@ -26,7 +26,7 @@ namespace CommandoRobot
 
 
         public GameObject m_GrenadePrefab1;
-        public int m_GrenadeCount = 0;
+        public int m_GrenadeCount = 3;
 
         [HideInInspector]
         public PlayerPowers m_PlayerPowers;
@@ -48,7 +48,7 @@ namespace CommandoRobot
         {
             m_DamageControl.OnDamaged.AddListener(HandleDamage);
             m_InControl = true;
-            m_GrenadeCount = 0;
+            m_GrenadeCount = 3;
             m_WeaponPrefab = m_Contents.m_PlayerWeapons[m_Storage.m_SelectedWeapon];
             SetWeapon(m_WeaponPrefab);
             m_CurrentWeapon.InfiniteAmmo = true;

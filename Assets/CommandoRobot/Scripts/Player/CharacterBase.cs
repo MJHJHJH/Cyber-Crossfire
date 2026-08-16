@@ -42,12 +42,25 @@ namespace CommandoRobot
 
         [HideInInspector]
         public int m_WeaponNum = 0;
+
+        bool _animatorParamsCached;
+        bool _hasRunBlend;
+        int _runBlendHash;
+        static readonly int AnimFireHash = Animator.StringToHash("anim-fire");
+
         void Awake()
         {
             m_CharMovement = GetComponent<CharacterMovement>();
             m_DamageControl = GetComponent<DamageControl>();
             m_CharAnimator = GetComponentInChildren<Animator>();
             m_CharBody = GetComponentInChildren<CharacterBody>();
+        }
+
+        public void PlayFireAnimation()
+        {
+            if (m_CharAnimator == null) return;
+            if (!m_CharAnimator.HasState(0, AnimFireHash)) return;
+            m_CharAnimator.Play(AnimFireHash, 0, 0f);
         }
         // Start is called before the first frame update
         void Start()
@@ -66,12 +79,34 @@ namespace CommandoRobot
             CheckDeath();
         }
 
+        void CacheAnimatorParams()
+        {
+            if (_animatorParamsCached) return;
+            _animatorParamsCached = true;
+            _runBlendHash = Animator.StringToHash("RunBlend");
+            if (m_CharAnimator == null) return;
+
+            AnimatorControllerParameter[] parameters = m_CharAnimator.parameters;
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                if (parameters[i].nameHash == _runBlendHash)
+                {
+                    _hasRunBlend = true;
+                    break;
+                }
+            }
+        }
+
         public void UpdateAnimatorData()
         {
             if (m_CharAnimator == null) return;
 
-            float runSpeed = Mathf.Clamp(m_CharMovement.m_CurrentHorVelocity.magnitude / m_CharMovement.m_MaxSpeed, 0, 1);
-            m_CharAnimator.SetFloat("RunBlend", runSpeed);
+            CacheAnimatorParams();
+            if (_hasRunBlend)
+            {
+                float runSpeed = Mathf.Clamp(m_CharMovement.m_CurrentHorVelocity.magnitude / m_CharMovement.m_MaxSpeed, 0, 1);
+                m_CharAnimator.SetFloat(_runBlendHash, runSpeed);
+            }
 
             //if (m_CurrentWeapon != null)
             //{

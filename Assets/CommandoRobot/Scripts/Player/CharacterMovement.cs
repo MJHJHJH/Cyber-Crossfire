@@ -25,6 +25,14 @@ namespace CommandoRobot
 
         [HideInInspector]
         public bool m_FaceTowardsMovement = true;
+
+        Rigidbody _rigidBody;
+
+        void Awake()
+        {
+            _rigidBody = GetComponent<Rigidbody>();
+        }
+
         // Start is called before the first frame update
         void Start()
         {
@@ -97,30 +105,41 @@ namespace CommandoRobot
 
         void FixedUpdate()
         {
-            Rigidbody rigidBody = GetComponent<Rigidbody>();
+            if (_rigidBody == null) return;
 
-            Vector3 totalVelocity = rigidBody.velocity;
+            bool kinematic = _rigidBody.isKinematic;
+            Vector3 totalVelocity = kinematic ? m_CurrentVelocity : _rigidBody.velocity;
+            float keepY = kinematic ? m_CurrentVelocity.y : _rigidBody.velocity.y;
+
             if (m_Movement.magnitude > .1f)
             {
                 totalVelocity += m_MoveAccel * m_Movement;
                 totalVelocity.y = 0;
                 totalVelocity = Vector3.ClampMagnitude(totalVelocity, m_MaxSpeed);
-                totalVelocity.y = rigidBody.velocity.y;
+                totalVelocity.y = keepY;
             }
             else
             {
                 totalVelocity -= .4f * totalVelocity;
-                totalVelocity.y = rigidBody.velocity.y;
-
+                totalVelocity.y = keepY;
             }
 
             if (m_Hover)
             {
                 totalVelocity.y -= transform.position.y;
             }
-            rigidBody.velocity = totalVelocity;
 
-            m_CurrentVelocity = rigidBody.velocity;
+            if (kinematic)
+            {
+                _rigidBody.MovePosition(_rigidBody.position + totalVelocity * Time.fixedDeltaTime);
+                m_CurrentVelocity = totalVelocity;
+            }
+            else
+            {
+                _rigidBody.velocity = totalVelocity;
+                m_CurrentVelocity = _rigidBody.velocity;
+            }
+
             m_CurrentHorVelocity = m_CurrentVelocity;
             m_CurrentHorVelocity.y = 0;
         }

@@ -36,7 +36,7 @@ namespace CommandoRobot
             yield return new WaitForSeconds(1);
             while (true)
             {
-                GetComponent<CharacterBase>().m_CharAnimator.Play("anim-fire");
+                GetComponent<CharacterBase>().PlayFireAnimation();
                 ShootRingBullet();
                 yield return new WaitForSeconds(3);
             }

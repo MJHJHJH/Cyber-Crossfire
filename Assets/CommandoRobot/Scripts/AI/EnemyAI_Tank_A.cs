@@ -40,7 +40,7 @@ namespace CommandoRobot
             while (true)
             {
                 //m_Weapon.FireWeapon();
-                GetComponent<CharacterBase>().m_CharAnimator.Play("anim-fire");
+                GetComponent<CharacterBase>().PlayFireAnimation();
                 ShootBullets();
                 yield return new WaitForSeconds(2);
             }

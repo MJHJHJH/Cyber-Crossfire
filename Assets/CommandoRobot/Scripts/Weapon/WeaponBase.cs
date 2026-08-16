@@ -139,7 +139,7 @@ namespace CommandoRobot
         {
             if (ProjectilePrefab != null)
             {
-                m_OwnerCharacter.m_CharAnimator.Play("anim-fire");
+                m_OwnerCharacter.PlayFireAnimation();
                 CreateProjectile(0);
             }
 
