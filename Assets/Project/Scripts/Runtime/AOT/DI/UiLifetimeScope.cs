@@ -1,4 +1,3 @@
-using UI.Mvvm.Demo;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
