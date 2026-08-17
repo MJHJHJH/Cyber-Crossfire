@@ -77,6 +77,14 @@ namespace GameFramework
             _destroyCts?.Dispose();
             _destroyCts = null;
 
+            // 退出播放/关闭应用时 YooAsset 可能已 Shutdown（AsyncOperationSystem 不可用），
+            // 此时不再主动卸载场景，交给 YooAsset/Unity 自行清理。
+            if (!YooAssets.IsInitialized)
+            {
+                _scenes.Clear();
+                return;
+            }
+
             foreach (SceneEntry entry in _scenes.Values)
             {
                 if (entry.Handle == null || !entry.Handle.IsValid)
