@@ -1,0 +1,18 @@
+{
+    "name": "GamePlay.DataTable",
+    "rootNamespace": "",
+    "references": [
+        "GUID:2a81c6962524d424a8ef5072bd3b0fa0",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:e7614de46e90b3244964e0a9e0c3e4da"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

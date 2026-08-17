@@ -9,7 +9,7 @@ using ProcedureOwner = GameFramework.Fsm.IFsm<GameFramework.Procedure.IProcedure
 namespace GamePlay
 {
     /// <summary>
-    /// 配表初始化：注入 Factory 并 LoadAsync，成功后进入 Main。不负责资源包就绪。
+    /// 配表初始化：注入 Factory 并 LoadAsync，成功后切换到已注册的热更主流程。
     /// </summary>
     public sealed class ProcedureDataTableInit : ProcedureBase
     {
@@ -37,36 +37,44 @@ namespace GamePlay
 
         private async UniTaskVoid EnterAsync(ProcedureOwner procedureOwner, CancellationToken cancellationToken)
         {
-            if (GameFrameWork.DataTable == null)
+            // if (GameFrameWork.DataTable == null)
+            // {
+            //     Debug.LogError(
+            //         "[ProcedureDataTableInit] LubanConfigComponent is missing. Add it via Game Framework/Data Table.");
+            //     return;
+            // }
+
+            // GameFrameWork.DataTable.SetTablesFactory(new LubanTablesFactory());
+
+            // try
+            // {
+            //     await GameFrameWork.DataTable.LoadAsync(cancellationToken);
+            // }
+            // catch (OperationCanceledException)
+            // {
+            //     return;
+            // }
+            // catch (Exception ex)
+            // {
+            //     Debug.LogError($"[ProcedureDataTableInit] LoadAsync failed: {ex.Message}");
+            //     return;
+            // }
+
+            // if (cancellationToken.IsCancellationRequested)
+            //     return;
+
+            // // SoundGroup 表就绪，初始化声音组与大类 mixer 路由（Start 时表未加载，此处补建）
+            // GameFrameWork.Sound?.InitSoundGroupsFromTable();
+
+            // 切换到已注册的热更主流程（同常规流程切换，走 Fsm 状态机生命周期）
+            Type mainType = ProcedureHotUpdateInit.MainProcedureType;
+            if (mainType == null)
             {
-                Debug.LogError(
-                    "[ProcedureDataTableInit] LubanConfigComponent is missing. Add it via Game Framework/Data Table.");
+                Debug.LogError("[ProcedureDataTableInit] HotUpdate main procedure type is missing.");
                 return;
             }
 
-            GameFrameWork.DataTable.SetTablesFactory(new LubanTablesFactory());
-
-            try
-            {
-                await GameFrameWork.DataTable.LoadAsync(cancellationToken);
-            }
-            catch (OperationCanceledException)
-            {
-                return;
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"[ProcedureDataTableInit] LoadAsync failed: {ex.Message}");
-                return;
-            }
-
-            if (cancellationToken.IsCancellationRequested)
-                return;
-
-            // SoundGroup 表就绪，初始化声音组与大类 mixer 路由（Start 时表未加载，此处补建）
-            GameFrameWork.Sound?.InitSoundGroupsFromTable();
-
-            ChangeState<ProcedureMain>(procedureOwner);
+            ChangeState(procedureOwner, mainType);
         }
     }
 }

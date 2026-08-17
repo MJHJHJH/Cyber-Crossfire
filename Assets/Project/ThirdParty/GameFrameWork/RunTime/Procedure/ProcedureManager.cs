@@ -156,6 +156,25 @@ namespace GameFramework.Procedure
         }
 
         /// <summary>
+        /// 动态注册流程（创建后追加，用于热更程序集加载完成后的流程注册）。
+        /// </summary>
+        /// <param name="procedure">要注册的流程实例。</param>
+        public void AddProcedure(ProcedureBase procedure)
+        {
+            if (m_ProcedureFsm == null)
+            {
+                throw new GameFrameworkException("You must initialize procedure first.");
+            }
+
+            if (procedure == null)
+            {
+                throw new GameFrameworkException("Procedure is invalid.");
+            }
+
+            ((Fsm<IProcedureManager>)m_ProcedureFsm).AddState(procedure);
+        }
+
+        /// <summary>
         /// 是否存在流程。
         /// </summary>
         /// <typeparam name="T">要检查的流程类型。</typeparam>

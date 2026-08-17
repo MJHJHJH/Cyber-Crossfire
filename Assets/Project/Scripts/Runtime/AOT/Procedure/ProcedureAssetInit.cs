@@ -100,7 +100,7 @@ namespace GamePlay
             GameFrameWork.Sound?.SetYooAssetPackage(package);
             CloseYooAssetInitPanel();
 
-            SwitchToDataTableInitAsync().Forget();
+            SwitchToHotUpdateInitAsync().Forget();
         }
 
         private static void CloseYooAssetInitPanel()
@@ -116,13 +116,13 @@ namespace GamePlay
                 uiManager.CloseUIForm(form);
         }
 
-        private async UniTaskVoid SwitchToDataTableInitAsync()
+        private async UniTaskVoid SwitchToHotUpdateInitAsync()
         {
             await UniTask.Yield();
             if (m_ProcedureOwner == null)
                 return;
 
-            ChangeState<ProcedureDataTableInit>(m_ProcedureOwner);
+            ChangeState<ProcedureHotUpdateInit>(m_ProcedureOwner);
         }
 
         private void TearDownPatchFsm()

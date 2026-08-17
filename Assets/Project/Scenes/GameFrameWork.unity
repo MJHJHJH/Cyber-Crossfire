@@ -130,6 +130,36 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1376312047972128568, guid: 7fd1c65166d55b3468f3b03f4162d485,
+        type: 3}
+      propertyPath: m_EntranceProcedureTypeName
+      value: GamePlay.ProcedureLaunch
+      objectReference: {fileID: 0}
+    - target: {fileID: 1376312047972128568, guid: 7fd1c65166d55b3468f3b03f4162d485,
+        type: 3}
+      propertyPath: m_AvailableProcedureTypeNames.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1376312047972128568, guid: 7fd1c65166d55b3468f3b03f4162d485,
+        type: 3}
+      propertyPath: m_AvailableProcedureTypeNames.Array.data[0]
+      value: GamePlay.ProcedureAssetInit
+      objectReference: {fileID: 0}
+    - target: {fileID: 1376312047972128568, guid: 7fd1c65166d55b3468f3b03f4162d485,
+        type: 3}
+      propertyPath: m_AvailableProcedureTypeNames.Array.data[1]
+      value: GamePlay.ProcedureDataTableInit
+      objectReference: {fileID: 0}
+    - target: {fileID: 1376312047972128568, guid: 7fd1c65166d55b3468f3b03f4162d485,
+        type: 3}
+      propertyPath: m_AvailableProcedureTypeNames.Array.data[2]
+      value: GamePlay.ProcedureHotUpdateInit
+      objectReference: {fileID: 0}
+    - target: {fileID: 1376312047972128568, guid: 7fd1c65166d55b3468f3b03f4162d485,
+        type: 3}
+      propertyPath: m_AvailableProcedureTypeNames.Array.data[3]
+      value: GamePlay.ProcedureLaunch
+      objectReference: {fileID: 0}
     - target: {fileID: 4569579128125109361, guid: 7fd1c65166d55b3468f3b03f4162d485,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -179,6 +209,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8074256803316829972, guid: 7fd1c65166d55b3468f3b03f4162d485,
+        type: 3}
+      propertyPath: m_YooPlayMode
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8074256803316829972, guid: 7fd1c65166d55b3468f3b03f4162d485,
         type: 3}

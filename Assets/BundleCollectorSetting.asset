@@ -14,5 +14,57 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowPackageView: 1
   ShowEditorAlias: 0
-  UniqueBundleName: 0
-  Packages: []
+  UniqueBundleName: 1
+  Packages:
+  - PackageName: DefaultPackage
+    PackageDesc: 
+    EnableAddressable: 1
+    SupportExtensionless: 1
+    LocationToLower: 0
+    IncludeAssetGUID: 0
+    AutoCollectShaders: 1
+    IgnoreRuleName: NormalIgnoreRule
+    Groups:
+    - GroupName: SceneGroup
+      GroupDesc: 
+      AssetTags: 
+      ActiveRuleName: EnableGroup
+      Collectors:
+      - CollectPath: Assets/Project/Scenes/Bundles
+        CollectorGUID: 1a7f0f2fea21c5b49a1a57228e158b8c
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackSeparately
+        FilterRuleName: CollectScene
+        AssetTags: 
+        UserData: 
+  - PackageName: DefaultRawPackage
+    PackageDesc: 
+    EnableAddressable: 1
+    SupportExtensionless: 1
+    LocationToLower: 0
+    IncludeAssetGUID: 0
+    AutoCollectShaders: 1
+    IgnoreRuleName: NormalIgnoreRule
+    Groups:
+    - GroupName: HybridCLRGroup
+      GroupDesc: 
+      AssetTags: 
+      ActiveRuleName: EnableGroup
+      Collectors:
+      - CollectPath: Assets/Project/Bundles/HybridCLR/HotUpdate/HotUpdate.dll.bytes
+        CollectorGUID: 11d96d7484230ab40aa3f48b3204b5e2
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackSeparately
+        FilterRuleName: CollectAll
+        AssetTags: 
+        UserData: 
+      - CollectPath: Assets/Project/Bundles/HybridCLR/AotMetadata
+        CollectorGUID: f8d9a345d8b55fb4aa114875f47f4e06
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackSeparately
+        FilterRuleName: CollectAll
+        AssetTags: 
+        UserData: 

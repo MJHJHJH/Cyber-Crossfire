@@ -16,3 +16,6 @@ MonoBehaviour:
   - PackageName: DefaultPackage
     IsDefault: 1
     Enabled: 1
+  - PackageName: DefaultRawPackage
+    IsDefault: 0
+    Enabled: 1

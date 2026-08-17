@@ -57,6 +57,12 @@ namespace GameFramework.Procedure
         void ChangeProcedure<T>() where T : ProcedureBase;
 
         /// <summary>
+        /// 动态注册流程（创建后追加，用于热更程序集加载完成后的流程注册）。
+        /// </summary>
+        /// <param name="procedure">要注册的流程实例。</param>
+        void AddProcedure(ProcedureBase procedure);
+
+        /// <summary>
         /// 是否存在流程。
         /// </summary>
         /// <typeparam name="T">要检查的流程类型。</typeparam>

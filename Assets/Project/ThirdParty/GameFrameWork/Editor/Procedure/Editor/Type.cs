@@ -15,6 +15,7 @@ namespace GameFramework.Editor
         private static readonly string[] AssemblyNames =
         {
             "GameFrameWork",
+            "GamePlay.AOT",
             "Assembly-CSharp"
         };
 

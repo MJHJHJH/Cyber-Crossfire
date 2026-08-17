@@ -123,6 +123,15 @@ namespace GameFramework
         }
 
         /// <summary>
+        /// 动态注册流程（创建后追加，用于热更程序集加载完成后的流程注册）。
+        /// </summary>
+        /// <param name="procedure">要注册的流程实例。</param>
+        public void AddProcedure(ProcedureBase procedure)
+        {
+            m_ProcedureManager.AddProcedure(procedure);
+        }
+
+        /// <summary>
         /// 切换当前流程。
         /// </summary>
         /// <typeparam name="T">要切换到的流程类型。</typeparam>

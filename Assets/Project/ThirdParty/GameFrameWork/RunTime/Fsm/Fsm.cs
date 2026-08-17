@@ -410,6 +410,27 @@ namespace GameFramework.Fsm
         }
 
         /// <summary>
+        /// 动态注册有限状态机状态（创建后追加，用于热更程序集加载完成后的流程注册）。
+        /// </summary>
+        /// <param name="state">要注册的有限状态机状态。</param>
+        internal void AddState(FsmState<T> state)
+        {
+            if (state == null)
+            {
+                throw new GameFrameworkException("FSM state is invalid.");
+            }
+
+            Type stateType = state.GetType();
+            if (m_States.ContainsKey(stateType))
+            {
+                throw new GameFrameworkException(Utility.Text.Format("FSM '{0}' state '{1}' is already exist.", new TypeNamePair(typeof(T), Name).ToString(), stateType));
+            }
+
+            m_States.Add(stateType, state);
+            state.OnInit(this);
+        }
+
+        /// <summary>
         /// 是否存在有限状态机数据。
         /// </summary>
         /// <param name="name">有限状态机数据名称。</param>
