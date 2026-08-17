@@ -6,21 +6,21 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/CommandoRobot/Scenes/MainMenu.unity
+    path: Assets/Project/Scenes/Bundles/MainMenu.unity
     guid: 28a693cedf2c55041a8f4310c54c128d
   - enabled: 1
-    path: Assets/CommandoRobot/Scenes/Level 1.unity
+    path: Assets/Project/Scenes/Bundles/Level 1.unity
     guid: 3c95e06562bb6a94c90d49990ec8b14a
   - enabled: 1
-    path: Assets/CommandoRobot/Scenes/Level 2.unity
+    path: Assets/Project/Scenes/Bundles/Level 2.unity
     guid: 96c81f8789e18dd4e845d14c1c0d5441
   - enabled: 1
-    path: Assets/CommandoRobot/Scenes/Level 3.unity
+    path: Assets/Project/Scenes/Bundles/Level 3.unity
     guid: 20f7e00e950936c42a779596a32db5db
   - enabled: 1
-    path: Assets/CommandoRobot/Scenes/Level 4.unity
+    path: Assets/Project/Scenes/Bundles/Level 4.unity
     guid: a1e941c02e983ee4192f59df3a118af8
   - enabled: 1
-    path: Assets/CommandoRobot/Scenes/Level 5.unity
+    path: Assets/Project/Scenes/Bundles/Level 5.unity
     guid: fb8fe4380a1cf7f43894d39bdea67813
   m_configObjects: {}
