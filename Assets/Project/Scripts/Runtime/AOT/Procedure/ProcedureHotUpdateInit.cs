@@ -18,7 +18,7 @@ namespace GamePlay
     public sealed class ProcedureHotUpdateInit : ProcedureBase
     {
         public const string HotUpdateAssemblyName = "HotUpdate";
-        public const string HotUpdateMainLocation = "HotUpdate.dll.bytes";
+        public const string HotUpdateMainLocation = "HotUpdate.dll";
         public const string HotUpdateMainTypeName = "GamePlay.ProcedureMain";
         public const string AotMetadataAssetDir = "Assets/Project/Bundles/HybridCLR/AotMetadata";
         public const string HybridClrPackageName = "DefaultRawPackage";
@@ -133,26 +133,11 @@ namespace GamePlay
                 return null;
             }
 
-            AssetHandle handle = package.LoadAssetAsync<TextAsset>(HotUpdateMainLocation);
-            await handle.ToUniTask(cancellationToken: cancellationToken);
-            if (cancellationToken.IsCancellationRequested)
+            byte[] dllBytes = await LoadRawBytesAsync(package, HotUpdateMainLocation, cancellationToken);
+            if (dllBytes == null)
                 return null;
 
-            if (handle.Status != EOperationStatus.Succeeded)
-            {
-                Debug.LogError(
-                    $"[ProcedureHotUpdateInit] Load '{HotUpdateMainLocation}' failed: {handle.Error}");
-                return null;
-            }
-
-            TextAsset textAsset = handle.AssetObject as TextAsset;
-            if (textAsset == null || textAsset.bytes == null || textAsset.bytes.Length == 0)
-            {
-                Debug.LogError($"[ProcedureHotUpdateInit] '{HotUpdateMainLocation}' is not a valid TextAsset.");
-                return null;
-            }
-
-            return Assembly.Load(textAsset.bytes);
+            return Assembly.Load(dllBytes);
 #endif
         }
 
@@ -170,32 +155,55 @@ namespace GamePlay
                 if (!info.AssetPath.StartsWith(AotMetadataAssetDir, StringComparison.Ordinal))
                     continue;
 
-                AssetHandle handle = package.LoadAssetAsync<TextAsset>(info.Address);
-                await handle.ToUniTask(cancellationToken: cancellationToken);
+                byte[] metadataBytes = await LoadRawBytesAsync(package, info.Address, cancellationToken);
                 if (cancellationToken.IsCancellationRequested)
                     return;
-
-                if (handle.Status != EOperationStatus.Succeeded)
-                {
-                    Debug.LogWarning(
-                        $"[ProcedureHotUpdateInit] Load aot metadata '{info.Address}' failed: {handle.Error}");
-                    continue;
-                }
-
-                TextAsset textAsset = handle.AssetObject as TextAsset;
-                if (textAsset == null || textAsset.bytes == null || textAsset.bytes.Length == 0)
+                if (metadataBytes == null)
                 {
                     Debug.LogWarning($"[ProcedureHotUpdateInit] Aot metadata '{info.Address}' is empty.");
                     continue;
                 }
 
                 LoadImageErrorCode errorCode =
-                    RuntimeApi.LoadMetadataForAOTAssembly(textAsset.bytes, HomologousImageMode.SuperSet);
+                    RuntimeApi.LoadMetadataForAOTAssembly(metadataBytes, HomologousImageMode.SuperSet);
                 if (errorCode == LoadImageErrorCode.OK)
                     Debug.Log($"[ProcedureHotUpdateInit] LoadMetadataForAOTAssembly: {info.Address}");
                 else
                     Debug.LogError(
                         $"[ProcedureHotUpdateInit] LoadMetadataForAOTAssembly '{info.Address}' failed: {errorCode}");
+            }
+        }
+
+        private static async UniTask<byte[]> LoadRawBytesAsync(
+            ResourcePackage package, string location, CancellationToken cancellationToken)
+        {
+            AssetHandle handle = package.LoadAssetAsync<RawFileObject>(location);
+            try
+            {
+                await handle.ToUniTask(cancellationToken: cancellationToken);
+                if (cancellationToken.IsCancellationRequested)
+                    return null;
+
+                if (handle.Status != EOperationStatus.Succeeded)
+                {
+                    Debug.LogError(
+                        $"[ProcedureHotUpdateInit] Load '{location}' failed: {handle.Error}");
+                    return null;
+                }
+
+                RawFileObject raw = handle.GetAssetObject<RawFileObject>();
+                byte[] bytes = raw?.GetBytes();
+                if (bytes == null || bytes.Length == 0)
+                {
+                    Debug.LogError($"[ProcedureHotUpdateInit] '{location}' raw data is empty.");
+                    return null;
+                }
+
+                return bytes;
+            }
+            finally
+            {
+                handle.Release();
             }
         }
 #endif

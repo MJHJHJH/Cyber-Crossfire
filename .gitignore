@@ -109,3 +109,6 @@ InitTestScene*.unity*
 /[Aa]ssets/[Ss]ceneDependencyCache*
 # 忽略 HybridCLR 的工作数据与缓存目录
 HybridCLRData/
+
+# YooAsset 本地构建产物（不跟踪，需从 Git 索引移除后才会从远端消失）
+/Bundles/
