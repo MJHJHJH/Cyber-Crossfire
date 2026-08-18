@@ -13,14 +13,13 @@ using ProcedureOwner = GameFramework.Fsm.IFsm<GameFramework.Procedure.IProcedure
 namespace GamePlay
 {
     /// <summary>
-    /// 热更初始化流程：加载 HotUpdate 程序集与 AOT 补充元数据，解析热更主流程入口后进入配表流程。
+    /// 热更初始化流程：加载 HotUpdate 程序集与 AOT 补充元数据，扫描注册热更流程后进入配表流程。
     /// </summary>
     public sealed class ProcedureHotUpdateInit : ProcedureBase
     {
         public const string HotUpdateAssemblyName = "HotUpdate";
         public const string HotUpdateMainLocation = "HotUpdate.dll";
         public const string HotUpdateMainTypeName = "GamePlay.ProcedureMain";
-        public const string HotUpdateBattleTypeName = "GamePlay.ProcedureBattle";
         public const string AotMetadataAssetDir = "Assets/Project/Bundles/HybridCLR/AotMetadata";
         public const string HybridClrPackageName = "DefaultRawPackage";
 
@@ -67,14 +66,7 @@ namespace GamePlay
                 if (s_MainProcedureType == null)
                     return;
 
-                Type battleType = ResolveProcedureType(hotUpdateAssembly, HotUpdateBattleTypeName);
-                if (battleType == null)
-                    return;
-
-                if (!RegisterProcedure(s_MainProcedureType, HotUpdateMainTypeName))
-                    return;
-
-                if (!RegisterProcedure(battleType, HotUpdateBattleTypeName))
+                if (!RegisterHotUpdateProcedures(hotUpdateAssembly))
                     return;
 
                 ChangeState<ProcedureDataTableInit>(procedureOwner);
@@ -88,29 +80,66 @@ namespace GamePlay
             }
         }
 
-        /// <summary>反射创建热更流程实例并注册进 Procedure Fsm，使其可被 ChangeState 切换。</summary>
-        private static bool RegisterProcedure(Type procedureType, string typeName)
+        /// <summary>扫描热更程序集中所有非抽象 ProcedureBase 子类并注册进 Procedure Fsm。</summary>
+        private static bool RegisterHotUpdateProcedures(Assembly hotUpdateAssembly)
         {
-            object instance = Activator.CreateInstance(procedureType);
-            if (instance == null)
-            {
-                Debug.LogError(
-                    $"[ProcedureHotUpdateInit] Create instance of '{typeName}' failed.");
-                return false;
-            }
-
-            ProcedureBase procedure = instance as ProcedureBase;
-            if (procedure == null)
-            {
-                Debug.LogError(
-                    $"[ProcedureHotUpdateInit] '{typeName}' is not a ProcedureBase.");
-                return false;
-            }
-
             ProcedureComponent procedureComponent = GameFrameWork.Procedure;
             if (procedureComponent == null)
             {
                 Debug.LogError("[ProcedureHotUpdateInit] ProcedureComponent is missing.");
+                return false;
+            }
+
+            Type procedureBaseType = typeof(ProcedureBase);
+            Type[] types;
+            try
+            {
+                types = hotUpdateAssembly.GetExportedTypes();
+            }
+            catch (ReflectionTypeLoadException ex)
+            {
+                types = ex.Types.Where(t => t != null).ToArray();
+            }
+
+            int registered = 0;
+            for (int i = 0; i < types.Length; i++)
+            {
+                Type type = types[i];
+                if (type == null || !type.IsClass || type.IsAbstract || type.IsGenericTypeDefinition)
+                    continue;
+                if (!procedureBaseType.IsAssignableFrom(type))
+                    continue;
+
+                if (!RegisterProcedure(procedureComponent, type))
+                    return false;
+                registered++;
+            }
+
+            if (registered == 0)
+            {
+                Debug.LogError(
+                    $"[ProcedureHotUpdateInit] No ProcedureBase found in '{HotUpdateAssemblyName}'.");
+                return false;
+            }
+
+            if (!procedureComponent.HasProcedure(s_MainProcedureType))
+            {
+                Debug.LogError(
+                    $"[ProcedureHotUpdateInit] Main procedure '{HotUpdateMainTypeName}' was not registered.");
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool RegisterProcedure(ProcedureComponent procedureComponent, Type procedureType)
+        {
+            object instance = Activator.CreateInstance(procedureType);
+            ProcedureBase procedure = instance as ProcedureBase;
+            if (procedure == null)
+            {
+                Debug.LogError(
+                    $"[ProcedureHotUpdateInit] Create instance of '{procedureType.FullName}' failed.");
                 return false;
             }
 
