@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using CommandoRobot.ScriptableObjects;
+using GamePlay;
 using UnityEngine.UI;
 
 namespace CommandoRobot
@@ -43,6 +43,12 @@ namespace CommandoRobot
             m_TotalEnemyCount = 0;
             m_EnemyKilledCount = 0;
         }
+
+        void OnDestroy()
+        {
+            if (m_Current == this)
+                m_Current = null;
+        }
         // Start is called before the first frame update
         void Start()
         {
@@ -63,10 +69,9 @@ namespace CommandoRobot
 
         IEnumerator Co_Start()
         {
-            if (m_Level != null)
-            {
+            if (m_Level != null && PlayerControl.m_Main != null)
                 PlayerControl.m_Main.Respawn();
-            }
+
             m_GameState = State_Start;
             yield return new WaitForSeconds(1f);
             m_GameState = State_Gameplay;
@@ -156,7 +161,7 @@ namespace CommandoRobot
         {
             m_Pausesd = false;
             Time.timeScale = 1;
-            SceneManager.LoadScene("MainMenu");
+            ProcedureNavigator.EnterMainMenu();
         }
 
         public void EndLevel(int waitTime = 0)

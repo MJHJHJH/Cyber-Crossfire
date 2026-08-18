@@ -22,7 +22,7 @@ namespace CommandoRobot
         {
             CheckAlert();
 
-            if (m_IsAlerted)
+            if (m_IsAlerted && PlayerCharacter.m_Current != null)
             {
                 GetComponent<EnemyCharacter>().AimTowardsPosition(PlayerCharacter.m_Current.transform.position);
             }

@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using CommandoRobot.ScriptableObjects;
+using GamePlay;
+
 namespace CommandoRobot
 {
     public class MainMenuUI : MonoBehaviour
@@ -33,9 +34,9 @@ namespace CommandoRobot
         {
             m_CointText.text = m_Storage.Coin.ToString();
 
-            for (int i = 0;i<6;i++)
+            for (int i = 0; i < 6; i++)
             {
-                if (i==m_Storage.m_SelectedWeapon) 
+                if (i == m_Storage.m_SelectedWeapon)
                 {
                     m_WeaponButtons[i].color = Color.green;
                 }
@@ -46,7 +47,7 @@ namespace CommandoRobot
 
                 if (m_Storage.m_WeaponsUnlocked[i])
                 {
-                    m_WeaponImages[i].color=Color.white;
+                    m_WeaponImages[i].color = Color.white;
                     m_WeaponPrices[i].gameObject.SetActive(false);
                 }
                 else
@@ -66,7 +67,7 @@ namespace CommandoRobot
 
         public void BtnArmory()
         {
-            m_ArmoryPanel.gameObject.SetActive(true); 
+            m_ArmoryPanel.gameObject.SetActive(true);
             m_MainPanel.gameObject.SetActive(false);
         }
         public void BtnBack()
@@ -84,7 +85,7 @@ namespace CommandoRobot
             }
             else
             {
-                if (m_Storage.m_WeaponsPrice[num]<= m_Storage.Coin)
+                if (m_Storage.m_WeaponsPrice[num] <= m_Storage.Coin)
                 {
                     m_Storage.Coin -= m_Storage.m_WeaponsPrice[num];
                     m_Storage.m_WeaponsUnlocked[num] = true;
@@ -96,24 +97,13 @@ namespace CommandoRobot
         public void BtnLevel(int num)
         {
             m_GameplayData.LevelNumber = num;
-            switch (num)
+            if (!LevelSceneLocations.TryGet(num, out string location))
             {
-                case 0:
-                    SceneManager.LoadScene("Level 1");
-                    break;
-                case 1:
-                    SceneManager.LoadScene("Level 2");
-                    break;
-                case 2:
-                    SceneManager.LoadScene("Level 3");
-                    break;
-                case 3:
-                    SceneManager.LoadScene("Level 4");
-                    break;
-                case 4:
-                    SceneManager.LoadScene("Level 5");
-                    break;
+                Debug.LogError($"[MainMenuUI] Invalid level index: {num}");
+                return;
             }
+
+            ProcedureNavigator.EnterBattle(location);
         }
 
         public void BtnExit()

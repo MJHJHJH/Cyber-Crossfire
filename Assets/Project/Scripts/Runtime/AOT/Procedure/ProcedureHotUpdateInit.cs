@@ -20,6 +20,7 @@ namespace GamePlay
         public const string HotUpdateAssemblyName = "HotUpdate";
         public const string HotUpdateMainLocation = "HotUpdate.dll";
         public const string HotUpdateMainTypeName = "GamePlay.ProcedureMain";
+        public const string HotUpdateBattleTypeName = "GamePlay.ProcedureBattle";
         public const string AotMetadataAssetDir = "Assets/Project/Bundles/HybridCLR/AotMetadata";
         public const string HybridClrPackageName = "DefaultRawPackage";
 
@@ -62,11 +63,18 @@ namespace GamePlay
                 await LoadAotMetadataAsync(cancellationToken);
 #endif
 
-                s_MainProcedureType = ResolveMainProcedureType(hotUpdateAssembly);
+                s_MainProcedureType = ResolveProcedureType(hotUpdateAssembly, HotUpdateMainTypeName);
                 if (s_MainProcedureType == null)
                     return;
 
-                if (!RegisterMainProcedure())
+                Type battleType = ResolveProcedureType(hotUpdateAssembly, HotUpdateBattleTypeName);
+                if (battleType == null)
+                    return;
+
+                if (!RegisterProcedure(s_MainProcedureType, HotUpdateMainTypeName))
+                    return;
+
+                if (!RegisterProcedure(battleType, HotUpdateBattleTypeName))
                     return;
 
                 ChangeState<ProcedureDataTableInit>(procedureOwner);
@@ -80,14 +88,14 @@ namespace GamePlay
             }
         }
 
-        /// <summary>反射创建热更主流程实例并注册进 Procedure Fsm，使其可被 ChangeState 切换。</summary>
-        private static bool RegisterMainProcedure()
+        /// <summary>反射创建热更流程实例并注册进 Procedure Fsm，使其可被 ChangeState 切换。</summary>
+        private static bool RegisterProcedure(Type procedureType, string typeName)
         {
-            object instance = Activator.CreateInstance(s_MainProcedureType);
+            object instance = Activator.CreateInstance(procedureType);
             if (instance == null)
             {
                 Debug.LogError(
-                    $"[ProcedureHotUpdateInit] Create instance of '{HotUpdateMainTypeName}' failed.");
+                    $"[ProcedureHotUpdateInit] Create instance of '{typeName}' failed.");
                 return false;
             }
 
@@ -95,7 +103,7 @@ namespace GamePlay
             if (procedure == null)
             {
                 Debug.LogError(
-                    $"[ProcedureHotUpdateInit] '{HotUpdateMainTypeName}' is not a ProcedureBase.");
+                    $"[ProcedureHotUpdateInit] '{typeName}' is not a ProcedureBase.");
                 return false;
             }
 
@@ -108,7 +116,7 @@ namespace GamePlay
 
             procedureComponent.AddProcedure(procedure);
             Debug.Log(
-                $"[ProcedureHotUpdateInit] Registered hot update procedure: {s_MainProcedureType.FullName}");
+                $"[ProcedureHotUpdateInit] Registered hot update procedure: {procedureType.FullName}");
             return true;
         }
 
@@ -208,17 +216,17 @@ namespace GamePlay
         }
 #endif
 
-        private static Type ResolveMainProcedureType(Assembly hotUpdateAssembly)
+        private static Type ResolveProcedureType(Assembly hotUpdateAssembly, string typeName)
         {
-            Type mainType = hotUpdateAssembly.GetType(HotUpdateMainTypeName);
-            if (mainType == null)
+            Type procedureType = hotUpdateAssembly.GetType(typeName);
+            if (procedureType == null)
             {
                 Debug.LogError(
-                    $"[ProcedureHotUpdateInit] Type '{HotUpdateMainTypeName}' not found in '{HotUpdateAssemblyName}'.");
+                    $"[ProcedureHotUpdateInit] Type '{typeName}' not found in '{HotUpdateAssemblyName}'.");
                 return null;
             }
 
-            return mainType;
+            return procedureType;
         }
     }
 }

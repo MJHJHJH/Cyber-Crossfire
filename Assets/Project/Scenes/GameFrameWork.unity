@@ -212,6 +212,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8074256803316829972, guid: 7fd1c65166d55b3468f3b03f4162d485,
         type: 3}
+      propertyPath: m_FrameRate
+      value: 120
+      objectReference: {fileID: 0}
+    - target: {fileID: 8074256803316829972, guid: 7fd1c65166d55b3468f3b03f4162d485,
+        type: 3}
       propertyPath: m_YooPlayMode
       value: 3
       objectReference: {fileID: 0}

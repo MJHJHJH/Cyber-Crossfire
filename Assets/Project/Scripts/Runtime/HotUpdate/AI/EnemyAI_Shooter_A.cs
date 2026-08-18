@@ -18,7 +18,7 @@ namespace CommandoRobot
         {
             CheckAlert();
 
-            if (m_IsAlerted)
+            if (m_IsAlerted && PlayerCharacter.m_Current != null)
             {
 
                 GetComponent<EnemyCharacter>().FaceTowardsPosition(PlayerCharacter.m_Current.transform.position);

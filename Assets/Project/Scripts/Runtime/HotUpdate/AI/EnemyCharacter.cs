@@ -83,14 +83,14 @@ namespace CommandoRobot
 
         public virtual void HandleFacePlayer()
         {
-            if (m_FacePlayer)
-            {
-                Vector3 dir = PlayerCharacter.m_Current.transform.position - transform.position;
-                dir.y = 0;
+            if (!m_FacePlayer || PlayerCharacter.m_Current == null)
+                return;
 
-                dir.Normalize();
-                m_CharBody.m_RotationBase.rotation = Quaternion.Lerp(m_CharBody.m_RotationBase.rotation, Quaternion.LookRotation(dir), 10 * Time.deltaTime);
-            }
+            Vector3 dir = PlayerCharacter.m_Current.transform.position - transform.position;
+            dir.y = 0;
+
+            dir.Normalize();
+            m_CharBody.m_RotationBase.rotation = Quaternion.Lerp(m_CharBody.m_RotationBase.rotation, Quaternion.LookRotation(dir), 10 * Time.deltaTime);
         }
 
 

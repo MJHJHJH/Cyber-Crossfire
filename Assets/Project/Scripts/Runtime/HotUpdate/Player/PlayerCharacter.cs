@@ -44,6 +44,12 @@ namespace CommandoRobot
             m_CharBody = GetComponentInChildren<CharacterBody>();
         }
 
+        void OnDestroy()
+        {
+            if (m_Current == this)
+                m_Current = null;
+        }
+
         void Start()
         {
             m_DamageControl.OnDamaged.AddListener(HandleDamage);

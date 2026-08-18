@@ -41,6 +41,8 @@ namespace CommandoRobot
         // Update is called once per frame
         void Update()
         {
+            if (PlayerCharacter.m_Current == null)
+                return;
 
             if (InputControl.m_Main.m_MouseAim)
             {

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using CommandoRobot.ScriptableObjects;
 namespace CommandoRobot
 {
@@ -53,6 +54,12 @@ namespace CommandoRobot
             m_Main = this;
         }
 
+        void OnDestroy()
+        {
+            if (m_Main == this)
+                m_Main = null;
+        }
+
         void Start()
         {
 
@@ -66,6 +73,9 @@ namespace CommandoRobot
         {
             if (!m_IsDead)
             {
+                if (PlayerCharacter.m_Current == null)
+                    return;
+
                 if (PlayerCharacter.m_Current.m_IsDead)
                 {
                     m_IsDead = true;
@@ -89,6 +99,10 @@ namespace CommandoRobot
         public void Respawn()
         {
             GameObject obj = Instantiate(m_PlayerPrefab);
+            Scene ownerScene = gameObject.scene;
+            if (ownerScene.IsValid() && obj.scene != ownerScene)
+                SceneManager.MoveGameObjectToScene(obj, ownerScene);
+
             MyPlayerChar = obj.GetComponent<PlayerCharacter>();
 
             Vector3 SpawnPosition = Vector3.zero;

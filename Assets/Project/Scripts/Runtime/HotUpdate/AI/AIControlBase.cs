@@ -31,6 +31,9 @@ namespace CommandoRobot
 
         public virtual void CheckAlert()
         {
+            if (PlayerCharacter.m_Current == null)
+                return;
+
             Vector3 dir = PlayerCharacter.m_Current.transform.position - transform.position;
             dir.y = 0;
 

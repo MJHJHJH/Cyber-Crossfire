@@ -4,12 +4,13 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameFramework;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace GamePlay
 {
     /// <summary>
-    /// 场景组中间加载态（非 Procedure）：并行加载 → 激活主场景 → 卸旧（只留组 + Home）。
-    /// 任意业务流程可在 OnEnter 中 await SwitchAsync。
+    /// 场景组中间加载态（非 Procedure）：
+    /// suspend 加载新场景 → 先卸旧场景 → AllowSceneActivation + SetActiveScene → 再进入新场景 Start。
     /// </summary>
     public static class ProcedureSceneSwitch
     {
@@ -68,18 +69,33 @@ namespace GamePlay
                 ReportProgress(0f, loadingLogic);
 
                 List<string> toLoad = CollectMissingLocations(locations);
+                SuspendLoadBatch batch = null;
+
                 if (toLoad.Count > 0)
-                    await LoadGroupParallelAsync(toLoad, loadingLogic, cancellationToken);
+                {
+                    batch = BeginSuspendLoads(toLoad, loadingLogic, cancellationToken);
+                    await WaitSuspendReadyAsync(batch.Progresses, cancellationToken);
+                }
                 else
+                {
                     ReportProgress(1f, loadingLogic);
+                }
+
+                // 新场景仍 suspend（尚无 Start）：先回 Home，再卸旧场景（如 MainMenu）。
+                GameFrameWork.Scene.ActivateHomeScene();
+                await UnloadOutsideGroupAsync(locations, cancellationToken);
+
+                if (batch != null)
+                {
+                    await AllowActivateAndFinishAsync(
+                        toLoad, batch, activeLocation, loadingLogic, cancellationToken);
+                }
 
                 if (!GameFrameWork.Scene.ActivateScene(activeLocation))
                     Debug.LogWarning(Utility.Text.Format(
                         "[ProcedureSceneSwitch] Activate scene '{0}' failure.", activeLocation));
 
                 ScenesReady?.Invoke();
-
-                await UnloadOutsideGroupAsync(locations, cancellationToken);
 
                 ReportProgress(1f, loadingLogic);
                 await WaitLoadingPresentationAsync(loadingOpenedAt, loadingLogic, cancellationToken);
@@ -104,6 +120,13 @@ namespace GamePlay
 
             CloseLoading(loadingForm);
             _busy = false;
+        }
+
+        private sealed class SuspendLoadBatch
+        {
+            public List<string> Locations;
+            public UniTask[] Tasks;
+            public float[] Progresses;
         }
 
         private static void ValidateArgs(IReadOnlyList<string> locations, string activeLocation)
@@ -154,39 +177,80 @@ namespace GamePlay
             return missing;
         }
 
-        private static async UniTask LoadGroupParallelAsync(
+        private static SuspendLoadBatch BeginSuspendLoads(
             List<string> toLoad,
             LoadingUIFormLogic loadingLogic,
             CancellationToken cancellationToken)
         {
             int count = toLoad.Count;
-            float[] progresses = new float[count];
-            UniTask[] tasks = new UniTask[count];
+            var batch = new SuspendLoadBatch
+            {
+                Locations = toLoad,
+                Progresses = new float[count],
+                Tasks = new UniTask[count],
+            };
 
             for (int i = 0; i < count; i++)
             {
                 int index = i;
                 string location = toLoad[i];
+                float[] progresses = batch.Progresses;
                 IProgress<float> progress = Progress.Create<float>(value =>
                 {
                     progresses[index] = Mathf.Clamp01(value);
                     ReportProgress(Average(progresses), loadingLogic);
                 });
 
-                // 转成 UniTask：suspend 完成前会挂起，需在下方统一 AllowSceneActivation 后再 WhenAll
-                tasks[i] = AwaitLoadAsync(location, progress, cancellationToken);
+                batch.Tasks[i] = AwaitLoadAsync(location, progress, cancellationToken);
             }
 
-            // suspendLoad 下 await 会挂到 AllowSceneActivation；优先等进度到挂起点，超时则仍解除以免死锁
+            return batch;
+        }
+
+        private static async UniTask WaitSuspendReadyAsync(
+            float[] progresses,
+            CancellationToken cancellationToken)
+        {
             await UniTask.WhenAny(
-                UniTask.WaitUntil(() => AllReadyForActivation(progresses), cancellationToken: cancellationToken),
+                UniTask.WaitUntil(
+                    () => AllReadyForActivation(progresses),
+                    cancellationToken: cancellationToken),
                 UniTask.Delay(TimeSpan.FromSeconds(120), cancellationToken: cancellationToken));
+        }
 
-            for (int i = 0; i < count; i++)
-                GameFrameWork.Scene.AllowSceneActivation(toLoad[i]);
+        private static async UniTask AllowActivateAndFinishAsync(
+            List<string> toLoad,
+            SuspendLoadBatch batch,
+            string activeLocation,
+            LoadingUIFormLogic loadingLogic,
+            CancellationToken cancellationToken)
+        {
+            // sceneLoaded：Awake 之后、Start 之前。此时设 Active，保证 Start/Instantiate 进新场景。
+            void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+            {
+                if (!scene.IsValid() || !scene.isLoaded)
+                    return;
+                if (scene.name != activeLocation)
+                    return;
 
-            await UniTask.WhenAll(tasks);
-            ReportProgress(1f, loadingLogic);
+                SceneManager.SetActiveScene(scene);
+            }
+
+            SceneManager.sceneLoaded += OnSceneLoaded;
+            try
+            {
+                for (int i = 0; i < toLoad.Count; i++)
+                    GameFrameWork.Scene.AllowSceneActivation(toLoad[i]);
+
+                await UniTask.WhenAll(batch.Tasks);
+                ReportProgress(1f, loadingLogic);
+            }
+            finally
+            {
+                SceneManager.sceneLoaded -= OnSceneLoaded;
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
         }
 
         private static async UniTask AwaitLoadAsync(
@@ -199,13 +263,16 @@ namespace GamePlay
 
         private static bool AllReadyForActivation(float[] progresses)
         {
+            if (progresses == null || progresses.Length == 0)
+                return false;
+
             for (int i = 0; i < progresses.Length; i++)
             {
                 if (progresses[i] < SuspendReadyProgress)
                     return false;
             }
 
-            return progresses.Length > 0;
+            return true;
         }
 
         private static async UniTask UnloadOutsideGroupAsync(
@@ -230,7 +297,6 @@ namespace GamePlay
             loadingLogic?.SetProgressTarget(clamped * 100f);
         }
 
-        /// <summary>进度条展示跑满，且 Loading 至少显示 MinLoadingDisplaySeconds。</summary>
         private static async UniTask WaitLoadingPresentationAsync(
             float loadingOpenedAt,
             LoadingUIFormLogic loadingLogic,

@@ -17,22 +17,25 @@ namespace CommandoRobot
         {
             CheckAlert();
 
-            if (m_IsAlerted)
-            {
-                EnemyCharacter enemyCharacter = GetComponent<EnemyCharacter>();
-                Vector3 TargetPosition = PlayerCharacter.m_Current.transform.position;
-                Vector3 toTarget = TargetPosition - transform.position;
-                toTarget.y = 0;
+            if (!m_IsAlerted || PlayerCharacter.m_Current == null)
+                return;
+
+            EnemyCharacter enemyCharacter = GetComponent<EnemyCharacter>();
+            Vector3 TargetPosition = PlayerCharacter.m_Current.transform.position;
+            Vector3 toTarget = TargetPosition - transform.position;
+            toTarget.y = 0;
 
 
-                enemyCharacter.m_CharMovement.m_FaceTowardsMovement = true;
-                CharacterBase characterBase = GetComponent<CharacterBase>();
-                characterBase.m_MovementInput = toTarget.normalized;
-            }
+            enemyCharacter.m_CharMovement.m_FaceTowardsMovement = true;
+            CharacterBase characterBase = GetComponent<CharacterBase>();
+            characterBase.m_MovementInput = toTarget.normalized;
         }
 
         void OnCollisionEnter(Collision collision)
         {
+            if (PlayerCharacter.m_Current == null)
+                return;
+
             if (collision.gameObject == PlayerCharacter.m_Current.gameObject)
             {
                 EnemyCharacter enemyCharacter = GetComponent<EnemyCharacter>();

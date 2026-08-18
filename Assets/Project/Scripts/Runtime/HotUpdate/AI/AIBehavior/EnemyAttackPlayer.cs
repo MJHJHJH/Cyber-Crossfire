@@ -24,7 +24,7 @@ namespace CommandoRobot
         // Update is called once per frame
         void Update()
         {
-            if (m_AttackEnabled)
+            if (m_AttackEnabled && PlayerCharacter.m_Current != null)
             {
                 EnemyCharacter enemyCharacter = GetComponent<EnemyCharacter>();
 

@@ -23,13 +23,21 @@ namespace CommandoRobot
         void Awake()
         {
             m_Current = this;
+        }
 
+        void OnDestroy()
+        {
+            if (m_Current == this)
+                m_Current = null;
         }
 
         void Start()
         {
             Direction = transform.forward;
             m_MyCamera = GetComponent<Camera>();
+
+            if (PlayerCharacter.m_Current == null)
+                return;
 
             float distance = 30;
             Direction = Quaternion.Euler(50, 0, 0) * Vector3.forward;
@@ -45,6 +53,9 @@ namespace CommandoRobot
 
         void FixedUpdate()
         {
+            if (PlayerCharacter.m_Current == null)
+                return;
+
             m_ShakeTimer -= Time.deltaTime;
             //ShakeArc += 100 * Time.deltaTime;
 
