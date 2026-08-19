@@ -1,7 +1,9 @@
-using CommandoRobot.ScriptableObjects;
+using System;
 using GameFramework;
 using UnityEngine;
 using UnityEngine.UI;
+using VContainer;
+using VContainer.Unity;
 
 /// <summary>
 /// 主菜单界面 View：控件显隐与刷新；业务由 <see cref="MainHUDPresenter"/> 处理。
@@ -10,8 +12,6 @@ public sealed class MainHUDUIFormLogic : UIFormLogic, IMainHUDView
 {
     private static readonly Color LockedWeaponColor = new Color(0.3f, 0.3f, 0.3f, 0.7f);
 
-    [SerializeField] private DataStorage m_Storage;
-    [SerializeField] private GameplayData m_GameplayData;
     [SerializeField] private Text m_CoinText;
     [SerializeField] private Image m_LevelPanel;
     [SerializeField] private Image m_ArmoryPanel;
@@ -26,14 +26,23 @@ public sealed class MainHUDUIFormLogic : UIFormLogic, IMainHUDView
     {
         base.OnOpen(userData);
 
-        if (m_Storage == null || m_GameplayData == null)
+        var scope = LifetimeScope.Find<UiLifetimeScope>();
+        if (scope?.Container == null)
         {
-            Debug.LogWarning("[MainHUD] DataStorage or GameplayData is missing; skip presenter.");
+            Debug.LogWarning("[MainHUD] UiLifetimeScope is not built; skip presenter.");
             return;
         }
 
-        if (_presenter == null)
-            _presenter = new MainHUDPresenter(m_Storage, m_GameplayData);
+        _presenter = null;
+        try
+        {
+            _presenter = scope.Container.Resolve<MainHUDPresenter>();
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"[MainHUD] Resolve MainHUDPresenter failed: {e.Message}");
+            return;
+        }
 
         _presenter.Attach(this);
     }
@@ -41,6 +50,7 @@ public sealed class MainHUDUIFormLogic : UIFormLogic, IMainHUDView
     protected override void OnClose(bool isShutdown, object userData)
     {
         _presenter?.Detach();
+        _presenter = null;
         base.OnClose(isShutdown, userData);
     }
 

@@ -23,6 +23,8 @@ namespace GamePlay
         {
             base.OnEnter(procedureOwner);
 
+            GameDiInstaller.EnsureInitialized();
+
             _cts = new CancellationTokenSource();
             SwitchSceneGroupAsync(_cts.Token).Forget();
         }

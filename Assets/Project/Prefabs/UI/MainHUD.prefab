@@ -5276,8 +5276,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd27654a84eb4c242bf29de92787db63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Storage: {fileID: 11400000, guid: e7b53fcdf6e0ac44199db994a218a03d, type: 2}
-  m_GameplayData: {fileID: 11400000, guid: a021654d626ffe24d91719bf9d7396c0, type: 2}
   m_CoinText: {fileID: 5921982556766762168}
   m_LevelPanel: {fileID: 4336251125807415435}
   m_ArmoryPanel: {fileID: 6485318165912781128}

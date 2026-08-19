@@ -3,19 +3,20 @@ using VContainer;
 using VContainer.Unity;
 
 /// <summary>
-/// 应用 / 数据层 DI 入口（父 Scope）：注册 Model、领域 Service。
-/// UI Scope 应作为其子 Scope，向父解析领域依赖。
+/// 应用层 DI 入口（父 Scope）。热更类型不能在此 Register；
+/// DataStorage / GameplayData 仅作场景引用袋，由热更在 HybridCLR 之后注入 Game Scope。
 /// </summary>
 [DefaultExecutionOrder(-5100)]
 public sealed class AppLifetimeScope : LifetimeScope
 {
-    protected override void Awake()
-    {
-        base.Awake();
-    }
+    [SerializeField] private ScriptableObject _dataStorage;
+    [SerializeField] private ScriptableObject _gameplayData;
+
+    public ScriptableObject DataStorageAsset => _dataStorage;
+
+    public ScriptableObject GameplayDataAsset => _gameplayData;
 
     protected override void Configure(IContainerBuilder builder)
     {
-
     }
 }

@@ -1,0 +1,76 @@
+using CommandoRobot.ScriptableObjects;
+using UnityEngine;
+using VContainer;
+using VContainer.Unity;
+
+namespace GamePlay
+{
+    /// <summary>
+    /// HybridCLR 之后装配热更 DI：Game Scope 注册领域实例，Ui Scope 注册 Presenter。
+    /// </summary>
+    public static class GameDiInstaller
+    {
+        public static void EnsureInitialized()
+        {
+            // Find<T>() 返回基类 LifetimeScope，不是 T
+            var app = LifetimeScope.Find<AppLifetimeScope>() as AppLifetimeScope;
+            var ui = LifetimeScope.Find<UiLifetimeScope>() as UiLifetimeScope;
+            if (app == null || ui == null)
+            {
+                Debug.LogError("[GameDI] AppLifetimeScope or UiLifetimeScope is missing.");
+                return;
+            }
+
+            if (app.Container == null)
+            {
+                Debug.LogError("[GameDI] AppLifetimeScope is not built.");
+                return;
+            }
+
+            EnsureGameScope(app);
+            EnsureUiScope(ui);
+        }
+
+        private static void EnsureGameScope(AppLifetimeScope app)
+        {
+            if (LifetimeScope.Find<GameLifetimeScope>() != null)
+                return;
+
+            var storage = app.DataStorageAsset as DataStorage;
+            var gameplay = app.GameplayDataAsset as GameplayData;
+            if (storage == null || gameplay == null)
+            {
+                Debug.LogError("[GameDI] Assign DataStorage and GameplayData on AppLifetimeScope.");
+                return;
+            }
+
+            app.CreateChild<GameLifetimeScope>(builder =>
+            {
+                builder.RegisterInstance(storage);
+                builder.RegisterInstance(gameplay);
+            }, "GameLifetimeScope");
+        }
+
+        private static void EnsureUiScope(UiLifetimeScope ui)
+        {
+            if (ui.Container != null)
+                return;
+
+            if (LifetimeScope.Find<GameLifetimeScope>()?.Container == null)
+            {
+                Debug.LogError("[GameDI] GameLifetimeScope is not built; skip Ui Scope.");
+                return;
+            }
+
+            using (LifetimeScope.Enqueue(InstallPresenters))
+            {
+                ui.Build();
+            }
+        }
+
+        private static void InstallPresenters(IContainerBuilder builder)
+        {
+            builder.Register<MainHUDPresenter>(Lifetime.Transient);
+        }
+    }
+}
