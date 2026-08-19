@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using GameFramework;
 using GameFramework.Fsm;
 using GameFramework.Procedure;
@@ -73,7 +74,43 @@ namespace GamePlay
                 return;
             }
 
-            EnterBattle(CurrentBattleLocation);
+            if (ProcedureSceneSwitch.IsSwitching)
+            {
+                Debug.LogWarning("[ProcedureNavigator] Scene switch already in progress, ignore RestartBattle.");
+                return;
+            }
+
+            RestartBattleAsync().Forget();
+        }
+
+        /// <summary>
+        /// 重开：先 YooAsset 卸当前战斗场景，再 EnterBattle 走完整 Load（避免 duplicate Load / IsSameGroup 短路）。
+        /// </summary>
+        private static async UniTaskVoid RestartBattleAsync()
+        {
+            string location = CurrentBattleLocation;
+            Time.timeScale = 1f;
+
+            if (GameFrameWork.Scene == null)
+            {
+                Debug.LogError("[ProcedureNavigator] Scene component is missing.");
+                return;
+            }
+
+            if (GameFrameWork.Scene.SceneIsLoaded(location))
+            {
+                try
+                {
+                    await GameFrameWork.Scene.UnloadSceneAsync(location);
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.LogError($"[ProcedureNavigator] Unload battle scene '{location}' failed: {ex.Message}");
+                    return;
+                }
+            }
+
+            EnterBattle(location);
         }
     }
 }
