@@ -19,3 +19,6 @@ MonoBehaviour:
   - PackageName: DefaultRawPackage
     IsDefault: 0
     Enabled: 1
+  - PackageName: DataTablePackage
+    IsDefault: 0
+    Enabled: 1

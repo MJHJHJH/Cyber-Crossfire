@@ -47,7 +47,7 @@ namespace GameFramework.Editor
             {
                 EditorUtility.ClearProgressBar();
                 UnityEngine.Debug.LogError("[Luban] Generate All Tables failed: " + e);
-                EditorUtility.DisplayDialog("Luban", "导出失败，详见 Console。\n" + e.Message, "OK");
+                EditorUtility.DisplayDialog("Luban", "导出失败，详见 Console。", "OK");
             }
         }
 

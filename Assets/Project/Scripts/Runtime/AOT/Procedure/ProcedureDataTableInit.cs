@@ -37,34 +37,34 @@ namespace GamePlay
 
         private async UniTaskVoid EnterAsync(ProcedureOwner procedureOwner, CancellationToken cancellationToken)
         {
-            // if (GameFrameWork.DataTable == null)
-            // {
-            //     Debug.LogError(
-            //         "[ProcedureDataTableInit] LubanConfigComponent is missing. Add it via Game Framework/Data Table.");
-            //     return;
-            // }
+            if (GameFrameWork.DataTable == null)
+            {
+                Debug.LogError(
+                    "[ProcedureDataTableInit] LubanConfigComponent is missing. Add it via Game Framework/Data Table.");
+                return;
+            }
 
-            // GameFrameWork.DataTable.SetTablesFactory(new LubanTablesFactory());
+            GameFrameWork.DataTable.SetTablesFactory(new LubanTablesFactory());
 
-            // try
-            // {
-            //     await GameFrameWork.DataTable.LoadAsync(cancellationToken);
-            // }
-            // catch (OperationCanceledException)
-            // {
-            //     return;
-            // }
-            // catch (Exception ex)
-            // {
-            //     Debug.LogError($"[ProcedureDataTableInit] LoadAsync failed: {ex.Message}");
-            //     return;
-            // }
+            try
+            {
+                await GameFrameWork.DataTable.LoadAsync(cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[ProcedureDataTableInit] LoadAsync failed: {ex.Message}");
+                return;
+            }
 
-            // if (cancellationToken.IsCancellationRequested)
-            //     return;
+            if (cancellationToken.IsCancellationRequested)
+                return;
 
-            // // SoundGroup 表就绪，初始化声音组与大类 mixer 路由（Start 时表未加载，此处补建）
-            // GameFrameWork.Sound?.InitSoundGroupsFromTable();
+            // SoundGroup 表就绪，初始化声音组与大类 mixer 路由（Start 时表未加载，此处补建）
+            GameFrameWork.Sound?.InitSoundGroupsFromTable();
 
             // 切换到已注册的热更主流程（同常规流程切换，走 Fsm 状态机生命周期）
             Type mainType = ProcedureHotUpdateInit.MainProcedureType;

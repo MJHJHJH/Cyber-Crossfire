@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1001,
+    "location": "MainHUD",
+    "desc": "主界面",
+    "groupName": "MainGroup",
+    "canvas_mode": 0,
+    "sort_order": 10,
+    "pauseCoveredUIForm": true,
+    "loader": 0
+  }
+]
