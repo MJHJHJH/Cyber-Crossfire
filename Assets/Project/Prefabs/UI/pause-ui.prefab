@@ -494,8 +494,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: PauseUI, Assembly-CSharp
+      - m_Target: {fileID: 7800014306823475267}
+        m_TargetAssemblyTypeName: PauseUiUIFormLogic, HotUpdate
         m_MethodName: BtnExit
         m_Mode: 1
         m_Arguments:
@@ -627,8 +627,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: PauseUI, Assembly-CSharp
+      - m_Target: {fileID: 7800014306823475267}
+        m_TargetAssemblyTypeName: PauseUiUIFormLogic, HotUpdate
         m_MethodName: BtnContinue
         m_Mode: 1
         m_Arguments:

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DataStorage
   m_EditorClassIdentifier: 
   m_Contents: {fileID: 11400000, guid: 0595c63477c299d499fd1d72c22fabd2, type: 2}
-  Coin: 25
+  Coin: 11111
   LevelUnlocked: 0
   m_WeaponsUnlocked: 010000000000
   m_WeaponsPrice: 000000005e01000020030000520300005802000030020000

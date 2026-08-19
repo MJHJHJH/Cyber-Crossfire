@@ -225,13 +225,13 @@ namespace GameFramework
                 return false;
             }
 
-            if (!entry.Handle.ActivateScene())
+            Scene target = entry.Handle.SceneObject;
+            if (!Activate(target))
             {
                 Debug.LogWarning(Utility.Text.Format("Activate scene '{0}' failure.", location));
                 return false;
             }
 
-            NotifyActiveSceneChanged(entry.Handle.SceneObject);
             return true;
         }
 
@@ -262,6 +262,14 @@ namespace GameFramework
 
             if (IsHomeScene(entry.Handle.SceneObject))
                 throw new GameFrameworkException(Utility.Text.Format("Scene '{0}' is home scene, can not unload.", location));
+
+            if (HasAnySceneLoading())
+            {
+                throw new GameFrameworkException(
+                    Utility.Text.Format(
+                        "Cannot unload scene '{0}' while another scene is loading. " +
+                        "Call AllowSceneActivation and wait for load to finish first.", location));
+            }
 
             entry.State = SceneState.Unloading;
             try
@@ -339,7 +347,10 @@ namespace GameFramework
             };
             _scenes.Add(location, entry);
 
-            SceneHandle handle = _package.LoadSceneAsync(location, sceneMode, LocalPhysicsMode.None, suspendLoad, 0);
+            // YooAsset 3.x 第 4 参数为 allowSceneActivation，与 v2 suspendLoad 语义相反。
+            bool allowSceneActivation = !suspendLoad;
+            SceneHandle handle = _package.LoadSceneAsync(
+                location, sceneMode, LocalPhysicsMode.None, allowSceneActivation, 0);
 
             // 必须在 await 前登记句柄：suspendLoad = true 时 await 会挂起直到 AllowSceneActivation 被调用，
             // 而 AllowSceneActivation 需要在此处获取句柄。
@@ -381,6 +392,17 @@ namespace GameFramework
 
             _scenes.Remove(location);
             RefreshFallbackMainCamera();
+        }
+
+        private bool HasAnySceneLoading()
+        {
+            foreach (KeyValuePair<string, SceneEntry> pair in _scenes)
+            {
+                if (pair.Value.State == SceneState.Loading)
+                    return true;
+            }
+
+            return false;
         }
 
         private bool HasLoadedGameplayScenes()

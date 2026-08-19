@@ -309,7 +309,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 3597428026101704873}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3958702580310819289}
+        m_TargetAssemblyTypeName: WinUiUIFormLogic, HotUpdate
+        m_MethodName: Continue
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2651230167424606681
 MonoBehaviour:
   m_ObjectHideFlags: 0

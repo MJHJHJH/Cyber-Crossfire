@@ -1,18 +1,22 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using GameFramework;
 using UnityEngine;
 using ProcedureOwner = GameFramework.Fsm.IFsm<GameFramework.Procedure.IProcedureManager>;
 
 namespace GamePlay
 {
     /// <summary>
-    /// 热更战斗流程：读取进战 location，经 ProcedureSceneSwitch 加载战斗场景。
+    /// 热更战斗流程：读取进战 location，经 ProcedureSceneSwitch 加载战斗场景后打开战斗 HUD。
     /// </summary>
     public sealed class ProcedureBattle : GameFramework.Procedure.ProcedureBase
     {
+        private const int BattleHudPanelId = 1002; // UIPanel：GameUI_PC
+
         private CancellationTokenSource _cts;
         private string _battleLocation;
+        private IUIForm _battleHudForm;
 
         protected override void OnEnter(ProcedureOwner procedureOwner)
         {
@@ -44,6 +48,7 @@ namespace GamePlay
                 _cts = null;
             }
 
+            CloseBattleHud();
             base.OnLeave(procedureOwner, isShutdown);
         }
 
@@ -59,11 +64,49 @@ namespace GamePlay
             }
             catch (OperationCanceledException)
             {
+                return;
             }
             catch (Exception ex)
             {
                 Debug.LogError($"[ProcedureBattle] Switch battle scene failed: {ex.Message}");
+                return;
             }
+
+            if (cancellationToken.IsCancellationRequested)
+                return;
+
+            await OnSceneReadyAsync(cancellationToken);
+        }
+
+        private async UniTask OnSceneReadyAsync(CancellationToken cancellationToken)
+        {
+            if (GameFrameWork.UI == null)
+            {
+                Debug.LogError("[ProcedureBattle] UI component is missing.");
+                return;
+            }
+
+            try
+            {
+                _battleHudForm = await GameFrameWork.UI.OpenAsync(BattleHudPanelId, null, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[ProcedureBattle] Open UI panel {BattleHudPanelId} failed: {ex.Message}");
+            }
+        }
+
+        private void CloseBattleHud()
+        {
+            IUIForm form = _battleHudForm;
+            _battleHudForm = null;
+            if (form == null)
+                return;
+
+            GameFrameWork.UI?.Close(form);
         }
     }
 }

@@ -8,5 +8,85 @@
     "sort_order": 10,
     "pauseCoveredUIForm": true,
     "loader": 0
+  },
+  {
+    "id": 1002,
+    "location": "GameUI_PC",
+    "desc": "战斗HUD",
+    "groupName": "BattleGroup",
+    "canvas_mode": 0,
+    "sort_order": 20,
+    "pauseCoveredUIForm": true,
+    "loader": 0
+  },
+  {
+    "id": 1003,
+    "location": "JoystickUI",
+    "desc": "摇杆",
+    "groupName": "BattleGroup",
+    "canvas_mode": 0,
+    "sort_order": 25,
+    "pauseCoveredUIForm": true,
+    "loader": 0
+  },
+  {
+    "id": 1004,
+    "location": "FadeScreen",
+    "desc": "淡入淡出",
+    "groupName": "Default",
+    "canvas_mode": 0,
+    "sort_order": 80,
+    "pauseCoveredUIForm": true,
+    "loader": 0
+  },
+  {
+    "id": 1005,
+    "location": "pause-ui",
+    "desc": "暂停",
+    "groupName": "Default",
+    "canvas_mode": 0,
+    "sort_order": 60,
+    "pauseCoveredUIForm": true,
+    "loader": 0
+  },
+  {
+    "id": 1006,
+    "location": "lose-ui",
+    "desc": "失败",
+    "groupName": "BattleGroup",
+    "canvas_mode": 0,
+    "sort_order": 70,
+    "pauseCoveredUIForm": true,
+    "loader": 0
+  },
+  {
+    "id": 1007,
+    "location": "win-ui",
+    "desc": "胜利",
+    "groupName": "BattleGroup",
+    "canvas_mode": 0,
+    "sort_order": 70,
+    "pauseCoveredUIForm": true,
+    "loader": 0
+  },
+  {
+    "id": 1008,
+    "location": "GemRewardUI",
+    "desc": "宝石奖励",
+    "groupName": "Default",
+    "canvas_mode": 0,
+    "sort_order": 75,
+    "pauseCoveredUIForm": true,
+    "loader": 0
+  },
+  {
+    "id": 1009,
+    "location": "message-1",
+    "desc": "提示消息",
+    "groupName": "Default",
+    "canvas_mode": 0,
+    "sort_order": 50,
+    "pauseCoveredUIForm": false,
+    "loader": 0
   }
 ]

@@ -638,7 +638,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 9146040869442175056}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 8367626593590159282}
+        m_TargetAssemblyTypeName: LoseUiUIFormLogic, HotUpdate
+        m_MethodName: BtnExit
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &5429110264779029995
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -775,7 +787,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7765912640889064486}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 8367626593590159282}
+        m_TargetAssemblyTypeName: LoseUiUIFormLogic, HotUpdate
+        m_MethodName: BtnRestart
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &8248416927665617201
 MonoBehaviour:
   m_ObjectHideFlags: 0

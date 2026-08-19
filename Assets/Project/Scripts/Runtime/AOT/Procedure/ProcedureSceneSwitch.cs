@@ -10,7 +10,8 @@ namespace GamePlay
 {
     /// <summary>
     /// 场景组中间加载态（非 Procedure）：
-    /// suspend 加载新场景 → 先卸旧场景 → AllowSceneActivation + SetActiveScene → 再进入新场景 Start。
+    /// suspend 加载新场景 → 回 Home → AllowSceneActivation → 卸旧场景 → SetActiveScene。
+    /// 不可先卸旧场景：Unity 场景管线串行，Unload 会等 suspend 中的 Load 完成，而 Load 等 AllowSceneActivation，形成死锁（90%）。
     /// </summary>
     public static class ProcedureSceneSwitch
     {
@@ -81,15 +82,18 @@ namespace GamePlay
                     ReportProgress(1f, loadingLogic);
                 }
 
-                // 新场景仍 suspend（尚无 Start）：先回 Home，再卸旧场景（如 MainMenu）。
+                // ① 回 Home  ② AllowSceneActivation（YooAsset）  ③ Unload 旧场景（YooAsset Handle.UnloadSceneAsync）
+                // 禁止在 suspend Load 未完成时 Unload，否则 Unity 管线死锁；Unload 必须走 YooAsset，不可 SceneManager 直卸。
                 GameFrameWork.Scene.ActivateHomeScene();
-                await UnloadOutsideGroupAsync(locations, cancellationToken);
 
                 if (batch != null)
                 {
                     await AllowActivateAndFinishAsync(
                         toLoad, batch, activeLocation, loadingLogic, cancellationToken);
+                    await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate, cancellationToken);
                 }
+
+                await UnloadOutsideGroupAsync(locations, cancellationToken);
 
                 if (!GameFrameWork.Scene.ActivateScene(activeLocation))
                     Debug.LogWarning(Utility.Text.Format(
@@ -226,11 +230,12 @@ namespace GamePlay
             CancellationToken cancellationToken)
         {
             // sceneLoaded：Awake 之后、Start 之前。此时设 Active，保证 Start/Instantiate 进新场景。
+            var pendingLocations = new HashSet<string>(toLoad, StringComparer.Ordinal);
             void OnSceneLoaded(Scene scene, LoadSceneMode mode)
             {
                 if (!scene.IsValid() || !scene.isLoaded)
                     return;
-                if (scene.name != activeLocation)
+                if (!pendingLocations.Contains(scene.name))
                     return;
 
                 SceneManager.SetActiveScene(scene);
@@ -240,7 +245,14 @@ namespace GamePlay
             try
             {
                 for (int i = 0; i < toLoad.Count; i++)
-                    GameFrameWork.Scene.AllowSceneActivation(toLoad[i]);
+                {
+                    if (!GameFrameWork.Scene.AllowSceneActivation(toLoad[i]))
+                    {
+                        throw new GameFrameworkException(
+                            Utility.Text.Format(
+                                "AllowSceneActivation scene '{0}' failure.", toLoad[i]));
+                    }
+                }
 
                 await UniTask.WhenAll(batch.Tasks);
                 ReportProgress(1f, loadingLogic);

@@ -1,5 +1,4 @@
 
-
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,11 +6,15 @@ using UnityEngine.UI;
 using CommandoRobot.ScriptableObjects;
 using System;
 using UnityEngine.SceneManagement;
+using Cysharp.Threading.Tasks;
+using GameFramework;
 
 namespace CommandoRobot
 {
     public class RewardedAdsButton : MonoBehaviour
     {
+        private const int GemRewardPanelId = 1008;
+
         public string m_VideoObjectName;
         AdmobVideoObject m_TargetVideoObj;
 
@@ -133,7 +136,7 @@ namespace CommandoRobot
 
                         m_DataStorage.Coin += 50;
                         m_DataStorage.SaveData();
-                        UISystem.ShowUI("GemRewardUI");
+                        OpenGemRewardAsync().Forget();
                         break;
 
 
@@ -142,6 +145,24 @@ namespace CommandoRobot
                 m_DataStorage.SaveData();
             }
 
+        }
+
+        private async UniTaskVoid OpenGemRewardAsync()
+        {
+            if (GameFrameWork.UI == null)
+            {
+                Debug.LogError("[RewardedAdsButton] UI component is missing.");
+                return;
+            }
+
+            try
+            {
+                await GameFrameWork.UI.OpenAsync(GemRewardPanelId);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[RewardedAdsButton] Open GemRewardUI failed: {ex.Message}");
+            }
         }
     }
 }

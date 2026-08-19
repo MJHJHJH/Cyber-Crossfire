@@ -1,14 +1,20 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System;
+using System.Collections;
 using CommandoRobot.ScriptableObjects;
+using Cysharp.Threading.Tasks;
+using GameFramework;
 using GamePlay;
-using UnityEngine.UI;
+using UnityEngine;
 
 namespace CommandoRobot
 {
     public class GameControl : MonoBehaviour
     {
+        private const int PausePanelId = 1005;
+        private const int LosePanelId = 1006;
+        private const int WinPanelId = 1007;
+        private const int MessagePanelId = 1009;
+
         public static GameControl m_Current;
 
         public LevelBase m_Level;
@@ -37,6 +43,9 @@ namespace CommandoRobot
 
         [HideInInspector]
         public int m_GameState = 0;
+
+        private IUIForm _pauseForm;
+
         void Awake()
         {
             m_Current = this;
@@ -49,7 +58,7 @@ namespace CommandoRobot
             if (m_Current == this)
                 m_Current = null;
         }
-        // Start is called before the first frame update
+
         void Start()
         {
             int levelNum = m_GameplayData.LevelNumber;
@@ -62,9 +71,6 @@ namespace CommandoRobot
 
             StartCoroutine(Co_Start());
             m_GameState = State_Start;
-
-            if (InputControl.m_Main.m_MobileControl)
-                UISystem.ShowUI("JoystickUI");
         }
 
         IEnumerator Co_Start()
@@ -77,7 +83,6 @@ namespace CommandoRobot
             m_GameState = State_Gameplay;
         }
 
-        // Update is called once per frame
         void Update()
         {
             switch (m_GameState)
@@ -132,7 +137,7 @@ namespace CommandoRobot
             m_GameState = State_Lose;
             CameraControl.m_Current.StartShake(.4f, .3f);
             yield return new WaitForSeconds(2);
-            UISystem.ShowUI("lose-ui");
+            OpenPanelAsync(LosePanelId).Forget();
             //FadeControl.m_Current.StartFadeOut();
             //yield return new WaitForSeconds(2);
             //SceneManager.LoadScene(SceneManager.GetActiveScene().name);
@@ -141,26 +146,37 @@ namespace CommandoRobot
         public void HandleWin()
         {
             m_GameState = State_Win;
-            UISystem.ShowUI("win-ui");
+            OpenPanelAsync(WinPanelId).Forget();
         }
+
         public void PauseGame()
         {
             m_Pausesd = true;
             Time.timeScale = 0;
-            UISystem.ShowUI("pause-ui");
-            UI_HUD.m_Main.gameObject.SetActive(false);
+            OpenPauseAsync().Forget();
+            if (GameUI_PCUIFormLogic.Current != null)
+                GameUI_PCUIFormLogic.Current.gameObject.SetActive(false);
         }
+
         public void ResumeGame()
         {
             m_Pausesd = false;
             Time.timeScale = 1;
-            UISystem.RemoveUI("pause-ui");
-            UI_HUD.m_Main.gameObject.SetActive(true);
+            if (_pauseForm != null)
+            {
+                GameFrameWork.UI?.Close(_pauseForm);
+                _pauseForm = null;
+            }
+
+            if (GameUI_PCUIFormLogic.Current != null)
+                GameUI_PCUIFormLogic.Current.gameObject.SetActive(true);
         }
+
         public void ExitGame()
         {
             m_Pausesd = false;
             Time.timeScale = 1;
+            _pauseForm = null;
             ProcedureNavigator.EnterMainMenu();
         }
 
@@ -180,7 +196,7 @@ namespace CommandoRobot
             yield return new WaitForSeconds(waitTime);
             //FadeControl.m_Current.StartFadeOut();
             yield return new WaitForSeconds(2);
-            UISystem.ShowUI("win-ui");
+            OpenPanelAsync(WinPanelId).Forget();
         }
 
         public void StartBossFight()
@@ -189,27 +205,50 @@ namespace CommandoRobot
             {
                 m_IsBossFight = true;
                 m_Boss.GetComponent<AIControlBase>().StartAlert();
-                UI_HUD.m_Main.ShowBossHealth(m_Boss.GetComponent<DamageControl>());
+                if (GameUI_PCUIFormLogic.Current != null)
+                    GameUI_PCUIFormLogic.Current.ShowBossHealth(m_Boss.GetComponent<DamageControl>());
             }
         }
 
         public void ShowMessage(string message)
         {
-            StartCoroutine(CO_ShowMessage(message));
+            OpenPanelAsync(MessagePanelId, message).Forget();
         }
 
-        IEnumerator CO_ShowMessage(string message)
+        private async UniTaskVoid OpenPauseAsync()
         {
-            GameObject msgObj = UISystem.ShowUI("message-1");
-            if (msgObj != null)
+            if (GameFrameWork.UI == null)
             {
-                Text text = msgObj.GetComponentInChildren<Text>();
-                text.text = message;
+                Debug.LogError("[GameControl] UI component is missing.");
+                return;
             }
 
-            yield return new WaitForSeconds(2);
+            try
+            {
+                _pauseForm = await GameFrameWork.UI.OpenAsync(PausePanelId);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[GameControl] Open pause UI failed: {ex.Message}");
+            }
+        }
 
-            UISystem.RemoveUI(msgObj);
+        private async UniTaskVoid OpenPanelAsync(int panelId, object userData = null)
+        {
+            if (GameFrameWork.UI == null)
+            {
+                Debug.LogError("[GameControl] UI component is missing.");
+                return;
+            }
+
+            try
+            {
+                await GameFrameWork.UI.OpenAsync(panelId, userData);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[GameControl] Open UI panel {panelId} failed: {ex.Message}");
+            }
         }
     }
 }
