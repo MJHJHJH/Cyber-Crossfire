@@ -20,7 +20,6 @@
 - [9. 异步与依赖注入（UniTask + R3 + VContainer）](#9-异步与依赖注入unitask--r3--vcontainer)
 - [10. 技术栈清单](#10-技术栈清单)
 - [11. 目录结构](#11-目录结构)
-- [12. 架构亮点总结](#12-架构亮点总结)
 
 ---
 
@@ -306,15 +305,3 @@ Assets/
 配表链路：`Tools/DataTablesTool`（Luban 生成 JSON/Binary 表 + Adapters）→ `Assets/DataTable`（表代码程序集）→ 运行时 `LubanTablesFactory` 加载。
 
 openspec 以需求场景（Gherkin 风格）固化架构边界（程序集结构 / 战斗流程 / HybridCLR 初始化 / 流程导航），变更走 `proposal → design → tasks → specs` 流程并归档于 `changes/`。
-
----
-
-## 12. 架构亮点总结
-
-1. **双程序集热更边界**：AOT 只做"引导 + 服务"，业务全在热更层，新增玩法不动 AOT；DLL 与 AOT 元数据复用资源热更通道下发；
-2. **反射自注册流程**：热更流程扫描 `ProcedureBase` 子类自动注册进 FSM，主流程 `ProcedureMain` 由 AOT 动态切换进入，热更层完整接管游戏；
-3. **表驱动 UI**：面板打开方式、加载来源、层级排序全部配表，新增面板零代码；MVP/MVVM 双架构并存，生命周期（Open/Close/Recycle）与绑定/释放强对齐，防泄漏；
-4. **场景切换服务化**：suspend 加载 → Home → Activate → 卸载的严格顺序，规避 Unity 场景管线死锁；进度聚合、可取消、幂等短路，菜单/战斗/重开全走统一通道；
-5. **启动链路异步化**：每个流程独立 CTS，取消贯穿 UniTask/YooAsset/Luban 全链路，流程切换安全无竞态；
-6. **DI 与热更联动**：Game Scope 在 HybridCLR 之后创建以注册热更类型，三层 Scope 职责分明，池化对象不 Inject 只 Resolve；
-7. **规范驱动防回归**：程序集边界、战斗流程、导航契约等以 openspec 需求场景（Gherkin 风格）固化，架构决策可追踪、可验证。
