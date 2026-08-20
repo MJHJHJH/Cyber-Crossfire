@@ -11,7 +11,7 @@
 
 - [1. 架构总览](#1-架构总览)
 - [2. 程序集划分：AOT / 热更边界](#2-程序集划分aot--热更边界)
-- [3. 启动流程编排（Procedure FSM）](#3-启动流程编排procedure-fsm)
+- [3. 游戏流程管理（Procedure FSM）](#3-游戏流程管理procedure-fsm)
 - [4. 热更新设计（HybridCLR）](#4-热更新设计hybridclr)
 - [5. 资源管理（YooAsset + 补丁管线）](#5-资源管理yooasset--补丁管线)
 - [6. 场景管理（ProcedureSceneSwitch）](#6-场景管理proceduresceneswitch)
@@ -72,25 +72,9 @@
 
 ---
 
-## 3. 启动流程编排（Procedure FSM）
+## 3. 游戏流程管理（Procedure FSM）
 
 基于 GameFramework 的 FSM 状态机实现启动编排，每个流程持有独立 `CancellationTokenSource`，`OnLeave` 时取消未完成异步任务，保证流程切换安全：
-
-```
-ProcedureLaunch
-   │  打开 Resources 内置 YooAssetInitPanel（不依赖配表/热更）
-   ▼
-ProcedureAssetInit
-   │  YooAsset 多 Package 按序补丁（AssetPatch FSM）→ 注入主包到 UI/Scene/Sound
-   ▼
-ProcedureHotUpdateInit
-   │  加载 HotUpdate.dll + AOT 补充元数据 → 反射注册热更流程进 Procedure FSM
-   ▼
-ProcedureDataTableInit
-   │  Luban 配表加载（注入 Factory）→ 初始化 SoundGroup → 切到热更主流程
-   ▼
-ProcedureMain（热更）⇄ ProcedureBattle（热更）   ← 之后全部在热更层运行
-```
 
 **要点：**
 
