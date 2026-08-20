@@ -18,10 +18,9 @@
 - [7. UI 框架（表驱动 + MVP/MVVM）](#7-ui-框架表驱动--mvpmvvm)
 - [8. 配表系统（Luban）](#8-配表系统luban)
 - [9. 异步与依赖注入（UniTask + R3 + VContainer）](#9-异步与依赖注入unitask--r3--vcontainer)
-- [10. 流程导航与战斗流程](#10-流程导航与战斗流程)
-- [11. 技术栈清单](#11-技术栈清单)
-- [12. 目录结构](#12-目录结构)
-- [13. 架构亮点总结](#13-架构亮点总结)
+- [10. 技术栈清单](#10-技术栈清单)
+- [11. 目录结构](#11-目录结构)
+- [12. 架构亮点总结](#12-架构亮点总结)
 
 ---
 
@@ -116,7 +115,7 @@
 
 YooAsset 作为统一资源层，承载场景加载/卸载、UI 面板、热更 DLL 与 AOT 元数据在内的全部资源生命周期。
 
-### 5.1 应用亮点
+### 5.1 应用
 
 - **多 Package 分治**：常规游戏资源走主包，**HybridCLR 的 `HotUpdate.dll` 与 AOT 补充元数据走独立 RawFile 包**（`DefaultRawPackage`）——两类资源职责单一、可独立下发，**代码热更复用资源热更通道**，一套补丁管线通吃；
 - **统一注入、按 location 寻址**：资源包就绪后统一注入 UI / Scene / Sound 组件，上层所有加载（面板 / 场景 / 音效）只认 location，**不感知资源来源与加载器实现**；
@@ -236,29 +235,7 @@ AppLifetimeScope（父）→ GameLifetimeScope（子）→ UiLifetimeScope（孙
 
 ---
 
-## 10. 流程导航与战斗流程
-
-UI/玩法无 `procedureOwner` 时，通过 `ProcedureNavigator` 门面完成流程切换：
-
-```
-MainMenuUI.OnLevelClick(index)
-   → LevelSceneLocations.TryGet(index) → "Level 1"（集中映射，禁止散落硬编码）
-   → Navigator.EnterBattle(location)
-       → FSM 黑板写入 VarString("BattleEnter")
-       → ChangeProcedure<ProcedureBattle>()
-           → OnEnter 读黑板并移除 → ProcedureSceneSwitch 加载该关卡场景 → 打开 BattleHUD
-```
-
-**设计要点：**
-
-- **黑板（FSM Data）传参**：进战 location 经 FSM 黑板传递、用后即删，流程间通信不引入全局单例耦合；
-- **禁用 `SceneManager.LoadScene`**：菜单↔战斗全部走流程 + 场景切换服务，保证加载/卸载生命周期一致（openspec 规范强制）；
-- **失败重开**：`RestartBattle` 先经 YooAsset 卸载当前战斗场景再重新进战（避免幂等短路导致场景不重置），并恢复 `Time.timeScale = 1`；
-- **暂停恢复**：退出到主菜单时统一恢复时间缩放，防止"暂停态进菜单"的遗留 bug。
-
----
-
-## 11. 技术栈清单
+## 10. 技术栈清单
 
 | 类别 | 技术 | 用途 |
 | --- | --- | --- |
@@ -274,7 +251,7 @@ MainMenuUI.OnLevelClick(index)
 
 ---
 
-## 12. 目录结构
+## 11. 目录结构
 
 ```
 Assets/
@@ -304,7 +281,7 @@ Assets/
 
 ---
 
-## 13. 架构亮点总结
+## 12. 架构亮点总结
 
 1. **双程序集热更边界**：AOT 只做"引导 + 服务"，业务全在热更层，新增玩法不动 AOT；DLL 与 AOT 元数据复用资源热更通道下发；
 2. **反射自注册流程**：热更流程扫描 `ProcedureBase` 子类自动注册进 FSM，主流程 `ProcedureMain` 由 AOT 动态切换进入，热更层完整接管游戏；
