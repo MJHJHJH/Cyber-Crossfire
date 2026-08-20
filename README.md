@@ -185,7 +185,7 @@ Recycle →  池化回收兜底检查，防"关了没拆"的泄漏
 
 ### 7.2 MVP & MVVM 实现：VContainer + R3 耦合进生命周期
 
-**MVP（当前主力）**：View 即 `UIFormLogic` 实现 `IPanelView`（如 `MainHUDUIFormLogic`），Presenter 继承 `PanelPresenter<TView>`、构造注入领域数据（`DataStorage / GameplayData`）：
+**MVP（面向命令型面板）**：View 即 `UIFormLogic` 实现 `IPanelView`（如 `MainHUDUIFormLogic`），Presenter 继承 `PanelPresenter<TView>`、构造注入领域数据（`DataStorage / GameplayData`）：
 
 - `OnOpen` → `LifetimeScope.Find<UiLifetimeScope>().Container.Resolve<MainHUDPresenter>()` → `Presenter.Attach(this)`；
 - `OnUpdate` → `Presenter.Tick()`；`OnClose` → `Presenter.Detach()`；
@@ -262,8 +262,7 @@ AppLifetimeScope（父）→ GameLifetimeScope（子）→ UiLifetimeScope（孙
 | 配表 | Luban | 表生成、JSON/Binary 双模式、接口化适配 |
 | DI | VContainer | 三层 LifetimeScope、跨 AOT/热更注入 |
 | 异步/响应式 | UniTask / R3 | 全链路异步、取消传播、响应式绑定 |
-| 广告 | AdMob（RewardedAds） | 激励视频（热更侧接入） |
-| 规范 | openspec（spec-driven） | 架构边界以需求场景形式固化，防回归 |
+| AI规范 | openspec（spec-driven） | 架构边界以需求场景形式固化，防回归 |
 
 ---
 
@@ -292,8 +291,21 @@ Assets/
 │  └─ ThirdParty/                       # GameFrameWork 框架源码（内嵌）
 ├─ DataTable/                           # GamePlay.DataTable 程序集（Luban 生成 + Adapters）
 ├─ HybridCLRGenerate/                   # HybridCLR 生成的桥接/补充元数据
-└─ StreamingAssets/                     # YooAsset 初始资源
+├─ StreamingAssets/                     # YooAsset 初始资源
+├─ Tools/
+│  └─ DataTablesTool/                   # Luban 配表工具链
+│     ├─ DataTables/                    # 表工程：Datas（表数据）/ Defines（表定义）/ luban.conf
+│     │                                 #   生成脚本：gen_json / gen_bin / gen_adapters
+│     └─ Luban/                         # Luban 工具本体（含代码生成模板）
+└─ openspec/
+   ├─ specs/                            # 生效架构规范（assembly-structure / battle-procedure /
+   │                                    #   hybridclr-init / procedure-navigation）
+   └─ changes/                          # 变更记录：proposal → design → tasks → specs（含 archive 归档）
 ```
+
+配表链路：`Tools/DataTablesTool`（Luban 生成 JSON/Binary 表 + Adapters）→ `Assets/DataTable`（表代码程序集）→ 运行时 `LubanTablesFactory` 加载。
+
+openspec 以需求场景（Gherkin 风格）固化架构边界（程序集结构 / 战斗流程 / HybridCLR 初始化 / 流程导航），变更走 `proposal → design → tasks → specs` 流程并归档于 `changes/`。
 
 ---
 
