@@ -13,7 +13,7 @@
 - [2. 程序集划分：AOT / 热更边界](#2-程序集划分aot--热更边界)
 - [3. 游戏流程管理（Procedure FSM）](#3-游戏流程管理procedure-fsm)
 - [4. 热更新设计（HybridCLR）](#4-热更新设计hybridclr)
-- [5. 资源管理（YooAsset + 补丁管线）](#5-资源管理yooasset--补丁管线)
+- [5. 资源管理（YooAsset）](#5-资源管理yooasset)
 - [6. 场景管理（ProcedureSceneSwitch）](#6-场景管理proceduresceneswitch)
 - [7. UI 框架（表驱动 + MVP/MVVM）](#7-ui-框架表驱动--mvpmvvm)
 - [8. 配表系统（Luban）](#8-配表系统luban)
@@ -80,7 +80,7 @@
 
 - 每个 Procedure 都是 `ProcedureBase` 子类，享受 FSM 完整生命周期（`OnEnter/OnUpdate/OnLeave`）；
 - 异步启动任务全部 `UniTask` 化，配合 `CancellationToken` 可在流程离开时即刻取消，杜绝"流程已切换、旧任务还在跑"的竞态；
-- 启动链顺序严格：**YooAsset 就绪 → HybridCLR 初始化 → Luban 配表加载**（配表依赖热更 DLL 中的适配器，热更依赖资源包中的 DLL）。
+- 启动链顺序严格：**YooAsset 就绪 → HybridCLR 初始化 → Luban 配表加载 -> 游戏流程**（配表依赖热更 DLL 中的适配器，热更依赖资源包中的 DLL）。
 
 ---
 
@@ -112,22 +112,24 @@
 
 ---
 
-## 5. 资源管理（YooAsset + 补丁管线）
+## 5. 资源管理（YooAsset）
 
-资源初始化拆成 **独立补丁 FSM（AssetPatch）**，一个 Package 一条状态链：
+YooAsset 作为统一资源层，承载场景加载/卸载、UI 面板、热更 DLL 与 AOT 元数据在内的全部资源生命周期。
 
-```
-InitializePackage → RequestPackageVersion → UpdatePackageManifest
-   → CreateDownloader → ConfirmDownload → DownloadPackageFiles
-   → ClearCacheBundle → PatchDone
-```
+### 5.1 应用亮点
 
-**设计要点：**
+- **多 Package 分治**：常规游戏资源走主包，**HybridCLR 的 `HotUpdate.dll` 与 AOT 补充元数据走独立 RawFile 包**（`DefaultRawPackage`）——两类资源职责单一、可独立下发，**代码热更复用资源热更通道**，一套补丁管线通吃；
+- **统一注入、按 location 寻址**：资源包就绪后统一注入 UI / Scene / Sound 组件，上层所有加载（面板 / 场景 / 音效）只认 location，**不感知资源来源与加载器实现**；
+- **加载方式表驱动**：UI 面板的加载来源（`ResourcesLoader / YooAssetLoader`）由 UIPanel 表字段控制，同一套 `OpenAsync` 接口兼容两种加载器，出包 / 调试切换零代码；
+- **编辑器 / 真机双模式**（`YooPlayMode`）：编辑器走资源直读（改资源即生效），真机走 Bundle 构建，业务代码零差异；
+- **场景生命周期一体化**：场景的挂起加载 / 激活 / 卸载全部由 `SceneHandle` 驱动，卸载自动释放句柄引用计数，与场景字典状态强一致（详见第 6 节）。
 
-- `ProcedureAssetInit` 支持**多 Package 按 Catalog 队列串行补丁**（`ResolveYooPackageQueue`），主包补丁完成后统一注入 `UI / Scene / Sound` 组件；
-- 补丁状态机通过事件（`AssetPatchUserEventArgs`）与 UI 解耦，PatchDone 后回调 `OnPatchSucceeded` 进入热更流程；
-- Package 分治：常规资源走主包，**HybridCLR 的 DLL 与 AOT 元数据走独立 RawFile 包**（`DefaultRawPackage`），职责单一、便于单独下发；
-- 编辑器/真机双模式（`YooPlayMode`）与多 Host 服务器（`HostServerIP / FallbackHostServerIP`）配置化，由 `BaseComponent` 统一提供。
+### 5.2 与 UniTask 配合：异步加载优势
+
+- **Handle → UniTask 无缝转换**：YooAsset 的 `AssetHandle / SceneHandle / AsyncOperation` 均可 `ToUniTask()`，资源加载彻底异步化，主线程零阻塞；
+- **进度实时回传**：`ToUniTask(progress)` 把加载进度经 `IProgress<float>` 实时上报，场景切换据此聚合多场景进度驱动 LoadingUI；
+- **取消贯穿到资源层**：`ToUniTask(cancellationToken)` 让加载可被流程级 `CancellationToken` 取消——流程离开即刻中止资源加载，配合每个 Procedure 独立的 CTS（`OnLeave` 统一 Cancel），杜绝"流程已切换、资源还在后台加载"的竞态；
+- **热更加载实例**：真机下从 RawFile 包 `LoadAssetAsync<RawFileObject>` 读取 `HotUpdate.dll` 字节流，await 完成后 `Assembly.Load` 注入热更程序集——资源加载、补丁下载、代码热更共用同一套异步通道。
 
 ---
 
