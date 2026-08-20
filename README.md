@@ -15,7 +15,7 @@
 - [4. 热更新设计（HybridCLR）](#4-热更新设计hybridclr)
 - [5. 资源管理（YooAsset）](#5-资源管理yooasset)
 - [6. 场景管理（ProcedureSceneSwitch）](#6-场景管理proceduresceneswitch)
-- [7. UI 框架（表驱动 + MVP/MVVM）](#7-ui-框架表驱动--mvpmvvm)
+- [7. UI 框架](#7-ui-框架)
 - [8. 配表系统（Luban）](#8-配表系统luban)
 - [9. 异步与依赖注入（UniTask + R3 + VContainer）](#9-异步与依赖注入unitask--r3--vcontainer)
 - [10. 技术栈清单](#10-技术栈清单)
@@ -167,38 +167,54 @@ YooAsset 作为统一资源层，承载场景加载/卸载、UI 面板、热更 
 
 ---
 
-## 7. UI 框架（表驱动 + MVP/MVVM）
+## 7. UI 框架
 
-### 7.1 表驱动打开
+### 7.1 面板生命周期管理（源于 GameFrameWork）
 
-面板配置（prefab location、所属 Group、遮挡暂停、Canvas 模式、排序、加载方式）全部来自 **Luban UIPanel 表**，由 `UIPanelConfigProvider` 在运行时查询并转换为框架配置：
+面板生命周期由 **GameFrameWork 的 UIFormLogic 体系**提供（框架内嵌于 `ThirdParty/GameFrameWork`）：面板实例池化复用，打开 / 关闭 / 回收三态驱动以下回调，业务绑定全部挂在生命周期回调上：
+
+```
+Open    →  UIFormLogic.OnOpen    →  业务初始化（Presenter.Attach / ViewModel.Bind）
+Update  →  UIFormLogic.OnUpdate  →  业务刷新（Presenter.Tick）
+Close   →  UIFormLogic.OnClose   →  业务清理（Presenter.Detach / ViewModel.Unbind + Dispose）
+Recycle →  池化回收兜底检查，防"关了没拆"的泄漏
+```
+
+- **池化复用**：面板关闭后实例入对象池，再次打开优先复用（UIManager 池化 + 单例语义），Logic 不持有跨面板状态；
+- **异步等待打开**：`OpenAsync` 返回 `UniTask<IUIForm>`，流程层可 await 面板就绪后再继续。
+
+### 7.2 MVP & MVVM 实现：VContainer + R3 耦合进生命周期
+
+**MVP（当前主力）**：View 即 `UIFormLogic` 实现 `IPanelView`（如 `MainHUDUIFormLogic`），Presenter 继承 `PanelPresenter<TView>`、构造注入领域数据（`DataStorage / GameplayData`）：
+
+- `OnOpen` → `LifetimeScope.Find<UiLifetimeScope>().Container.Resolve<MainHUDPresenter>()` → `Presenter.Attach(this)`；
+- `OnUpdate` → `Presenter.Tick()`；`OnClose` → `Presenter.Detach()`；
+- **耦合点**：Attach / Detach 与 UIForm 的 Open / Close 严格对齐——面板开、Presenter 建；面板关、Presenter 拆，生命周期由框架托管而非手动管理。
+
+**MVVM（面向数据密集面板）**：`MvvmUIFormLogic<TViewModel>` + `ViewModelBase`（纯 C#）：
+
+- `OnOpen` → 从 `UiLifetimeScope` Resolve ViewModel → `OnBind` 建立绑定；`OnClose` → `OnUnbind` + 绑定袋 `Dispose` + `ViewModel.Dispose`；`OnRecycle` 兜底清理；
+- **R3 的落点**：`ViewModelBase` 以 R3 `ReactiveProperty<T>` 暴露数据、`DisposableBag` 收纳全部订阅（`CreateProperty` / `AddDisposable`），Logic 侧 `AddBinding` 收纳界面绑定——**订阅随面板生命周期自动释放，杜绝 `+=` 泄漏**；
+- **VContainer 的落点**：Presenter 经 `GameDiInstaller.InstallPresenters` 注册进 Ui Scope（HybridCLR 之后延迟 Build），ViewModel 由同一容器按需 Resolve，领域依赖从 Game Scope 解析——**容器解析发生在 OnOpen、释放跟随 OnClose**，池化 UIFormLogic 不 Inject、只 Resolve，不被容器强引用。
+
+### 7.3 异步加载安全（YooAsset + UniTask）
+
+- **全链路异步 + 可等待**：`OpenAsync` 返回 `UniTask<IUIForm>`，加载不阻塞主线程，流程层可"等面板就绪再继续"；
+- **取消贯穿**：`CancellationToken` 贯穿 UIManager → Loader → YooAsset Handle（`ToUniTask().AttachExternalCancellation(ct)`），流程离开即刻中止在途打开；UIComponent 还会与组件销毁 token 链接（`CreateLinkedTokenSource`），框架销毁时自动取消全部在途加载；
+- **句柄引用计数安全**：`YooAssetUIFormLoader` 中取消 / 失败路径 `catch` 里 `handle.Release()` 归还引用计数、成功后显式检查 `Status`；句柄释放进一步封装为 `ReleaseAsset` 闭包，**随对象池回收自动归还**，任何路径都不泄漏；
+- **在途去重与单例**：同一 location 在途加载期间，重复请求等待加载结束后复用（`IsLoadingUIForm` 轮询），失败 / 取消路径统一清理在途记录并释放资源。
+
+### 7.4 表驱动与热更界面
+
+- **表驱动打开**：面板配置（prefab location、所属 Group、遮挡暂停、Canvas 模式、排序、加载方式）全部来自 Luban UIPanel 表，由 `UIPanelConfigProvider` 运行时查表转为框架配置：
 
 ```csharp
 await GameFrameWork.UI.OpenAsync(panelId, userData, cancellationToken); // 按表 id
 await GameFrameWork.UI.OpenAsync(location, group, pause, userData, ct);  // 按 location
 ```
 
-- 加载方式（`ResourcesLoader / YooAssetLoader`）由表字段 `Loader` 驱动，**新增面板 = 配一行表 + 出包**，零代码；
-- `Launch` 阶段连配表都未加载时，启动面板走固定 `Resources` 路径，启动链路不依赖任何外部数据。
-
-### 7.2 双架构并存：MVP 与 MVVM
-
-| 模式 | 基类 | 适用场景 | 亮点 |
-| --- | --- | --- | --- |
-| MVP | `PanelPresenter<TView>` + `IPanelView` | 主菜单 MainHUD、战斗 HUD、暂停/胜负弹窗 | View 接口化，Presenter 构造注入领域数据（`DataStorage / GameplayData`），Attach/Detach 对齐 UIForm 生命周期，可单测 |
-| MVVM | `MvvmUIFormLogic<TViewModel>` | 后续数据密集面板 | ViewModel 由 `UiLifetimeScope` 容器 Resolve，R3 流绑定收纳进 `DisposableBag`，Close/Recycle 自动 Dispose，防泄漏三重兜底 |
-
-### 7.3 生命周期管理 - 源于GameFrameWork
-
-```
-Open  →  UIFormLogic.OnOpen   →  Presenter.Attach / ViewModel.Bind
-Close →  UIFormLogic.OnClose  →  Presenter.Detach / ViewModel.Unbind + Dispose
-Recycle → 兜底检查（防"关了没拆"泄漏）
-```
-
-- UIForm 池化复用（GameFramework UIFormLogic 体系），Logic 不持有跨面板状态；
-- MVVM 的绑定袋（`DisposableBag`）与 ViewModel 内部袋分离，`OnUnbind` 可扩展，回收时若有残留自动告警并清理；
-- 所有面板打开支持异步等待（`UniTask<IUIForm>`），流程层可"等面板就绪再继续"。
+- 加载方式由表字段 `Loader` 驱动（`ResourcesLoader / YooAssetLoader`），**新增面板 = 配一行表 + 出包，零代码**；
+- **热更界面**：面板 Prefab 随资源包热更下发，UIFormLogic / Presenter 位于热更程序集，**界面逻辑与表现均可随版本热更**；启动期（配表未加载）的初始化面板走固定 `Resources` 路径，启动链路不依赖任何外部数据。
 
 ---
 
