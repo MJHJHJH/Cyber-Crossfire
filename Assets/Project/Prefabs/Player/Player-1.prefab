@@ -121,7 +121,6 @@ MonoBehaviour:
     type: 3}
   m_GrenadeCount: 0
   m_PlayerPowers: {fileID: 0}
-  m_Storage: {fileID: 11400000, guid: e7b53fcdf6e0ac44199db994a218a03d, type: 2}
   m_Contents: {fileID: 11400000, guid: 0595c63477c299d499fd1d72c22fabd2, type: 2}
 --- !u!114 &6243425237513417537
 MonoBehaviour:

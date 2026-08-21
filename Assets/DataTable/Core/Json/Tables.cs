@@ -17,12 +17,14 @@ public partial class Tables
     public TbSound TbSound {get; }
     public TbSoundGroup TbSoundGroup {get; }
     public TbUIPanel TbUIPanel {get; }
+    public TbWeapon TbWeapon {get; }
 
     public Tables(System.Func<string, JSONNode> loader)
     {
         TbSound = new TbSound(loader("tbsound"));
         TbSoundGroup = new TbSoundGroup(loader("tbsoundgroup"));
         TbUIPanel = new TbUIPanel(loader("tbuipanel"));
+        TbWeapon = new TbWeapon(loader("tbweapon"));
         ResolveRef();
     }
     
@@ -31,6 +33,7 @@ public partial class Tables
         TbSound.ResolveRef(this);
         TbSoundGroup.ResolveRef(this);
         TbUIPanel.ResolveRef(this);
+        TbWeapon.ResolveRef(this);
     }
 }
 

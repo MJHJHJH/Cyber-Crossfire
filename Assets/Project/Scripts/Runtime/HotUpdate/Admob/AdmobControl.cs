@@ -1,21 +1,16 @@
 ﻿
-
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 #if ADMOB_ENABLED
 using GoogleMobileAds.Api;
 #endif
-using CommandoRobot.ScriptableObjects;
 namespace CommandoRobot
 {
     public class AdmobControl : MonoBehaviour
     {
 
 #if ADMOB_ENABLED
-        [SerializeField]
-        private DataStorage m_DataStorage;
-
         BannerView _bannerView;
 
         private string m_IntersitialZoneID = "ca-app-pub-3940256099942544/1033173712";

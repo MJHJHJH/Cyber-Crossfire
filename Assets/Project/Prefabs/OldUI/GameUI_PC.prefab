@@ -1718,7 +1718,6 @@ MonoBehaviour:
   m_BossHealthBase: {fileID: 4337139043252115369}
   m_BossHealth: {fileID: 3746097174118213606}
   m_BossDamageControl: {fileID: 0}
-  m_DataStorage: {fileID: 11400000, guid: e7b53fcdf6e0ac44199db994a218a03d, type: 2}
 --- !u!1 &7009428221580120531
 GameObject:
   m_ObjectHideFlags: 0

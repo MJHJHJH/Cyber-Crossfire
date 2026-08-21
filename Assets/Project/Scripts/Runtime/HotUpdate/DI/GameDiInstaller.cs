@@ -12,7 +12,6 @@ namespace GamePlay
     {
         public static void EnsureInitialized()
         {
-            // Find<T>() 返回基类 LifetimeScope，不是 T
             var app = LifetimeScope.Find<AppLifetimeScope>() as AppLifetimeScope;
             var ui = LifetimeScope.Find<UiLifetimeScope>() as UiLifetimeScope;
             if (app == null || ui == null)
@@ -36,17 +35,15 @@ namespace GamePlay
             if (LifetimeScope.Find<GameLifetimeScope>() != null)
                 return;
 
-            var storage = app.DataStorageAsset as DataStorage;
             var gameplay = app.GameplayDataAsset as GameplayData;
-            if (storage == null || gameplay == null)
+            if (gameplay == null)
             {
-                Debug.LogError("[GameDI] Assign DataStorage and GameplayData on AppLifetimeScope.");
+                Debug.LogError("[GameDI] Assign GameplayData on AppLifetimeScope.");
                 return;
             }
 
             app.CreateChild<GameLifetimeScope>(builder =>
             {
-                builder.RegisterInstance(storage);
                 builder.RegisterInstance(gameplay);
             }, "GameLifetimeScope");
         }

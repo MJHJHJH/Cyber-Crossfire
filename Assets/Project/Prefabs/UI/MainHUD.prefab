@@ -5960,12 +5960,6 @@ PrefabInstance:
       objectReference: {fileID: 2333359921186793180}
     - target: {fileID: 1147114721798139671, guid: 22fd25872502dcb47819f6b79c96ea8b,
         type: 3}
-      propertyPath: m_DataStorage
-      value: 
-      objectReference: {fileID: 11400000, guid: e7b53fcdf6e0ac44199db994a218a03d,
-        type: 2}
-    - target: {fileID: 1147114721798139671, guid: 22fd25872502dcb47819f6b79c96ea8b,
-        type: 3}
       propertyPath: m_TextLoading
       value: 
       objectReference: {fileID: 8091831763433503700}

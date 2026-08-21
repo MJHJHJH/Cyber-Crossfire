@@ -1,17 +1,11 @@
 using CommandoRobot;
-using CommandoRobot.ScriptableObjects;
+using GamePlay.Data;
 using UI.Mvp;
 using UnityEngine;
 
 public sealed class GameUI_PCPresenter : PanelPresenter<IGameUI_PCView>
 {
-    private readonly DataStorage _storage;
     private DamageControl _bossDamageControl;
-
-    public GameUI_PCPresenter(DataStorage storage)
-    {
-        _storage = storage;
-    }
 
     protected override void OnAttach()
     {
@@ -35,7 +29,7 @@ public sealed class GameUI_PCPresenter : PanelPresenter<IGameUI_PCView>
             return;
 
         RefreshAimLock(player);
-        View.SetCoinText(_storage.Coin);
+        View.SetCoinText(PlayerSave.Coin);
 
         if (player.m_CurrentWeapon != null)
             View.SetGunName(player.m_CurrentWeapon.Title);

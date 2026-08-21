@@ -1,10 +1,6 @@
-﻿
-using System.Collections;
-using System.Collections.Generic;
-using System;
+﻿using System;
 using UnityEngine;
 using UnityEngine.UI;
-using CommandoRobot.ScriptableObjects;
 using UnityEngine.Analytics;
 #if ADMOB_ENABLED
 using GoogleMobileAds.Api;
@@ -21,10 +17,6 @@ namespace CommandoRobot
         public bool m_AdRequested = false;
 
         public string m_VideoZoneID;
-
-
-        [SerializeField]
-        private DataStorage m_DataStorage;
 
         private void Awake()
         {
@@ -46,7 +38,8 @@ namespace CommandoRobot
 
         public void RequestVideoAd()
         {
-            if (m_DataStorage.CheckInternet())
+            if (Application.internetReachability == NetworkReachability.ReachableViaCarrierDataNetwork ||
+                Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork)
             {
 #if ADMOB_ENABLED
                 // Clean up the old ad before loading a new one.

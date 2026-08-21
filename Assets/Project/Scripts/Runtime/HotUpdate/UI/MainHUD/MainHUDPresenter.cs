@@ -1,24 +1,21 @@
 using CommandoRobot.ScriptableObjects;
 using GamePlay;
+using GamePlay.Data;
 using UI.Mvp;
 using UnityEngine;
 
 public sealed class MainHUDPresenter : PanelPresenter<IMainHUDView>
 {
-    private const int WeaponSlotCount = 6;
-
-    private readonly DataStorage _storage;
     private readonly GameplayData _gameplayData;
 
-    public MainHUDPresenter(DataStorage storage, GameplayData gameplayData)
+    public MainHUDPresenter(GameplayData gameplayData)
     {
-        _storage = storage;
         _gameplayData = gameplayData;
     }
 
     protected override void OnAttach()
     {
-        _storage.LoadData();
+        PlayerSave.EnsureLoaded();
         View.ShowMainPanel();
         Refresh();
     }
@@ -57,22 +54,16 @@ public sealed class MainHUDPresenter : PanelPresenter<IMainHUDView>
 
     public void OnWeaponClick(int index)
     {
-        if (!IsAttached || !IsValidWeaponIndex(index))
+        if (!IsAttached || index < 0)
             return;
 
-        if (_storage.m_WeaponsUnlocked[index])
+        if (PlayerSave.IsWeaponUnlocked(index))
         {
-            _storage.m_SelectedWeapon = index;
+            PlayerSave.SelectWeapon(index);
             return;
         }
 
-        int price = _storage.m_WeaponsPrice[index];
-        if (price > _storage.Coin)
-            return;
-
-        _storage.Coin -= price;
-        _storage.m_WeaponsUnlocked[index] = true;
-        _storage.m_SelectedWeapon = index;
+        PlayerSave.TryUnlockWeapon(index);
     }
 
     public void OnLevelClick(int index)
@@ -97,31 +88,21 @@ public sealed class MainHUDPresenter : PanelPresenter<IMainHUDView>
 
     private void Refresh()
     {
-        View.SetCoinText(_storage.Coin);
+        View.SetCoinText(PlayerSave.Coin);
 
-        int count = WeaponSlotCount;
-        if (_storage.m_WeaponsUnlocked == null || _storage.m_WeaponsPrice == null)
+        bool[] unlocked = PlayerSave.WeaponsUnlocked;
+        if (unlocked == null)
             return;
 
-        if (_storage.m_WeaponsUnlocked.Length < count || _storage.m_WeaponsPrice.Length < count)
-            count = Mathf.Min(_storage.m_WeaponsUnlocked.Length, _storage.m_WeaponsPrice.Length);
-
+        int count = unlocked.Length;
+        int selected = PlayerSave.SelectedWeapon;
         for (int i = 0; i < count; i++)
         {
             View.SetWeaponSlot(
                 i,
-                i == _storage.m_SelectedWeapon,
-                _storage.m_WeaponsUnlocked[i],
-                _storage.m_WeaponsPrice[i]);
+                i == selected,
+                unlocked[i],
+                PlayerSave.GetWeaponPrice(i));
         }
-    }
-
-    private bool IsValidWeaponIndex(int index)
-    {
-        return index >= 0 &&
-               _storage.m_WeaponsUnlocked != null &&
-               _storage.m_WeaponsPrice != null &&
-               index < _storage.m_WeaponsUnlocked.Length &&
-               index < _storage.m_WeaponsPrice.Length;
     }
 }

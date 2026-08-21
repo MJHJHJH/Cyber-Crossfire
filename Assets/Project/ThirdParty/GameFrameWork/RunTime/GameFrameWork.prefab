@@ -520,6 +520,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_DataMode: 0
+--- !u!1 &6123456789012345601
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6123456789012345678}
+  m_Layer: 0
+  m_Name: Data
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6123456789012345678
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6123456789012345601}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4569579128125109361}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6241807438816616533
 GameObject:
   m_ObjectHideFlags: 0
@@ -570,7 +601,8 @@ MonoBehaviour:
   m_NeverSleep: 1
   m_YooPlayMode: 0
   m_YooPackageName: DefaultPackage
-  m_YooPackageCatalog: {fileID: 11400000, guid: 4c668513aad4d894cb95eaee71dc606d, type: 2}
+  m_YooPackageCatalog: {fileID: 11400000, guid: 4c668513aad4d894cb95eaee71dc606d,
+    type: 2}
   m_HostServerIP: http://127.0.0.1
   m_FallbackHostServerIP: http://127.0.0.1
   m_HostAppVersion: v1.0
@@ -738,6 +770,7 @@ Transform:
   - {fileID: 8307103161983117163}
   - {fileID: 4891030453276990095}
   - {fileID: 5123456789012345678}
+  - {fileID: 6123456789012345678}
   - {fileID: 2571700881274228873}
   - {fileID: 1910926564496194306}
   - {fileID: 5508559324535625540}

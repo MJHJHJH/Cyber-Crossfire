@@ -271,25 +271,50 @@ namespace GameFramework
                         "Call AllowSceneActivation and wait for load to finish first.", location));
             }
 
+            // 取消只阻止“启动新的卸载”；已在途的卸载必须执行到终点（原因见下）。
+            cancellationToken.ThrowIfCancellationRequested();
+
             entry.State = SceneState.Unloading;
             try
             {
                 UnloadSceneOperation operation = entry.Handle.UnloadSceneAsync();
-                await operation.ToUniTask().AttachExternalCancellation(cancellationToken);
+
+                // 注意：不能对卸载等待挂接外部取消（AttachExternalCancellation）。
+                // YooAsset 的 UnloadSceneOperation 一旦启动便无法中止（内部会先自动解除
+                // 场景挂起、等待加载完成后执行 SceneManager.UnloadSceneAsync）；若在此
+                // 放弃等待，操作仍会在后台完成卸载，而字典已回滚为 Loaded，形成
+                // “字典有、场景无”的幽灵场景（状态失真竞态）。因此必须等到操作结束，
+                // 由本方法统一维护字典状态。
+                await operation.ToUniTask();
+
+                // ToUniTask 只区分“完成/未完成”而不区分成败（失败的操作同样以成功
+                // 结果返回），必须显式检查 Status；否则卸载失败会被静默吞掉，字典被
+                // 错误移除，造成“场景仍在、字典已删”的反向失真（再次加载同名场景
+                // 会产生重复实例）。
+                if (operation.Status == EOperationStatus.Succeeded)
+                {
+                    _scenes.Remove(location);
+                    RefreshFallbackMainCamera();
+                    return;
+                }
+
+                throw new GameFrameworkException(
+                    Utility.Text.Format("Unload scene '{0}' failure: {1}", location, operation.Error));
             }
-            catch (OperationCanceledException)
+            catch (GameFrameworkException)
             {
+                // 卸载失败：场景大概率仍存在，恢复 Loaded 状态并交由上层重试/忽略。
                 entry.State = SceneState.Loaded;
+                RefreshFallbackMainCamera();
                 throw;
             }
             catch (Exception ex)
             {
                 entry.State = SceneState.Loaded;
-                throw new GameFrameworkException(Utility.Text.Format("Unload scene '{0}' failure: {1}", location, ex.Message), ex);
+                RefreshFallbackMainCamera();
+                throw new GameFrameworkException(
+                    Utility.Text.Format("Unload scene '{0}' failure: {1}", location, ex.Message), ex);
             }
-
-            _scenes.Remove(location);
-            RefreshFallbackMainCamera();
         }
 
         /// <summary>
@@ -383,7 +408,17 @@ namespace GameFramework
         {
             try
             {
-                await handle.UnloadSceneAsync().ToUniTask();
+                UnloadSceneOperation operation = handle.UnloadSceneAsync();
+                await operation.ToUniTask();
+
+                // 与 UnloadSceneAsync 相同的显式状态检查：ToUniTask 不区分成败，
+                // 清理卸载失败时场景可能已残留为已加载状态，此处告警以便追踪。
+                if (operation.Status != EOperationStatus.Succeeded)
+                {
+                    Debug.LogWarning(Utility.Text.Format(
+                        "[SceneComponent] Cancel load cleanup unload scene '{0}' failure: {1}",
+                        location, operation.Error));
+                }
             }
             catch
             {

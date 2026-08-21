@@ -19,7 +19,6 @@ namespace CommandoRobot
 
         public LevelBase m_Level;
 
-        public DataStorage m_DataStorage;
         public GameplayData m_GameplayData;
         public Contents m_Contents;
 

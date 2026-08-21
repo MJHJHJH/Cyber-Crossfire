@@ -13,6 +13,7 @@ namespace GamePlay
     /// suspend 加载新场景 → 回 Home → AllowSceneActivation → 卸旧场景 → SetActiveScene。
     /// 不可先卸旧场景：Unity 场景管线串行，Unload 会等 suspend 中的 Load 完成，而 Load 等 AllowSceneActivation，形成死锁（90%）。
     /// </summary>
+    /// 
     public static class ProcedureSceneSwitch
     {
         public const string LoadingUiLocation = "LoadingPanel";
@@ -229,16 +230,31 @@ namespace GamePlay
             LoadingUIFormLogic loadingLogic,
             CancellationToken cancellationToken)
         {
-            // sceneLoaded：Awake 之后、Start 之前。此时设 Active，保证 Start/Instantiate 进新场景。
+            // sceneLoaded：Awake 之后、Start 之前。
+            // 激活归属必须确定性收敛，不能按完成顺序逐个 SetActiveScene：
+            // 多场景组下先完成场景的 Start 会跑在“后完成场景为激活场景”的窗口里，
+            // 归属随完成顺序漂移。策略改为只提升一次：
+            // ① 仅当目标场景（activeLocation）自身完成 Awake 后，才将激活场景置为它；
+            // ② 目标场景就绪前，激活场景保持 Home（切换安全区），任何场景的 Start
+            //    只会落在 Home 或目标场景，绝不会落在另一个玩法场景；
+            // ③ 目标场景先于组内其他场景完成时，其 Start 也能确定性地落在自身。
+            // 若目标场景此前已加载（不在 toLoad 中），则此处不提升，由 SwitchAsync
+            // 末尾的 ActivateScene(activeLocation) 统一收口。
             var pendingLocations = new HashSet<string>(toLoad, StringComparer.Ordinal);
+            bool targetActivated = false;
             void OnSceneLoaded(Scene scene, LoadSceneMode mode)
             {
+                if (targetActivated)
+                    return;
                 if (!scene.IsValid() || !scene.isLoaded)
                     return;
                 if (!pendingLocations.Contains(scene.name))
                     return;
+                if (scene.name != activeLocation)
+                    return;
 
                 SceneManager.SetActiveScene(scene);
+                targetActivated = true;
             }
 
             SceneManager.sceneLoaded += OnSceneLoaded;

@@ -4093,12 +4093,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9015877126296475506, guid: 148dd1a73be595a498c016ced691c785,
         type: 3}
-      propertyPath: m_DataStorage
-      value: 
-      objectReference: {fileID: 11400000, guid: e7b53fcdf6e0ac44199db994a218a03d,
-        type: 2}
-    - target: {fileID: 9015877126296475506, guid: 148dd1a73be595a498c016ced691c785,
-        type: 3}
       propertyPath: m_VideoObjects.Array.size
       value: 1
       objectReference: {fileID: 0}

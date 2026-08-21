@@ -441,7 +441,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_VideoObjectName: 
-  m_DataStorage: {fileID: 0}
   m_Reward: {fileID: 0}
   m_RequestDelay: 0.1
   m_ImgLoading: {fileID: 0}

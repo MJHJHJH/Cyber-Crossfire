@@ -24,6 +24,7 @@ namespace GamePlay
             base.OnEnter(procedureOwner);
 
             GameDiInstaller.EnsureInitialized();
+            GamePlay.Data.PlayerSave.EnsureLoaded();
 
             _cts = new CancellationTokenSource();
             SwitchSceneGroupAsync(_cts.Token).Forget();

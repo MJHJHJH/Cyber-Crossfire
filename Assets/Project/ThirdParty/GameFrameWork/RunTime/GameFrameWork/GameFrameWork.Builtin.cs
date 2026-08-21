@@ -64,6 +64,12 @@ namespace GameFramework
             private set;
         }
 
+        public static DataComponent Data
+        {
+            get;
+            private set;
+        }
+
         private static void InitBuiltinComponents()
         {
             Base = GameEntry.GetComponent<BaseComponent>();
@@ -75,6 +81,7 @@ namespace GameFramework
             Event = GameEntry.GetComponent<EventComponent>();
             Scene = GameEntry.GetComponent<SceneComponent>();
             Sound = GameEntry.GetComponent<SoundComponent>();
+            Data = GameEntry.GetComponent<DataComponent>();
         }
     }
 }

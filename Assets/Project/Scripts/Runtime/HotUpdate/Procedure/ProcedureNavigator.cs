@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using GameFramework;
 using GameFramework.Fsm;
 using GameFramework.Procedure;
+using GamePlay.Data;
 using UnityEngine;
 
 namespace GamePlay
@@ -43,6 +44,8 @@ namespace GamePlay
                 return;
             }
 
+            // 主菜单购买/选武器等先刷盘，再进战
+            PlayerSave.Save();
             fsm.SetData(BattleEnterKey, VarString.Create(sceneLocation));
             GameFrameWork.Procedure.ChangeProcedure<ProcedureBattle>();
         }
@@ -63,6 +66,7 @@ namespace GamePlay
                 return;
             }
 
+            // 离开战斗时 ProcedureBattle.OnLeave 会 Save，此处只需切流程
             GameFrameWork.Procedure.ChangeProcedure<ProcedureMain>();
         }
 

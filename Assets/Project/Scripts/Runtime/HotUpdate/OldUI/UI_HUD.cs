@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using CommandoRobot.ScriptableObjects;
+using GamePlay.Data;
 
 namespace CommandoRobot
 {
@@ -24,8 +24,6 @@ namespace CommandoRobot
         public DamageControl m_BossDamageControl;
 
         public static UI_HUD m_Main;
-
-        public DataStorage m_DataStorage;
 
         void Awake()
         {
@@ -63,7 +61,7 @@ namespace CommandoRobot
             }
             //--------
 
-            m_CoinCountText.text = m_DataStorage.Coin.ToString();
+            m_CoinCountText.text = PlayerSave.Coin.ToString();
 
 
             if (PlayerCharacter.m_Current.m_CurrentWeapon != null)

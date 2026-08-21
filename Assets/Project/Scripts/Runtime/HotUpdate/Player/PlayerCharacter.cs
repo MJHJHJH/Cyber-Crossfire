@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using CommandoRobot.ScriptableObjects;
+using GamePlay.Data;
 
 
 namespace CommandoRobot
@@ -31,7 +32,6 @@ namespace CommandoRobot
         [HideInInspector]
         public PlayerPowers m_PlayerPowers;
 
-        public DataStorage m_Storage;
         public Contents m_Contents;
 
         void Awake()
@@ -55,7 +55,7 @@ namespace CommandoRobot
             m_DamageControl.OnDamaged.AddListener(HandleDamage);
             m_InControl = true;
             m_GrenadeCount = 3;
-            m_WeaponPrefab = m_Contents.m_PlayerWeapons[m_Storage.m_SelectedWeapon];
+            m_WeaponPrefab = m_Contents.m_PlayerWeapons[PlayerSave.SelectedWeapon];
             SetWeapon(m_WeaponPrefab);
             m_CurrentWeapon.InfiniteAmmo = true;
         }
@@ -98,11 +98,12 @@ namespace CommandoRobot
             if (m_CurrentWeapon == null)
                 return;
 
-            if (m_CurrentWeapon.WeaponID != m_Contents.m_PlayerWeapons[m_Storage.m_SelectedWeapon].GetComponent<WeaponBase>().WeaponID)
+            int selected = PlayerSave.SelectedWeapon;
+            if (m_CurrentWeapon.WeaponID != m_Contents.m_PlayerWeapons[selected].GetComponent<WeaponBase>().WeaponID)
             {
                 if (m_CurrentWeapon.AmmoCount <= 0)
                 {
-                    SetWeapon(GameControl.m_Current.m_Contents.m_PlayerWeapons[m_Storage.m_SelectedWeapon]);
+                    SetWeapon(GameControl.m_Current.m_Contents.m_PlayerWeapons[selected]);
                     m_CurrentWeapon.InfiniteAmmo = true;
                 }
             }
@@ -242,7 +243,7 @@ namespace CommandoRobot
         {
             if (itemType == "Coin")
             {
-                GameControl.m_Current.m_DataStorage.Coin += 5;
+                PlayerSave.AddCoin(5);
             }
             else if (itemType == "WeaponShotgun")
             {

@@ -5115,7 +5115,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9bd60998fff1797488d63ee5ba49cdd8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Storage: {fileID: 11400000, guid: e7b53fcdf6e0ac44199db994a218a03d, type: 2}
   m_GameplayData: {fileID: 11400000, guid: a021654d626ffe24d91719bf9d7396c0, type: 2}
   m_CointText: {fileID: 7853691305285925719}
   m_LevelPanel: {fileID: 39245393073845521}
@@ -6068,12 +6067,6 @@ PrefabInstance:
       propertyPath: m_ImgLoading
       value: 
       objectReference: {fileID: 6611920642096381234}
-    - target: {fileID: 1147114721798139671, guid: 22fd25872502dcb47819f6b79c96ea8b,
-        type: 3}
-      propertyPath: m_DataStorage
-      value: 
-      objectReference: {fileID: 11400000, guid: e7b53fcdf6e0ac44199db994a218a03d,
-        type: 2}
     - target: {fileID: 1147114721798139671, guid: 22fd25872502dcb47819f6b79c96ea8b,
         type: 3}
       propertyPath: m_TextLoading

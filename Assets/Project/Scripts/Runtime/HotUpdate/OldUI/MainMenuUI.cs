@@ -1,15 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using CommandoRobot.ScriptableObjects;
 using GamePlay;
+using GamePlay.Data;
 
 namespace CommandoRobot
 {
     public class MainMenuUI : MonoBehaviour
     {
-        public DataStorage m_Storage;
         public GameplayData m_GameplayData;
 
         public Text m_CointText;
@@ -20,32 +18,27 @@ namespace CommandoRobot
         public Image[] m_WeaponButtons;
         public Image[] m_WeaponImages;
         public Text[] m_WeaponPrices;
-        // Start is called before the first frame update
+
         void Start()
         {
             m_LevelPanel.gameObject.SetActive(false);
             m_ArmoryPanel.gameObject.SetActive(false);
             m_MainPanel.gameObject.SetActive(true);
-            m_Storage.LoadData();
+            PlayerSave.EnsureLoaded();
         }
 
-        // Update is called once per frame
         void Update()
         {
-            m_CointText.text = m_Storage.Coin.ToString();
+            m_CointText.text = PlayerSave.Coin.ToString();
 
-            for (int i = 0; i < 6; i++)
+            bool[] unlocked = PlayerSave.WeaponsUnlocked;
+            int count = unlocked != null ? unlocked.Length : 0;
+            int selected = PlayerSave.SelectedWeapon;
+            for (int i = 0; i < count && i < m_WeaponButtons.Length; i++)
             {
-                if (i == m_Storage.m_SelectedWeapon)
-                {
-                    m_WeaponButtons[i].color = Color.green;
-                }
-                else
-                {
-                    m_WeaponButtons[i].color = Color.white;
-                }
+                m_WeaponButtons[i].color = i == selected ? Color.green : Color.white;
 
-                if (m_Storage.m_WeaponsUnlocked[i])
+                if (unlocked[i])
                 {
                     m_WeaponImages[i].color = Color.white;
                     m_WeaponPrices[i].gameObject.SetActive(false);
@@ -53,7 +46,7 @@ namespace CommandoRobot
                 else
                 {
                     m_WeaponPrices[i].gameObject.SetActive(true);
-                    m_WeaponPrices[i].text = m_Storage.m_WeaponsPrice[i].ToString();
+                    m_WeaponPrices[i].text = PlayerSave.GetWeaponPrice(i).ToString();
                     m_WeaponImages[i].color = new Color(.3f, .3f, .3f, .7f);
                 }
             }
@@ -70,6 +63,7 @@ namespace CommandoRobot
             m_ArmoryPanel.gameObject.SetActive(true);
             m_MainPanel.gameObject.SetActive(false);
         }
+
         public void BtnBack()
         {
             m_ArmoryPanel.gameObject.SetActive(false);
@@ -79,19 +73,10 @@ namespace CommandoRobot
 
         public void BtnWeapon(int num)
         {
-            if (m_Storage.m_WeaponsUnlocked[num])
-            {
-                m_Storage.m_SelectedWeapon = num;
-            }
+            if (PlayerSave.IsWeaponUnlocked(num))
+                PlayerSave.SelectWeapon(num);
             else
-            {
-                if (m_Storage.m_WeaponsPrice[num] <= m_Storage.Coin)
-                {
-                    m_Storage.Coin -= m_Storage.m_WeaponsPrice[num];
-                    m_Storage.m_WeaponsUnlocked[num] = true;
-                    m_Storage.m_SelectedWeapon = num;
-                }
-            }
+                PlayerSave.TryUnlockWeapon(num);
         }
 
         public void BtnLevel(int num)

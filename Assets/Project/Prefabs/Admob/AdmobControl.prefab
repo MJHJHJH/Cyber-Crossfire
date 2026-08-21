@@ -44,6 +44,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff42d8c2a632cc6428b25164affc6c98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_DataStorage: {fileID: 11400000, guid: 9ecef8671a7c627468ec06220c4ec4be, type: 2}
   m_IsErrorInAdnetwork: 0
   m_VideoObjects: []

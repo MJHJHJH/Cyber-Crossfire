@@ -10,7 +10,7 @@ namespace GamePlay
 {
     public sealed class LubanTablesFactory : ILubanTablesFactory
     {
-        private static readonly string[] TABLE_LOCATIONS = { "tbsound", "tbsoundgroup", "tbuipanel" };
+        private static readonly string[] TABLE_LOCATIONS = { "tbsound", "tbsoundgroup", "tbuipanel", "tbweapon" };
 
         public async UniTask<LubanTableRegistry> CreateAsync(
             LubanDataMode mode,
@@ -35,6 +35,7 @@ namespace GamePlay
                 registry.Register<ISound>(SoundTableAccess.From(tables.TbSound));
                 registry.Register<ISoundGroup>(SoundGroupTableAccess.From(tables.TbSoundGroup));
                 registry.Register<IUIPanel>(UIPanelTableAccess.From(tables.TbUIPanel));
+                registry.Register<IWeapon>(WeaponTableAccess.From(tables.TbWeapon));
                 return registry;
             }
 
@@ -51,6 +52,7 @@ namespace GamePlay
                 registry.Register<ISound>(SoundTableAccess.From(tables.TbSound));
                 registry.Register<ISoundGroup>(SoundGroupTableAccess.From(tables.TbSoundGroup));
                 registry.Register<IUIPanel>(UIPanelTableAccess.From(tables.TbUIPanel));
+                registry.Register<IWeapon>(WeaponTableAccess.From(tables.TbWeapon));
                 return registry;
             }
 

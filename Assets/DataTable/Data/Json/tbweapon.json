@@ -1,0 +1,32 @@
+[
+  {
+    "id": 0,
+    "price": 0,
+    "name": "Weapon0"
+  },
+  {
+    "id": 1,
+    "price": 350,
+    "name": "Weapon1"
+  },
+  {
+    "id": 2,
+    "price": 800,
+    "name": "Weapon2"
+  },
+  {
+    "id": 3,
+    "price": 850,
+    "name": "Weapon3"
+  },
+  {
+    "id": 4,
+    "price": 600,
+    "name": "Weapon4"
+  },
+  {
+    "id": 5,
+    "price": 560,
+    "name": "Weapon5"
+  }
+]

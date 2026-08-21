@@ -49,6 +49,8 @@ namespace GamePlay
             }
 
             CloseBattleHud();
+            // 局内捡币等只标脏，离开战斗统一落盘
+            GamePlay.Data.PlayerSave.Save();
             base.OnLeave(procedureOwner, isShutdown);
         }
 

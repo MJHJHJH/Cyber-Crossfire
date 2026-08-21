@@ -66,6 +66,15 @@ namespace GamePlay
             // SoundGroup 表就绪，初始化声音组与大类 mixer 路由（Start 时表未加载，此处补建）
             GameFrameWork.Sound?.InitSoundGroupsFromTable();
 
+            if (GameFrameWork.Data == null)
+            {
+                Debug.LogError(
+                    "[ProcedureDataTableInit] DataComponent is missing. Add it via Game Framework/Data.");
+                return;
+            }
+
+            GameFrameWork.Data.Load();
+
             // 切换到已注册的热更主流程（同常规流程切换，走 Fsm 状态机生命周期）
             Type mainType = ProcedureHotUpdateInit.MainProcedureType;
             if (mainType == null)
