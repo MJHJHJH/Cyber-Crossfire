@@ -1,12 +1,17 @@
+using System;
+using Cysharp.Threading.Tasks;
 using CommandoRobot.ScriptableObjects;
 using GamePlay;
 using GamePlay.Data;
+using R3;
 using UI.Mvp;
 using UnityEngine;
+using GameFramework;
 
 public sealed class MainHUDPresenter : PanelPresenter<IMainHUDView>
 {
     private readonly GameplayData _gameplayData;
+    private IDisposable _saveSubscription;
 
     public MainHUDPresenter(GameplayData gameplayData)
     {
@@ -18,14 +23,14 @@ public sealed class MainHUDPresenter : PanelPresenter<IMainHUDView>
         PlayerSave.EnsureLoaded();
         View.ShowMainPanel();
         Refresh();
+        _saveSubscription = PlayerSave.Changed.Subscribe(_ => Refresh());
     }
 
-    public void Tick()
+    protected override void OnDetach()
     {
-        if (!IsAttached)
-            return;
-
-        Refresh();
+        _saveSubscription?.Dispose();
+        _saveSubscription = null;
+        base.OnDetach();
     }
 
     public void OnPlayClick()
@@ -41,7 +46,13 @@ public sealed class MainHUDPresenter : PanelPresenter<IMainHUDView>
         if (!IsAttached)
             return;
 
-        View.ShowArmoryPanel();
+        if (GameFrameWork.UI == null)
+        {
+            Debug.LogError("[MainHUD] UI component is missing.");
+            return;
+        }
+
+        GameFrameWork.UI.OpenAsync(UIPanelIds.ShopPanel).Forget();
     }
 
     public void OnBackClick()
@@ -50,20 +61,6 @@ public sealed class MainHUDPresenter : PanelPresenter<IMainHUDView>
             return;
 
         View.ShowMainPanel();
-    }
-
-    public void OnWeaponClick(int index)
-    {
-        if (!IsAttached || index < 0)
-            return;
-
-        if (PlayerSave.IsWeaponUnlocked(index))
-        {
-            PlayerSave.SelectWeapon(index);
-            return;
-        }
-
-        PlayerSave.TryUnlockWeapon(index);
     }
 
     public void OnLevelClick(int index)
@@ -89,20 +86,5 @@ public sealed class MainHUDPresenter : PanelPresenter<IMainHUDView>
     private void Refresh()
     {
         View.SetCoinText(PlayerSave.Coin);
-
-        bool[] unlocked = PlayerSave.WeaponsUnlocked;
-        if (unlocked == null)
-            return;
-
-        int count = unlocked.Length;
-        int selected = PlayerSave.SelectedWeapon;
-        for (int i = 0; i < count; i++)
-        {
-            View.SetWeaponSlot(
-                i,
-                i == selected,
-                unlocked[i],
-                PlayerSave.GetWeaponPrice(i));
-        }
     }
 }

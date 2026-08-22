@@ -10,15 +10,9 @@ using VContainer.Unity;
 /// </summary>
 public sealed class MainHUDUIFormLogic : UIFormLogic, IMainHUDView
 {
-    private static readonly Color LockedWeaponColor = new Color(0.3f, 0.3f, 0.3f, 0.7f);
-
     [SerializeField] private Text m_CoinText;
     [SerializeField] private Image m_LevelPanel;
-    [SerializeField] private Image m_ArmoryPanel;
     [SerializeField] private Image m_MainPanel;
-    [SerializeField] private Image[] m_WeaponButtons;
-    [SerializeField] private Image[] m_WeaponImages;
-    [SerializeField] private Text[] m_WeaponPrices;
 
     private MainHUDPresenter _presenter;
 
@@ -54,16 +48,9 @@ public sealed class MainHUDUIFormLogic : UIFormLogic, IMainHUDView
         base.OnClose(isShutdown, userData);
     }
 
-    protected override void OnUpdate(float elapseSeconds, float realElapseSeconds)
-    {
-        base.OnUpdate(elapseSeconds, realElapseSeconds);
-        _presenter?.Tick();
-    }
-
     public void ShowMainPanel()
     {
         SetActive(m_LevelPanel, false);
-        SetActive(m_ArmoryPanel, false);
         SetActive(m_MainPanel, true);
     }
 
@@ -73,32 +60,10 @@ public sealed class MainHUDUIFormLogic : UIFormLogic, IMainHUDView
         SetActive(m_MainPanel, false);
     }
 
-    public void ShowArmoryPanel()
-    {
-        SetActive(m_ArmoryPanel, true);
-        SetActive(m_MainPanel, false);
-    }
-
     public void SetCoinText(int coin)
     {
         if (m_CoinText != null)
             m_CoinText.text = coin.ToString();
-    }
-
-    public void SetWeaponSlot(int index, bool selected, bool unlocked, int price)
-    {
-        if (index >= 0 && m_WeaponButtons != null && index < m_WeaponButtons.Length && m_WeaponButtons[index] != null)
-            m_WeaponButtons[index].color = selected ? Color.green : Color.white;
-
-        if (index >= 0 && m_WeaponImages != null && index < m_WeaponImages.Length && m_WeaponImages[index] != null)
-            m_WeaponImages[index].color = unlocked ? Color.white : LockedWeaponColor;
-
-        if (index >= 0 && m_WeaponPrices != null && index < m_WeaponPrices.Length && m_WeaponPrices[index] != null)
-        {
-            m_WeaponPrices[index].gameObject.SetActive(!unlocked);
-            if (!unlocked)
-                m_WeaponPrices[index].text = price.ToString();
-        }
     }
 
     public void BtnPlay() => _presenter?.OnPlayClick();
@@ -106,8 +71,6 @@ public sealed class MainHUDUIFormLogic : UIFormLogic, IMainHUDView
     public void BtnArmory() => _presenter?.OnArmoryClick();
 
     public void BtnBack() => _presenter?.OnBackClick();
-
-    public void BtnWeapon(int num) => _presenter?.OnWeaponClick(num);
 
     public void BtnLevel(int num) => _presenter?.OnLevelClick(num);
 

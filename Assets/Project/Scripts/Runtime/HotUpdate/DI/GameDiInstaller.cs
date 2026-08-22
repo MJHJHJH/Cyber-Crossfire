@@ -68,6 +68,7 @@ namespace GamePlay
         private static void InstallPresenters(IContainerBuilder builder)
         {
             builder.Register<MainHUDPresenter>(Lifetime.Transient);
+            builder.Register<ShopPanelViewModel>(Lifetime.Transient);
             builder.Register<GameUI_PCPresenter>(Lifetime.Transient);
             builder.Register<PauseUiPresenter>(Lifetime.Transient);
             builder.Register<WinUiPresenter>(Lifetime.Transient);

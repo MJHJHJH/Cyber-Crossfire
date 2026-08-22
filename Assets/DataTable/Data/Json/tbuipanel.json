@@ -88,5 +88,15 @@
     "sort_order": 50,
     "pauseCoveredUIForm": false,
     "loader": 0
+  },
+  {
+    "id": 1010,
+    "location": "ShopPanel",
+    "desc": "武器商店",
+    "groupName": "MainGroup",
+    "canvas_mode": 0,
+    "sort_order": 15,
+    "pauseCoveredUIForm": true,
+    "loader": 0
   }
 ]

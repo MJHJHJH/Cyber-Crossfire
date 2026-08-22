@@ -139,7 +139,7 @@
     "location": "Player Projectile",
     "group": "SFX",
     "loop": false,
-    "volume": 1,
+    "volume": 1.5,
     "priority": 0,
     "mute": false,
     "fade_in_seconds": 0,

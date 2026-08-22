@@ -1,5 +1,6 @@
 using GameFramework;
 using GamePlay;
+using R3;
 using UnityEngine;
 
 namespace GamePlay.Data
@@ -14,6 +15,9 @@ namespace GamePlay.Data
 
         private static PlayerSaveData _data;
         private static bool _loaded;
+        private static readonly Subject<Unit> s_Changed = new();
+
+        public static Observable<Unit> Changed => s_Changed;
 
         public static int Coin => EnsureLoaded().Coin;
 
@@ -151,10 +155,13 @@ namespace GamePlay.Data
 
         private static void MarkDirty()
         {
-            if (_data == null || GameFrameWork.Data == null)
+            if (_data == null)
                 return;
 
-            GameFrameWork.Data.SetObject(DataKey, _data);
+            if (GameFrameWork.Data != null)
+                GameFrameWork.Data.SetObject(DataKey, _data);
+
+            s_Changed.OnNext(Unit.Default);
         }
 
         private static PlayerSaveData CreateDefault()
