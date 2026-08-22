@@ -7,6 +7,8 @@ namespace CommandoRobot
     {
         public override void FireWeapon()
         {
+            PlayFireSound();
+
             if (ProjectilePrefab != null)
             {
                 for (int i = -2; i < 3; i++)
@@ -20,6 +22,8 @@ namespace CommandoRobot
 
         public override void FireWeaponPowered()
         {
+            PlayFireSound();
+
             if (ProjectilePrefab != null)
             {
                 for (int i = -4; i < 5; i++)

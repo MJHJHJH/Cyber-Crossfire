@@ -68,6 +68,8 @@ namespace CommandoRobot
 
         public override void HandleDeath()
         {
+            PlayDeathSound();
+
             GameObject obj = Instantiate(m_DeathParticle);
             obj.transform.position = transform.position;
             Destroy(obj, 3);

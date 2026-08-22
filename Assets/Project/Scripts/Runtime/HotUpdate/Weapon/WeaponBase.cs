@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using GameFramework;
+using GamePlay;
 using UnityEngine;
 using UnityEngine.UI;
 namespace CommandoRobot
@@ -137,6 +139,8 @@ namespace CommandoRobot
 
         public virtual void FireWeapon()
         {
+            PlayFireSound();
+
             if (ProjectilePrefab != null)
             {
                 m_OwnerCharacter.PlayFireAnimation();
@@ -146,8 +150,21 @@ namespace CommandoRobot
             CreateParticle();
         }
 
+        /// <summary>
+        /// 临时验证：硬编码 SoundId；后续改由 TbWeapon 等业务表配置。
+        /// </summary>
+        protected void PlayFireSound()
+        {
+            if (m_OwnerCharacter is PlayerCharacter)
+                GameFrameWork.Sound?.PlaySound(SoundIds.PlayerFire);
+            else
+                GameFrameWork.Sound?.PlaySound(SoundIds.EnemyFire);
+        }
+
         public virtual void FireWeaponPowered()
         {
+            PlayFireSound();
+
             if (ProjectilePrefab != null)
             {
                 for (int i = -1; i < 2; i++)

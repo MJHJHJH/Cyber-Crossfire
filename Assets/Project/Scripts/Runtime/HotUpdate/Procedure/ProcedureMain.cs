@@ -40,6 +40,7 @@ namespace GamePlay
             }
 
             CloseMainForm();
+            GameFrameWork.Sound?.StopSoundById(SoundIds.HomeBgm, SoundIds.BgmFadeSeconds);
             base.OnLeave(procedureOwner, isShutdown);
         }
 
@@ -67,6 +68,8 @@ namespace GamePlay
 
         private async UniTask OnSceneReadyAsync(CancellationToken cancellationToken)
         {
+            GameFrameWork.Sound?.PlaySound(SoundIds.HomeBgm);
+
             if (GameFrameWork.UI == null)
             {
                 Debug.LogError("[ProcedureMain] UI component is missing.");

@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using GameFramework;
+using GamePlay;
 using UnityEngine;
 using UnityEngine.UIElements;
 namespace CommandoRobot
@@ -166,10 +168,28 @@ namespace CommandoRobot
 
         public virtual void HandleDeath()
         {
-            GameObject obj = Instantiate(m_DeathParticle);
-            obj.transform.position = transform.position + new Vector3(0, 1, 0);
-            Destroy(obj, 3);
+            PlayDeathSound();
+
+            if (m_DeathParticle != null)
+            {
+                GameObject obj = Instantiate(m_DeathParticle);
+                obj.transform.position = transform.position + new Vector3(0, 1, 0);
+                Destroy(obj, 3);
+            }
+
             gameObject.SetActive(false);
+        }
+
+        /// <summary>
+        /// 临时验证：硬编码 SoundId；后续改由角色/业务表配置。
+        /// 敌方死亡勿绑定 Transform（对象会立即 Destroy，会导致音效被截断）。
+        /// </summary>
+        protected void PlayDeathSound()
+        {
+            if (this is PlayerCharacter)
+                GameFrameWork.Sound?.PlaySound(SoundIds.PlayerDead);
+            else
+                GameFrameWork.Sound?.PlaySound(SoundIds.EnemyExplosion);
         }
 
         public void UpdateRotation()

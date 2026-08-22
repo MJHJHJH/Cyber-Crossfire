@@ -51,6 +51,19 @@ MonoBehaviour:
         FilterRuleName: CollectAll
         AssetTags: 
         UserData: 
+    - GroupName: AudioGroup
+      GroupDesc: Audio assets addressed by file name
+      AssetTags: 
+      ActiveRuleName: EnableGroup
+      Collectors:
+      - CollectPath: Assets/Project/Audio
+        CollectorGUID: 2ab6716cb12db3e4c8f84c68e181b3a7
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackSeparately
+        FilterRuleName: CollectAll
+        AssetTags: 
+        UserData: 
   - PackageName: DefaultRawPackage
     PackageDesc: 
     EnableAddressable: 1

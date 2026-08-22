@@ -7,7 +7,7 @@ namespace CommandoRobot
     {
         public override void HandleDeath()
         {
-            //base.HandleDeath();
+            PlayDeathSound();
 
             GameControl.m_Current.m_EnemyKilledCount++;
             StartCoroutine(Co_HandleDeath());

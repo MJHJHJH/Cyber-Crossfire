@@ -13,6 +13,7 @@ namespace GameFramework
     {
         private AudioSource m_AudioSource;
         private AudioClip m_AudioClip;
+        private AudioMixerGroup m_CachedMixerGroup;
         private float m_Volume = 1f;
         private bool m_IsPlayFinished;
         private bool m_IsPaused;
@@ -131,7 +132,11 @@ namespace GameFramework
         public override AudioMixerGroup AudioMixerGroup
         {
             get => m_AudioSource.outputAudioMixerGroup;
-            set => m_AudioSource.outputAudioMixerGroup = value;
+            set
+            {
+                m_CachedMixerGroup = value;
+                m_AudioSource.outputAudioMixerGroup = value;
+            }
         }
 
         public override event EventHandler<ResetSoundAgentEventArgs> ResetSoundAgent;
@@ -241,7 +246,7 @@ namespace GameFramework
                 m_AudioSource.spatialBlend = 0f;
                 m_AudioSource.maxDistance = 100f;
                 m_AudioSource.dopplerLevel = 1f;
-                m_AudioSource.outputAudioMixerGroup = null;
+                m_AudioSource.outputAudioMixerGroup = m_CachedMixerGroup;
             }
 
             transform.position = Vector3.zero;

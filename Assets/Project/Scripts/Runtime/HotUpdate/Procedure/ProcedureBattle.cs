@@ -49,6 +49,7 @@ namespace GamePlay
             }
 
             CloseBattleHud();
+            GameFrameWork.Sound?.StopSoundById(SoundIds.BattleBgm, SoundIds.BgmFadeSeconds);
             // 局内捡币等只标脏，离开战斗统一落盘
             GamePlay.Data.PlayerSave.Save();
             base.OnLeave(procedureOwner, isShutdown);
@@ -82,6 +83,9 @@ namespace GamePlay
 
         private async UniTask OnSceneReadyAsync(CancellationToken cancellationToken)
         {
+            GameFrameWork.Sound?.StopSoundById(SoundIds.HomeBgm, SoundIds.BgmFadeSeconds);
+            GameFrameWork.Sound?.PlaySound(SoundIds.BattleBgm);
+
             if (GameFrameWork.UI == null)
             {
                 Debug.LogError("[ProcedureBattle] UI component is missing.");

@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using GameFramework;
+using GamePlay;
 using UnityEngine;
 
 namespace CommandoRobot
@@ -53,16 +55,17 @@ namespace CommandoRobot
 
                 if (col.gameObject.tag == "Player" && m_IsEnemyTeam)
                 {
-
                     DamageControl d = col.gameObject.GetComponent<DamageControl>();
                     if (d != null)
                     {
                         d.ApplyDamage(m_Damage, transform.forward, 1);
                     }
-                    PlayerCharacter p = col.gameObject.GetComponent<PlayerCharacter>();
+
+                    // Player Projectile Hit：敌方子弹命中玩家时播放；子弹销毁本身不播音效
+                    GameFrameWork.Sound?.PlaySound(SoundIds.PlayerHit, col.transform);
+
                     CreateHitParticle();
                     Destroy(gameObject);
-
                 }
                 else if (col.gameObject.tag == "Block")
                 {
@@ -97,9 +100,12 @@ namespace CommandoRobot
         }
         public void CreateHitParticle()
         {
-            GameObject obj = Instantiate(m_HitParticle);
-            obj.transform.position = transform.position;
-            Destroy(obj, 3);
+            if (m_HitParticle != null)
+            {
+                GameObject obj = Instantiate(m_HitParticle);
+                obj.transform.position = transform.position;
+                Destroy(obj, 3);
+            }
         }
     }
 }
