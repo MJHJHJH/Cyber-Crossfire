@@ -215,6 +215,27 @@ await GameFrameWork.UI.OpenAsync(location, group, pause, userData, ct);  // 按 
 - 加载方式由表字段 `Loader` 驱动（`ResourcesLoader / YooAssetLoader`），**新增面板 = 配一行表 + 出包，零代码**；
 - **热更界面**：面板 Prefab 随资源包热更下发，UIFormLogic / Presenter 位于热更程序集，**界面逻辑与表现均可随版本热更**；启动期（配表未加载）的初始化面板走固定 `Resources` 路径，启动链路不依赖任何外部数据。
 
+### 7.5 业务支撑
+
+**层级管理（表驱动 + 双 Canvas + UI 组栈）**
+
+- **调层级 = 改表，零代码**：面板层级完全由 Luban UIPanel 表驱动（`Id / Location / GroupName / CanvasMode / SortOrder / PauseCoveredUIForm / Loader`），`UIPanelConfigProvider` 运行时查表转为 `UIFormPanelConfig`；面板 id 统一收敛在 `UIPanelIds` 常量类，流程层按 id 打开，不散落字符串/魔法数字；
+- **物理双 Canvas**：面板挂载由 `CanvasMode`（或 `UIForm.CanvasKind`）决定走 Overlay / Camera 任一物理根，跨 Canvas 显示序由 `UIConfig` 的 `sortingOrder` 与表字段 `SortOrder` 共同控制；
+- **逻辑组栈**：`UIComponent.AddGroup` 按组名注册（组深度 + 打开策略 `UIGroupOpenMode`：`ClearToTop` 关顶置顶 / `Normal` 单例 Refocus），同组内按打开顺序入栈；表字段 `PauseCoveredUIForm` 控制上层面板打开时下层是否暂停（覆盖即暂停/恢复），弹窗压住 HUD 时 HUD 自动停更，关闭弹窗自动恢复。
+
+**预加载（PreloadAsync）**
+
+- `UIComponent.PreloadAsync(panelId / location / 批量, keepAliveSeconds)`：提前实例化并停放（`SetActive(false)` 入实例池），**正式打开时零加载延迟**；`keepAliveSeconds` 控制停放驻留时长，超时自动回收；
+- 配套管理：`UnloadPreload` / `UnloadAllPreloads` / `IsPreloaded`；预载自动确保面板所属 UI 组已注册（`EnsurePanelGroups`），按表 id 预载无需手动建组；
+- 典型场景：Loading 阶段预载战斗 HUD / 弹窗，进战斗或点击瞬间秒开，不打断流程。
+
+**SafeArea（刘海屏 / 挖孔屏适配）**
+
+- **组件 `SafeAreaFitter`**（AOT 程序集）：挂在面板根节点或内容节点，按 `Screen.safeArea` ∪ `Screen.cutouts` 折算到画布坐标系，**锚点保持**（只叠加 `offsetMin/offsetMax` 增量，不破坏美术布局）；`Edges` 逐边控制（内容贴哪条屏幕边勾哪条）、`Expand` 全屏背景铺满、`Padding` 额外留白；转屏/分辨率变化自动重算，UIForm 对象池复用安全；
+- **服务 `SafeAreaProvider`**：全局安全区缓存 + 脏检查 + `Changed` 事件，代码动态布局可直接订阅取归一化 insets；
+- **调试 `SafeAreaDebug`**：运行时红遮罩标注非安全区（刘海/挖孔/手势条）+ 实时数据，真机验收用（发布前移除）；
+- **编辑器验证**：Device Simulator（`com.unity.device-simulator.devices`）真实模拟 `Screen.safeArea/cutouts`，配合 Scene 参考线 `Tools/Safe Area/Scene Overlay` 预览；详见 `Assets/Project/Scripts/Runtime/AOT/UI/SafeArea/README.md`。
+
 ---
 
 ## 8. 配表系统（Luban）
