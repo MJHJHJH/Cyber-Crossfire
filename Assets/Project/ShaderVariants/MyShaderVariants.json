@@ -1,0 +1,285 @@
+{
+    "ShaderTotalCount": 15,
+    "VariantTotalCount": 29,
+    "ShaderVariantInfos": [
+        {
+            "AssetPath": "Resources/unity_builtin_extra",
+            "ShaderName": "Hidden/BlitCopy",
+            "ShaderVariantCount": 1,
+            "ShaderVariantElements": [
+                {
+                    "PassType": 0,
+                    "Keywords": []
+                }
+            ]
+        },
+        {
+            "AssetPath": "Resources/unity_builtin_extra",
+            "ShaderName": "Hidden/Internal-GUIRoundedRect",
+            "ShaderVariantCount": 1,
+            "ShaderVariantElements": [
+                {
+                    "PassType": 0,
+                    "Keywords": []
+                }
+            ]
+        },
+        {
+            "AssetPath": "Resources/unity_builtin_extra",
+            "ShaderName": "Hidden/Internal-GUIRoundedRectWithColorPerBorder",
+            "ShaderVariantCount": 1,
+            "ShaderVariantElements": [
+                {
+                    "PassType": 0,
+                    "Keywords": []
+                }
+            ]
+        },
+        {
+            "AssetPath": "Resources/unity_builtin_extra",
+            "ShaderName": "Hidden/Internal-GUITexture",
+            "ShaderVariantCount": 1,
+            "ShaderVariantElements": [
+                {
+                    "PassType": 0,
+                    "Keywords": []
+                }
+            ]
+        },
+        {
+            "AssetPath": "Resources/unity_builtin_extra",
+            "ShaderName": "Hidden/Internal-GUITextureBlit",
+            "ShaderVariantCount": 1,
+            "ShaderVariantElements": [
+                {
+                    "PassType": 0,
+                    "Keywords": []
+                }
+            ]
+        },
+        {
+            "AssetPath": "Resources/unity_builtin_extra",
+            "ShaderName": "Hidden/Internal-GUITextureClip",
+            "ShaderVariantCount": 1,
+            "ShaderVariantElements": [
+                {
+                    "PassType": 0,
+                    "Keywords": []
+                }
+            ]
+        },
+        {
+            "AssetPath": "Resources/unity_builtin_extra",
+            "ShaderName": "Hidden/Internal-GUITextureClipText",
+            "ShaderVariantCount": 1,
+            "ShaderVariantElements": [
+                {
+                    "PassType": 0,
+                    "Keywords": []
+                }
+            ]
+        },
+        {
+            "AssetPath": "Resources/unity_builtin_extra",
+            "ShaderName": "Hidden/Internal-ScreenSpaceShadows",
+            "ShaderVariantCount": 2,
+            "ShaderVariantElements": [
+                {
+                    "PassType": 0,
+                    "Keywords": [
+                        "SHADOWS_SINGLE_CASCADE",
+                        "SHADOWS_SPLIT_SPHERES"
+                    ]
+                },
+                {
+                    "PassType": 0,
+                    "Keywords": [
+                        "SHADOWS_SPLIT_SPHERES"
+                    ]
+                }
+            ]
+        },
+        {
+            "AssetPath": "Resources/unity_builtin_extra",
+            "ShaderName": "Hidden/Internal-UIRAtlasBlitCopy",
+            "ShaderVariantCount": 1,
+            "ShaderVariantElements": [
+                {
+                    "PassType": 0,
+                    "Keywords": []
+                }
+            ]
+        },
+        {
+            "AssetPath": "Resources/unity_builtin_extra",
+            "ShaderName": "Hidden/UIElements/EditorUIE",
+            "ShaderVariantCount": 1,
+            "ShaderVariantElements": [
+                {
+                    "PassType": 0,
+                    "Keywords": []
+                }
+            ]
+        },
+        {
+            "AssetPath": "Resources/unity_builtin_extra",
+            "ShaderName": "Legacy Shaders/Particles/Additive",
+            "ShaderVariantCount": 2,
+            "ShaderVariantElements": [
+                {
+                    "PassType": 0,
+                    "Keywords": []
+                },
+                {
+                    "PassType": 0,
+                    "Keywords": [
+                        "SOFTPARTICLES_ON"
+                    ]
+                }
+            ]
+        },
+        {
+            "AssetPath": "Resources/unity_builtin_extra",
+            "ShaderName": "Legacy Shaders/Particles/Alpha Blended",
+            "ShaderVariantCount": 2,
+            "ShaderVariantElements": [
+                {
+                    "PassType": 0,
+                    "Keywords": []
+                },
+                {
+                    "PassType": 0,
+                    "Keywords": [
+                        "SOFTPARTICLES_ON"
+                    ]
+                }
+            ]
+        },
+        {
+            "AssetPath": "Resources/unity_builtin_extra",
+            "ShaderName": "Particles/Standard Unlit",
+            "ShaderVariantCount": 4,
+            "ShaderVariantElements": [
+                {
+                    "PassType": 0,
+                    "Keywords": [
+                        "_ALPHABLEND_ON",
+                        "_COLORCOLOR_ON"
+                    ]
+                },
+                {
+                    "PassType": 0,
+                    "Keywords": [
+                        "_ALPHABLEND_ON",
+                        "_COLORCOLOR_ON",
+                        "SOFTPARTICLES_ON"
+                    ]
+                },
+                {
+                    "PassType": 8,
+                    "Keywords": [
+                        "_ALPHABLEND_ON",
+                        "PROCEDURAL_INSTANCING_ON"
+                    ]
+                },
+                {
+                    "PassType": 8,
+                    "Keywords": [
+                        "_ALPHABLEND_ON",
+                        "SHADOWS_DEPTH"
+                    ]
+                }
+            ]
+        },
+        {
+            "AssetPath": "Resources/unity_builtin_extra",
+            "ShaderName": "Skybox/Procedural",
+            "ShaderVariantCount": 1,
+            "ShaderVariantElements": [
+                {
+                    "PassType": 0,
+                    "Keywords": [
+                        "_SUNDISK_SIMPLE"
+                    ]
+                }
+            ]
+        },
+        {
+            "AssetPath": "Resources/unity_builtin_extra",
+            "ShaderName": "Standard",
+            "ShaderVariantCount": 9,
+            "ShaderVariantElements": [
+                {
+                    "PassType": 4,
+                    "Keywords": [
+                        "_ALPHABLEND_ON",
+                        "_EMISSION",
+                        "_GLOSSYREFLECTIONS_OFF",
+                        "_SPECULARHIGHLIGHTS_OFF",
+                        "DIRECTIONAL",
+                        "LIGHTPROBE_SH"
+                    ]
+                },
+                {
+                    "PassType": 4,
+                    "Keywords": [
+                        "_ALPHABLEND_ON",
+                        "DIRECTIONAL",
+                        "LIGHTPROBE_SH"
+                    ]
+                },
+                {
+                    "PassType": 4,
+                    "Keywords": [
+                        "_EMISSION",
+                        "_GLOSSYREFLECTIONS_OFF",
+                        "_SPECULARHIGHLIGHTS_OFF",
+                        "DIRECTIONAL",
+                        "LIGHTPROBE_SH",
+                        "SHADOWS_SCREEN"
+                    ]
+                },
+                {
+                    "PassType": 4,
+                    "Keywords": [
+                        "_EMISSION",
+                        "DIRECTIONAL",
+                        "LIGHTPROBE_SH",
+                        "SHADOWS_SCREEN"
+                    ]
+                },
+                {
+                    "PassType": 4,
+                    "Keywords": [
+                        "DIRECTIONAL",
+                        "LIGHTPROBE_SH",
+                        "SHADOWS_SCREEN"
+                    ]
+                },
+                {
+                    "PassType": 8,
+                    "Keywords": []
+                },
+                {
+                    "PassType": 8,
+                    "Keywords": [
+                        "_ALPHABLEND_ON"
+                    ]
+                },
+                {
+                    "PassType": 8,
+                    "Keywords": [
+                        "_ALPHABLEND_ON",
+                        "SHADOWS_DEPTH"
+                    ]
+                },
+                {
+                    "PassType": 8,
+                    "Keywords": [
+                        "SHADOWS_DEPTH"
+                    ]
+                }
+            ]
+        }
+    ]
+}

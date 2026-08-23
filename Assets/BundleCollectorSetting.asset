@@ -64,6 +64,19 @@ MonoBehaviour:
         FilterRuleName: CollectAll
         AssetTags: 
         UserData: 
+    - GroupName: shader
+      GroupDesc: 
+      AssetTags: 
+      ActiveRuleName: EnableGroup
+      Collectors:
+      - CollectPath: Assets/Project/ShaderVariants
+        CollectorGUID: 4a32edb260e84b541bc3ed6c211c17fe
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackShaderVariants
+        FilterRuleName: CollectShaderVariants
+        AssetTags: 
+        UserData: 
   - PackageName: DefaultRawPackage
     PackageDesc: 
     EnableAddressable: 1

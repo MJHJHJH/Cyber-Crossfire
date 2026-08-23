@@ -98,9 +98,9 @@ namespace GamePlay
             GameFrameWork.UI?.SetYooAssetPackage(package);
             GameFrameWork.Scene?.SetYooAssetPackage(package);
             GameFrameWork.Sound?.SetYooAssetPackage(package);
-            CloseYooAssetInitPanel();
 
-            SwitchToHotUpdateInitAsync().Forget();
+            // 盖屏期预热着色器变体：把首进场景的编译成本前移到启动阶段
+            WarmupAndContinueAsync(package).Forget();
         }
 
         private static void CloseYooAssetInitPanel()
@@ -116,8 +116,14 @@ namespace GamePlay
                 uiManager.CloseUIForm(form);
         }
 
-        private async UniTaskVoid SwitchToHotUpdateInitAsync()
+        private async UniTaskVoid WarmupAndContinueAsync(ResourcePackage package)
         {
+            // 先预热再关面板：面板保持盖屏，预热耗时（含首次驱动编译）对玩家不可见
+            await ShaderVariantWarmup.WarmupAsync(package);
+            if (m_ProcedureOwner == null)
+                return;
+
+            CloseYooAssetInitPanel();
             await UniTask.Yield();
             if (m_ProcedureOwner == null)
                 return;
