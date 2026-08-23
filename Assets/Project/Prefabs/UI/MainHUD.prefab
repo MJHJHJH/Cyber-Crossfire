@@ -2350,6 +2350,7 @@ GameObject:
   - component: {fileID: 8966797732072728784}
   - component: {fileID: 6497228585533201359}
   - component: {fileID: 8507244311543403545}
+  - component: {fileID: -1747065733007082229}
   m_Layer: 5
   m_Name: MainHUD
   m_TagString: Untagged
@@ -2376,9 +2377,9 @@ RectTransform:
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 960, y: 540}
-  m_SizeDelta: {x: 1600, y: 900}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &2346459149452712744
 Canvas:
@@ -2449,6 +2450,21 @@ MonoBehaviour:
   m_CoinText: {fileID: 5921982556766762168}
   m_LevelPanel: {fileID: 4336251125807415435}
   m_MainPanel: {fileID: 9055194230675125528}
+--- !u!114 &-1747065733007082229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8506079411923597416}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3584fc1cda33d464b91ae06403de34a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Edges: -1
+  m_Expand: 0
+  m_Padding: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &8775120373655555072
 GameObject:
   m_ObjectHideFlags: 0
