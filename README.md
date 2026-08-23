@@ -78,7 +78,7 @@
 
 - 每个 Procedure 都是 `ProcedureBase` 子类，享受 FSM 完整生命周期（`OnEnter/OnUpdate/OnLeave`）；
 - 异步启动任务全部 `UniTask` 化，配合 `CancellationToken` 可在流程离开时即刻取消，杜绝"流程已切换、旧任务还在跑"的竞态；
-- 启动链顺序严格：**YooAsset 就绪 → HybridCLR 初始化 → Luban 配表加载 -> 游戏流程**（配表依赖热更 DLL 中的适配器，热更依赖资源包中的 DLL）。
+- 启动链顺序严格：**YooAsset 就绪 → HybridCLR 初始化 → Luban 配表加载 → 游戏流程**。
 
 ---
 
