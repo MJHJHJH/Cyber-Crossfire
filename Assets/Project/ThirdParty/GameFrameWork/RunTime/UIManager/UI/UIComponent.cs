@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -218,6 +219,123 @@ namespace GameFramework
 
             return await m_UIManager.OpenAsync(panelId, userData, cancellationToken);
         }
+
+        public UniTask PreloadAsync(int panelId, float keepAliveSeconds = 0f, CancellationToken cancellationToken = default)
+        {
+            if (m_DestroyCts == null)
+                return PreloadByPanelIdAsync(panelId, keepAliveSeconds, cancellationToken);
+
+            var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, m_DestroyCts.Token);
+            return PreloadByPanelIdLinked(panelId, keepAliveSeconds, linked);
+        }
+
+        public UniTask PreloadAsync(IEnumerable<int> panelIds, float keepAliveSeconds = 0f, CancellationToken cancellationToken = default)
+        {
+            EnsurePanelGroups(panelIds);
+
+            if (m_DestroyCts == null)
+                return m_UIManager.PreloadAsync(panelIds, keepAliveSeconds, cancellationToken);
+
+            var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, m_DestroyCts.Token);
+            return PreloadBatchLinked(panelIds, keepAliveSeconds, linked);
+        }
+
+        /// <summary>
+        /// 预载前置：确保所有面板所属 UI 组已注册（与 <see cref="PreloadByPanelIdAsync"/> 一致，
+        /// 否则 UIManager 层预载会因组不存在而失败）。
+        /// </summary>
+        void EnsurePanelGroups(IEnumerable<int> panelIds)
+        {
+            if (panelIds == null)
+                return;
+
+            foreach (int panelId in panelIds)
+            {
+                if (!m_UIManager.TryGetPanelConfig(panelId, out UIFormPanelConfig config))
+                    continue;
+
+                if (!m_UIManager.HasUIGroup(config.GroupName))
+                    AddGroup(config.GroupName, 0);
+            }
+        }
+
+        public UniTask PreloadAsync(string location, string uiGroupName = "Default", float keepAliveSeconds = 0f, CancellationToken cancellationToken = default)
+        {
+            if (m_DestroyCts == null)
+                return m_UIManager.PreloadAsync(location, uiGroupName, keepAliveSeconds, cancellationToken);
+
+            var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, m_DestroyCts.Token);
+            return PreloadLocationLinked(location, uiGroupName, keepAliveSeconds, linked);
+        }
+
+        async UniTask PreloadByPanelIdLinked(int panelId, float keepAliveSeconds, CancellationTokenSource linked)
+        {
+            try
+            {
+                await PreloadByPanelIdAsync(panelId, keepAliveSeconds, linked.Token);
+            }
+            finally
+            {
+                linked.Dispose();
+            }
+        }
+
+        async UniTask PreloadBatchLinked(IEnumerable<int> panelIds, float keepAliveSeconds, CancellationTokenSource linked)
+        {
+            try
+            {
+                await m_UIManager.PreloadAsync(panelIds, keepAliveSeconds, linked.Token);
+            }
+            finally
+            {
+                linked.Dispose();
+            }
+        }
+
+        async UniTask PreloadLocationLinked(string location, string uiGroupName, float keepAliveSeconds, CancellationTokenSource linked)
+        {
+            try
+            {
+                await m_UIManager.PreloadAsync(location, uiGroupName, keepAliveSeconds, linked.Token);
+            }
+            finally
+            {
+                linked.Dispose();
+            }
+        }
+
+        async UniTask PreloadByPanelIdAsync(int panelId, float keepAliveSeconds, CancellationToken cancellationToken)
+        {
+            if (!m_UIManager.TryGetPanelConfig(panelId, out UIFormPanelConfig config))
+                throw new GameFrameworkException(Utility.Text.Format("UI panel config id '{0}' is not found.", panelId.ToString()));
+
+            if (!m_UIManager.HasUIGroup(config.GroupName))
+                AddGroup(config.GroupName, 0);
+
+            await m_UIManager.PreloadAsync(panelId, keepAliveSeconds, cancellationToken);
+        }
+
+        public bool UnloadPreload(int panelId)
+        {
+            if (!m_UIManager.TryGetPanelConfig(panelId, out UIFormPanelConfig config))
+                return false;
+
+            return m_UIManager.UnloadPreload(config.Location);
+        }
+
+        public bool UnloadPreload(string location) => m_UIManager.UnloadPreload(location);
+
+        public void UnloadAllPreloads() => m_UIManager.UnloadAllPreloads();
+
+        public bool IsPreloaded(int panelId)
+        {
+            if (!m_UIManager.TryGetPanelConfig(panelId, out UIFormPanelConfig config))
+                return false;
+
+            return m_UIManager.IsPreloaded(config.Location);
+        }
+
+        public bool IsPreloaded(string location) => m_UIManager.IsPreloaded(location);
 
         public void Close(IUIForm form) => m_UIManager.CloseUIForm(form);
 

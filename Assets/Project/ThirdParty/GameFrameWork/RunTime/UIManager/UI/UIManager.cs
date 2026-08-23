@@ -18,6 +18,8 @@ namespace GameFramework
         private readonly Dictionary<int, string> m_UIFormsBeingLoaded;
         private readonly HashSet<int> m_UIFormsToReleaseOnLoad;
         private readonly Queue<IUIForm> m_RecycleQueue;
+        private readonly HashSet<string> m_UIFormsBeingPreloaded;
+        private readonly Dictionary<string, PreloadEntry> m_PreloadedInstances;
         private IObjectPoolManager m_ObjectPoolManager;
         private readonly ResourcesUIFormLoader m_ResourcesLoader;
         private YooAssetUIFormLoader m_YooAssetLoader;
@@ -34,6 +36,8 @@ namespace GameFramework
             m_UIFormsBeingLoaded = new Dictionary<int, string>();
             m_UIFormsToReleaseOnLoad = new HashSet<int>();
             m_RecycleQueue = new Queue<IUIForm>();
+            m_UIFormsBeingPreloaded = new HashSet<string>(StringComparer.Ordinal);
+            m_PreloadedInstances = new Dictionary<string, PreloadEntry>(StringComparer.Ordinal);
             m_ObjectPoolManager = null;
             m_ResourcesLoader = new ResourcesUIFormLoader();
             m_YooAssetLoader = null;
@@ -55,6 +59,8 @@ namespace GameFramework
 
         internal override void Update(float elapseSeconds, float realElapseSeconds)
         {
+            ExpirePreloads(realElapseSeconds);
+
             while (m_RecycleQueue.Count > 0)
             {
                 IUIForm uiForm = m_RecycleQueue.Dequeue();
@@ -76,6 +82,8 @@ namespace GameFramework
             m_UIFormsBeingLoaded.Clear();
             m_UIFormsToReleaseOnLoad.Clear();
             m_RecycleQueue.Clear();
+            m_UIFormsBeingPreloaded.Clear();
+            m_PreloadedInstances.Clear();
         }
 
         public void SetObjectPoolManager(IObjectPoolManager objectPoolManager, UIObjectPoolConfig uIObjectPoolConfig)
@@ -332,6 +340,253 @@ namespace GameFramework
             return form;
         }
 
+        public async UniTask PreloadAsync(int panelId, float keepAliveSeconds = 0f, CancellationToken cancellationToken = default)
+        {
+            if (m_PanelConfigProvider == null)
+                throw new GameFrameworkException("UI form panel config provider is not set.");
+
+            if (!m_PanelConfigProvider.TryGetById(panelId, out UIFormPanelConfig config))
+                throw new GameFrameworkException(Utility.Text.Format("UI panel config id '{0}' is not found.", panelId.ToString()));
+
+            if (string.IsNullOrEmpty(config.GroupName))
+                throw new GameFrameworkException(Utility.Text.Format("UI panel '{0}' group name is invalid.", panelId.ToString()));
+
+            if (!HasUIGroup(config.GroupName))
+                throw new GameFrameworkException(Utility.Text.Format("UI group '{0}' is not exist. Add group before PreloadAsync(panelId).", config.GroupName));
+
+            IUIFormLoader loader = ResolveLoader(config.LoaderKind);
+            await PreloadAsyncCore(config.Location, config.GroupName, config.CanvasMode, keepAliveSeconds, loader, cancellationToken);
+        }
+
+        public UniTask PreloadAsync(string location, string uiGroupName = "Default", float keepAliveSeconds = 0f, CancellationToken cancellationToken = default)
+        {
+            return PreloadAsyncCore(location, uiGroupName, null, keepAliveSeconds, m_ResourcesLoader, cancellationToken);
+        }
+
+        public async UniTask PreloadAsync(IEnumerable<int> panelIds, float keepAliveSeconds = 0f, CancellationToken cancellationToken = default)
+        {
+            if (panelIds == null)
+                throw new GameFrameworkException("UI panel ids is invalid.");
+
+            List<UniTask> tasks = new List<UniTask>();
+            foreach (int panelId in panelIds)
+                tasks.Add(PreloadSoftAsync(panelId, keepAliveSeconds, cancellationToken));
+
+            await UniTask.WhenAll(tasks);
+        }
+
+        /// <summary>
+        /// 预载核心：加载资源 → 实例化（Awake 提前执行）→ 挂入所属组物理根 → SetActive(false) 停放
+        /// → 注册进 UI 实例池（未占用 + 锁定）→ 记入预载记录。预载期不执行任何 UIForm 生命周期。
+        /// </summary>
+        private async UniTask PreloadAsyncCore(
+            string location,
+            string uiGroupName,
+            int? canvasMode,
+            float keepAliveSeconds,
+            IUIFormLoader loader,
+            CancellationToken cancellationToken)
+        {
+            if (loader == null)
+                throw new GameFrameworkException("UI form loader is invalid.");
+            if (m_UIFormHelper == null)
+                throw new GameFrameworkException("You must set UI form helper first.");
+            if (m_InstancePool == null)
+                throw new GameFrameworkException("You must set object pool manager first.");
+            if (string.IsNullOrEmpty(location))
+                throw new GameFrameworkException("UI form location is invalid.");
+            if (string.IsNullOrEmpty(uiGroupName))
+                throw new GameFrameworkException("UI group name is invalid.");
+
+            UIGroup uiGroup = (UIGroup)GetUIGroup(uiGroupName);
+            if (uiGroup == null)
+                throw new GameFrameworkException(Utility.Text.Format("UI group '{0}' is not exist.", uiGroupName));
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            // 已打开 / 已停放：无需预载
+            if (GetUIForm(location) != null || IsPreloaded(location))
+                return;
+
+            // 在途打开：等其结束再决定（打开完成 → 无需预载）
+            while (IsLoadingUIForm(location))
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                await UniTask.Yield(cancellationToken);
+            }
+
+            if (GetUIForm(location) != null || IsPreloaded(location))
+                return;
+
+            // 在途预载互斥：并发调用时等对方完成
+            if (!m_UIFormsBeingPreloaded.Add(location))
+            {
+                while (m_UIFormsBeingPreloaded.Contains(location))
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    await UniTask.Yield(cancellationToken);
+                }
+
+                return;
+            }
+
+            UIFormLoadResult loadResult = null;
+            object uiFormInstance = null;
+            bool registered = false;
+            try
+            {
+                loadResult = await loader.LoadAsync(location, cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
+
+                // 加载期间被打开（互斥下的双保险）：放弃预载并释放资源
+                if (GetUIForm(location) != null)
+                {
+                    loadResult.ReleaseAsset?.Invoke();
+                    return;
+                }
+
+                uiFormInstance = m_UIFormHelper.InstantiateUIForm(loadResult.Asset);
+                GameObject go = uiFormInstance as GameObject;
+                if (go == null)
+                    throw new GameFrameworkException(Utility.Text.Format("UI form instance '{0}' is not a GameObject.", location));
+
+                UIForm uiForm = go.GetOrAddComponent<UIForm>();
+                UIFormCanvasKind kind = canvasMode.HasValue
+                    ? (canvasMode.Value == (int)UIFormCanvasKind.Camera ? UIFormCanvasKind.Camera : UIFormCanvasKind.Overlay)
+                    : uiForm.CanvasKind;
+
+                Transform parent = ResolveGroupRoot(uiGroup, kind);
+                if (parent == null)
+                    throw new GameFrameworkException(Utility.Text.Format("UI group '{0}' can not resolve physical root for canvas '{1}'.", uiGroupName, kind.ToString()));
+
+                Transform t = go.transform;
+                t.SetParent(parent, false);
+                t.localScale = Vector3.one;
+                StretchFull(t as RectTransform);
+
+                // 停放：等待激活，打开时零根节点切换
+                go.SetActive(false);
+
+                UIFormInstanceObject instanceObject = UIFormInstanceObject.Create(location, loadResult.Asset, uiFormInstance, m_UIFormHelper, loadResult.ReleaseAsset);
+                m_InstancePool.Register(instanceObject, false);
+                registered = true;
+                m_InstancePool.SetLocked(uiFormInstance, true);
+
+                m_PreloadedInstances[location] = new PreloadEntry(uiFormInstance, keepAliveSeconds);
+            }
+            catch (Exception)
+            {
+                if (!registered)
+                {
+                    if (uiFormInstance != null)
+                        m_UIFormHelper.ReleaseUIForm(loadResult?.Asset, uiFormInstance);
+                    loadResult?.ReleaseAsset?.Invoke();
+                }
+
+                throw;
+            }
+            finally
+            {
+                m_UIFormsBeingPreloaded.Remove(location);
+            }
+        }
+
+        private async UniTask PreloadSoftAsync(int panelId, float keepAliveSeconds, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await PreloadAsync(panelId, keepAliveSeconds, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning(Utility.Text.Format("[UIManager] Preload UI panel '{0}' failed: {1}", panelId.ToString(), ex.Message));
+            }
+        }
+
+        public bool UnloadPreload(string location)
+        {
+            if (string.IsNullOrEmpty(location))
+                throw new GameFrameworkException("UI form location is invalid.");
+
+            if (!m_PreloadedInstances.TryGetValue(location, out PreloadEntry entry))
+                return false;
+
+            m_PreloadedInstances.Remove(location);
+            m_InstancePool.SetLocked(entry.InstanceTarget, false);
+            m_InstancePool.ReleaseObject(entry.InstanceTarget);
+            return true;
+        }
+
+        public void UnloadAllPreloads()
+        {
+            if (m_PreloadedInstances.Count == 0)
+                return;
+
+            List<string> locations = new List<string>(m_PreloadedInstances.Keys);
+            for (int i = 0; i < locations.Count; i++)
+                UnloadPreload(locations[i]);
+        }
+
+        public bool IsPreloaded(string location)
+        {
+            return !string.IsNullOrEmpty(location) && m_PreloadedInstances.ContainsKey(location);
+        }
+
+        private void ExpirePreloads(float realElapseSeconds)
+        {
+            if (m_PreloadedInstances.Count == 0)
+                return;
+
+            List<string> expired = null;
+            foreach (KeyValuePair<string, PreloadEntry> kv in m_PreloadedInstances)
+            {
+                PreloadEntry entry = kv.Value;
+                if (entry.RemainingSeconds < 0f)
+                    continue;
+
+                entry.RemainingSeconds -= realElapseSeconds;
+                if (entry.RemainingSeconds <= 0f)
+                {
+                    if (expired == null)
+                        expired = new List<string>();
+                    expired.Add(kv.Key);
+                }
+            }
+
+            if (expired == null)
+                return;
+
+            for (int i = 0; i < expired.Count; i++)
+                UnloadPreload(expired[i]);
+        }
+
+        private static Transform ResolveGroupRoot(UIGroup uiGroup, UIFormCanvasKind kind)
+        {
+            if (uiGroup.Helper is DualUIGroupHelper dual)
+                return dual.GetParent(kind);
+
+            if (uiGroup.Helper is MonoBehaviour mb)
+                return mb.transform;
+
+            return null;
+        }
+
+        private static void StretchFull(RectTransform rect)
+        {
+            if (rect == null)
+                return;
+
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+            rect.localScale = Vector3.one;
+        }
+
         private IUIFormLoader ResolveLoader(UIFormLoaderKind loaderKind)
         {
             switch (loaderKind)
@@ -415,8 +670,8 @@ namespace GameFramework
             if (existing != null)
                 return ApplySingletonOpenMode(existing, userData);
 
-            // 默认单例：等同 location 在途加载结束，再决定复用或继续开
-            while (IsLoadingUIForm(location))
+            // 默认单例：等同 location 在途加载/预载结束，再决定复用或继续开
+            while (IsLoadingUIForm(location) || m_UIFormsBeingPreloaded.Contains(location))
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 await UniTask.Yield(cancellationToken);
@@ -436,7 +691,12 @@ namespace GameFramework
                     return ApplySingletonOpenMode(singleton, userData);
                 }
 
-                return InternalOpenUIForm(serialId, location, uiGroup, instanceObject.Target, pauseCoveredUIForm, false, userData);
+                // 预载停放实例首次打开：解锁（此后按普通池实例过期回收）并以新实例语义补执行 OnInit
+                bool isPreloadedNewInstance = m_PreloadedInstances.Remove(location);
+                if (isPreloadedNewInstance)
+                    m_InstancePool.SetLocked(instanceObject.Target, false);
+
+                return InternalOpenUIForm(serialId, location, uiGroup, instanceObject.Target, pauseCoveredUIForm, isPreloadedNewInstance, userData);
             }
 
             m_UIFormsBeingLoaded.Add(serialId, location);
@@ -663,6 +923,21 @@ namespace GameFramework
             uiForm.OnOpen(userData);
             uiGroup.Refresh();
             return uiForm;
+        }
+
+        /// <summary>
+        /// 预载停放记录：池实例 + 存活倒计时（RemainingSeconds &lt; 0 表示永久保留，仅手动卸载）。
+        /// </summary>
+        private sealed class PreloadEntry
+        {
+            public readonly object InstanceTarget;
+            public float RemainingSeconds;
+
+            public PreloadEntry(object instanceTarget, float keepAliveSeconds)
+            {
+                InstanceTarget = instanceTarget;
+                RemainingSeconds = keepAliveSeconds <= 0f ? -1f : keepAliveSeconds;
+            }
         }
     }
 }

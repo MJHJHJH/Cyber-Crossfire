@@ -14,6 +14,19 @@ namespace GamePlay
     {
         private const int BattleHudPanelId = 1002; // UIPanel：GameUI_PC
 
+        /// <summary>
+        /// 进战斗预载清单（keepAliveSeconds = 0：永久保留，随 OnLeave 手动卸载）。
+        /// </summary>
+        private static readonly int[] BattlePreloadPanelIds =
+        {
+            UIPanelIds.BattleHud,
+            UIPanelIds.Pause,
+            UIPanelIds.Win,
+            UIPanelIds.Lose,
+            UIPanelIds.GemReward,
+            UIPanelIds.Message,
+        };
+
         private CancellationTokenSource _cts;
         private string _battleLocation;
         private IUIForm _battleHudForm;
@@ -49,6 +62,8 @@ namespace GamePlay
             }
 
             CloseBattleHud();
+            // 释放本场未使用的预载停放实例（已打开过的回池按正常过期回收，可跨战斗复用）
+            GameFrameWork.UI?.UnloadAllPreloads();
             GameFrameWork.Sound?.StopSoundById(SoundIds.BattleBgm, SoundIds.BgmFadeSeconds);
             // 局内捡币等只标脏，离开战斗统一落盘
             GamePlay.Data.PlayerSave.Save();
@@ -63,6 +78,7 @@ namespace GamePlay
                 await ProcedureSceneSwitch.SwitchAsync(
                     new[] { location },
                     location,
+                    BattlePreloadPanelIds,
                     cancellationToken);
             }
             catch (OperationCanceledException)

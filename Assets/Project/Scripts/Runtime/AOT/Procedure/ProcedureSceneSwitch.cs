@@ -21,6 +21,7 @@ namespace GamePlay
         private const string DefaultUiGroup = "Default";
         private const float SuspendReadyProgress = 0.89f;
         private const float MinLoadingDisplaySeconds = 1.5f;
+        private const float PreloadTimeoutSeconds = 3f;
 
         public static event Action SwitchBegin;
         public static event Action<float> SwitchProgress;
@@ -35,6 +36,7 @@ namespace GamePlay
         public static async UniTask SwitchAsync(
             IReadOnlyList<string> locations,
             string activeLocation,
+            IReadOnlyList<int> preloadPanelIds = null,
             CancellationToken cancellationToken = default)
         {
             ValidateArgs(locations, activeLocation);
@@ -54,6 +56,8 @@ namespace GamePlay
             _busy = true;
             IUIForm loadingForm = null;
             LoadingUIFormLogic loadingLogic = null;
+            CancellationTokenSource preloadCts = null;
+            UniTask preloadTask = default;
 
             try
             {
@@ -69,6 +73,13 @@ namespace GamePlay
                 loadingLogic?.SetLoadingTips("加载场景中…");
                 loadingLogic?.SetProgressTarget(0f);
                 ReportProgress(0f, loadingLogic);
+
+                // 与场景加载并行启动 UI 预载（Loading 面板盖屏期完成，场景亮出后打开零资源加载）
+                if (preloadPanelIds != null && preloadPanelIds.Count > 0)
+                {
+                    preloadCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                    preloadTask = PreloadPanelsAsync(GameFrameWork.UI, preloadPanelIds, preloadCts.Token);
+                }
 
                 List<string> toLoad = CollectMissingLocations(locations);
                 SuspendLoadBatch batch = null;
@@ -104,10 +115,13 @@ namespace GamePlay
 
                 ReportProgress(1f, loadingLogic);
                 await WaitLoadingPresentationAsync(loadingOpenedAt, loadingLogic, cancellationToken);
+                await WaitPreloadAsync(preloadTask, preloadCts, cancellationToken);
+                TeardownPreload(ref preloadCts, false);
                 SwitchEnd?.Invoke();
             }
             catch (OperationCanceledException)
             {
+                TeardownPreload(ref preloadCts, true);
                 CloseLoading(loadingForm);
                 _busy = false;
                 throw;
@@ -115,6 +129,7 @@ namespace GamePlay
             catch (Exception ex)
             {
                 SwitchFailed?.Invoke(ex);
+                TeardownPreload(ref preloadCts, true);
                 CloseLoading(loadingForm);
                 _busy = false;
                 if (ex is GameFrameworkException)
@@ -125,6 +140,57 @@ namespace GamePlay
 
             CloseLoading(loadingForm);
             _busy = false;
+        }
+
+        private static async UniTask PreloadPanelsAsync(UIComponent ui, IReadOnlyList<int> panelIds, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await ui.PreloadAsync(panelIds, 0f, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning(Utility.Text.Format("[ProcedureSceneSwitch] UI preload failed: {0}", ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// SwitchEnd 前软等待预载：已完成则直接收尾；超时则取消在途预载并卸载已停放实例，打开走正常加载兜底。
+        /// </summary>
+        private static async UniTask WaitPreloadAsync(UniTask preloadTask, CancellationTokenSource preloadCts, CancellationToken cancellationToken)
+        {
+            if (preloadCts == null)
+                return;
+
+            if (preloadTask.Status == UniTaskStatus.Succeeded)
+                return;
+
+            await UniTask.WhenAny(
+                preloadTask,
+                UniTask.Delay(TimeSpan.FromSeconds(PreloadTimeoutSeconds), cancellationToken: cancellationToken));
+
+            if (preloadTask.Status != UniTaskStatus.Succeeded)
+            {
+                preloadCts.Cancel();
+                GameFrameWork.UI?.UnloadAllPreloads();
+            }
+        }
+
+        private static void TeardownPreload(ref CancellationTokenSource preloadCts, bool unloadParked)
+        {
+            if (preloadCts == null)
+                return;
+
+            preloadCts.Cancel();
+            preloadCts.Dispose();
+            preloadCts = null;
+
+            if (unloadParked)
+                GameFrameWork.UI?.UnloadAllPreloads();
         }
 
         private sealed class SuspendLoadBatch

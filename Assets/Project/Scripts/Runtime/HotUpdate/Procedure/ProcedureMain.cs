@@ -48,7 +48,7 @@ namespace GamePlay
         {
             try
             {
-                await ProcedureSceneSwitch.SwitchAsync(SceneGroup, ActiveSceneLocation, cancellationToken);
+                await ProcedureSceneSwitch.SwitchAsync(SceneGroup, ActiveSceneLocation, null, cancellationToken);
             }
             catch (OperationCanceledException)
             {
