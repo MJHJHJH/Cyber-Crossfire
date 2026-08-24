@@ -236,6 +236,20 @@ await GameFrameWork.UI.OpenAsync(location, group, pause, userData, ct);  // 按 
 - **调试 `SafeAreaDebug`**：运行时红遮罩标注非安全区（刘海/挖孔/手势条）+ 实时数据，真机验收用（发布前移除）；
 - **编辑器验证**：Device Simulator（`com.unity.device-simulator.devices`）真实模拟 `Screen.safeArea/cutouts`，配合 Scene 参考线 `Tools/Safe Area/Scene Overlay` 预览；详见 `Assets/Project/Scripts/Runtime/AOT/UI/SafeArea/README.md`。
 
+**动态图集（DynamicAtlas）**
+
+- **定位**：运行时合图框架（`GameFrameWork.RunTime` / AOT 侧），把零散 UI 图源在运行时拷入固定尺寸大纹理（图集页），UI 渲染页内切片实现**合批降 draw call**；与静态图集互补——静态管稳定大图/美术资产，动态管零散、迭代快的图；
+- **原理**：`Graphics.CopyTexture` GPU 像素拷贝 + 自由区分割装箱（1024/2048/4096 分组）+ `Sprite.Create` 页内切片；引用计数管理、**脏缓存零拷贝复活**（同图释放后再次插入免拷贝）、**软释放延迟销毁**（误释放后组件重新绑定可自愈）；
+- **资源约束**：CopyTexture 要求源与页同格式，且压缩纹理拷贝须 4×4 块对齐（动态装箱无法保证）→ 图集页固定 RGBA32、图源目录（`Art/Sprites/DynamicAtlas`）由编辑器脚本强制全平台 RGBA32 并带构建校验，运行时另有格式防御（非 RGBA32 显式拒绝）；
+- **内存管理**：空页回收（`TrimMemory` / `CollectEmptyPages`）、脏缓存上限驱逐、`Reset` 全清；场景切换（`ProcedureSceneSwitch`）与低内存告警自动触发；
+- **接入方式**：组件 `DynamicAtlasImage`（Image 替换，填 Location 走 YooAsset 或直接赋 Sprite）或 Loader/Manager API；当前框架完整、业务尚未接入；详见 `RunTime/UIManager/Utility/DynamicAtlas/README.md`。
+
+**LoopScrollRect 虚拟列表**
+
+- **定位**：uGUI 虚拟列表组件（qiankanglai 开源移植版，随 GameFrameWork 引入），**只实例化可视区域内 Item，滚动即时回收复用**，支持超大数据集（`totalCount` 负值 = 无限模式），长列表不再受 GameObject 实例数与布局成本限制；
+- **能力**：`LoopScrollRectBase` 基类 + 横/纵 `LoopHorizontalScrollRect / LoopVerticalScrollRect`；**`Multi` 变体**支持多 Item 模板混合（如置顶位 + 普通行）；`LoopScrollDataSource` / `LoopScrollPrefabSource` 解耦数据与实例来源（可配合 YooAsset 加载 Item 预制体 + 实例池复用）；`LoopScrollSizeHelper` 精确尺寸滚动；不自行裁剪，配合 Mask 组成滚动视口；
+- **与动态图集协作**：虚拟列表 Item 复用 + Item 内图标走 `DynamicAtlasImage`（Location 模式）是典型组合——Item 池化实例复用不重复合图（同 Location 条目常驻），滚动列表图标 draw call 收敛到单页合批，**长列表 + 大量图标场景双收益**；
+
 ---
 
 ## 8. 配表系统（Luban）
