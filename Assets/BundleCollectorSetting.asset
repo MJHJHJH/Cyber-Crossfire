@@ -38,6 +38,14 @@ MonoBehaviour:
         FilterRuleName: CollectScene
         AssetTags: 
         UserData: 
+      - CollectPath: Assets/Project/Art/Sprites/WeaponSprite
+        CollectorGUID: 5115495976df55c4b80d0505464bc304
+        CollectorType: 1
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackDirectory
+        FilterRuleName: CollectAll
+        AssetTags: 
+        UserData: 
     - GroupName: UIGroup
       GroupDesc: 
       AssetTags: 
@@ -75,6 +83,19 @@ MonoBehaviour:
         AddressRuleName: AddressByFileName
         PackRuleName: PackShaderVariants
         FilterRuleName: CollectShaderVariants
+        AssetTags: 
+        UserData: 
+    - GroupName: ArtGroup
+      GroupDesc: 
+      AssetTags: 
+      ActiveRuleName: EnableGroup
+      Collectors:
+      - CollectPath: Assets/Project/Art/Atlases/Weapon Sprite Atlas.spriteatlasv2
+        CollectorGUID: 5fae7a334f65ed04ca313af9ac80bb85
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackSeparately
+        FilterRuleName: CollectAll
         AssetTags: 
         UserData: 
   - PackageName: DefaultRawPackage
