@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using GameFramework;
 using GamePlay;
@@ -178,20 +178,20 @@ namespace CommandoRobot
 
         public virtual void CreateProjectile(float deltaAngle)
         {
-            GameObject obj = Instantiate(ProjectilePrefab);
-            if (WeaponModel != null)
-                obj.transform.position = WeaponModel.m_FirePoint.position;
-            else
-                obj.transform.position = transform.position;
+            if (ProjectilePrefab == null)
+                return;
 
-            obj.transform.forward = Quaternion.Euler(0, deltaAngle, 0) * m_OwnerCharacter.m_CharBody.m_UpperAimBase.forward;
+            Vector3 position = WeaponModel != null ? WeaponModel.m_FirePoint.position : transform.position;
+            Vector3 forward = Quaternion.Euler(0, deltaAngle, 0) * m_OwnerCharacter.m_CharBody.m_UpperAimBase.forward;
+            GameObject obj = BulletPool.SpawnBullet(ProjectilePrefab, position, forward, 5f);
+            if (obj == null)
+                return;
 
             ProjectileBase projectile = obj.GetComponent<ProjectileBase>();
             projectile.m_Speed = ProjectileSpeed;
             projectile.m_Creator = m_Owner;
             projectile.m_Damage = ProjectileDamage;
             projectile.m_Range = ProjectileRange;
-            Destroy(obj, 5);
         }
 
         public virtual void CreateParticle()

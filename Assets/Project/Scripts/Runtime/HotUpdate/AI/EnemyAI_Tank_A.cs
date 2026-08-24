@@ -50,15 +50,18 @@ namespace CommandoRobot
         {
             for (int i = -1; i < 2; i++)
             {
-                GameObject obj = Instantiate(m_BulletPrefab1);
-                obj.transform.position = m_FirePoint.position;
-                obj.transform.forward = Quaternion.Euler(0, i * 10, 0) * GetComponent<CharacterBase>().m_CharBody.m_RotationBase.forward;
+                GameObject obj = BulletPool.SpawnBullet(m_BulletPrefab1,
+                    m_FirePoint.position,
+                    Quaternion.Euler(0, i * 10, 0) * GetComponent<CharacterBase>().m_CharBody.m_RotationBase.forward,
+                    10f);
+                if (obj == null)
+                    continue;
+
                 ProjectileBase projectile = obj.GetComponent<ProjectileBase>();
                 projectile.m_Creator = gameObject;
                 projectile.m_Speed = 6;
                 projectile.m_Damage = 1;
                 projectile.m_Range = 50;
-                Destroy(obj, 10);
             }
         }
     }

@@ -3,11 +3,13 @@ schema: spec-driven
 # Project context (optional)
 # This is shown to AI when creating artifacts.
 # Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  技术栈：Unity 2022.3.37（LTS）+ GameFrameWork（本地精简维护版）+ HybridCLR（HotUpdate 热更程序集）+ YooAsset + VContainer + UniTask；OpenSpec 提案工作流见 .cursor/skills 与 .cursor/commands。
+
+  排查约定（务必遵守）：
+  - 运行时逻辑问题排查禁止使用 IL 反编译/检查编译产物方向：IL 与编译结果本身没有问题，排查一律从源码入手。
+  - 逻辑 bug 只可能出现在我们生成的代码里（新增/改动的 AOT、热更脚本及本地框架改动），复查时优先从"自己写的代码哪里写错了"这个角度出发，逐行核对调用链、字段归属、生命周期与状态复位。
+  - 首次静态排查"看起来没问题"不能作为结论定论（不是铁律）：必须结合实测现象反向定位，反复从自己生成代码的视角复查（注意字段遮蔽、基类/子类同名字段、生命周期回调时序、Unity 假空判定、跨场景/跨程序集差异等典型坑）。
 
 # Per-artifact rules (optional)
 # Add custom rules for specific artifacts.

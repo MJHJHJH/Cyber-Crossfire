@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 namespace CommandoRobot
@@ -143,54 +143,49 @@ namespace CommandoRobot
 
         public void ShootBullet()
         {
-            Vector3 dir;
-            GameObject obj;
-            Vector3 pos = Vector3.zero;
-            obj = Instantiate(m_BulletPrefab1);
-            pos = m_FirePoints[1].position;
-            pos.y = 1;
-            obj.transform.position = pos;
-            dir = PlayerCharacter.m_Current.transform.position - m_FirePoints[1].position;
+            SpawnBossBullet(1);
+            SpawnBossBullet(2);
+        }
+
+        void SpawnBossBullet(int firePointIndex)
+        {
+            Vector3 pos = FirePointPosition(firePointIndex);
+            Vector3 dir = PlayerCharacter.m_Current.transform.position - pos;
             dir.y = 0;
-            obj.transform.forward = Quaternion.Euler(0, -00, 0) * dir;
+            GameObject obj = BulletPool.SpawnBullet(m_BulletPrefab1, pos, dir, 10f);
+            if (obj == null)
+                return;
+
             ProjectileBase projectile = obj.GetComponent<ProjectileBase>();
             projectile.m_Creator = gameObject;
             projectile.m_Speed = 10;
             projectile.m_Damage = 1;
             projectile.m_Range = 50;
-            Destroy(obj, 10);
+        }
 
-            obj = Instantiate(m_BulletPrefab1);
-            pos = m_FirePoints[2].position;
+        Vector3 FirePointPosition(int index)
+        {
+            Vector3 pos = m_FirePoints[index].position;
             pos.y = 1;
-            obj.transform.position = pos;
-            dir = PlayerCharacter.m_Current.transform.position - m_FirePoints[2].position;
-            dir.y = 0;
-            obj.transform.forward = Quaternion.Euler(0, 00, 0) * dir;
-            projectile = obj.GetComponent<ProjectileBase>();
-            projectile.m_Creator = gameObject;
-            projectile.m_Speed = 10;
-            projectile.m_Damage = 1;
-            projectile.m_Range = 50;
-            Destroy(obj, 10);
-
+            return pos;
         }
 
         public void ShootRingBullet(int halfCount)
         {
             for (int i = -halfCount; i <= halfCount; i++)
             {
-                GameObject obj = Instantiate(m_BulletPrefab1);
-                Vector3 pos = m_FirePoints[0].position;
-                pos.y = 1;
-                obj.transform.position = pos;
-                obj.transform.forward = Quaternion.Euler(0, i * 20, 0) * GetComponent<CharacterBase>().m_CharBody.m_RotationBase.forward;
+                GameObject obj = BulletPool.SpawnBullet(m_BulletPrefab1,
+                    FirePointPosition(0),
+                    Quaternion.Euler(0, i * 20, 0) * GetComponent<CharacterBase>().m_CharBody.m_RotationBase.forward,
+                    10f);
+                if (obj == null)
+                    continue;
+
                 ProjectileBase projectile = obj.GetComponent<ProjectileBase>();
                 projectile.m_Creator = gameObject;
                 projectile.m_Speed = 8;
                 projectile.m_Damage = 1;
                 projectile.m_Range = 50;
-                Destroy(obj, 10);
             }
         }
 

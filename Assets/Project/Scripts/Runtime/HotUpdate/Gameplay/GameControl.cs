@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using CommandoRobot.ScriptableObjects;
 using Cysharp.Threading.Tasks;
@@ -56,6 +56,9 @@ namespace CommandoRobot
         {
             if (m_Current == this)
                 m_Current = null;
+
+            // 战斗退出/场景卸载：强制回收在途子弹并裁剪空闲对象（内部容错，应用退出时安全）
+            BulletPool.ClearBattleBullets();
         }
 
         void Start()
