@@ -31,6 +31,18 @@ namespace GamePlay
 
         private static bool _busy;
 
+        /// <summary>低内存告警兜底：回收空页并清空闲像素（动态图集页 RGBA32，内存大头）。</summary>
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        private static void SubscribeLowMemory()
+        {
+            Application.lowMemory += OnLowMemory;
+        }
+
+        private static void OnLowMemory()
+        {
+            DynamicAtlas.DynamicAtlasManager.Instance.TrimMemory(true);
+        }
+
         public static bool IsSwitching => _busy;
 
         public static async UniTask SwitchAsync(
@@ -106,6 +118,9 @@ namespace GamePlay
                 }
 
                 await UnloadOutsideGroupAsync(locations, cancellationToken);
+
+                // 旧场景已卸载：其 UI 面板随之销毁，动态图集条目已释放——回收空页并清空闲像素
+                DynamicAtlas.DynamicAtlasManager.Instance.TrimMemory(true);
 
                 if (!GameFrameWork.Scene.ActivateScene(activeLocation))
                     Debug.LogWarning(Utility.Text.Format(

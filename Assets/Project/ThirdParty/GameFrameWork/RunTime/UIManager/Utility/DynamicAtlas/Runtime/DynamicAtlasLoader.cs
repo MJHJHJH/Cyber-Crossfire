@@ -91,13 +91,23 @@ namespace DynamicAtlas
 
                 s_pending.Remove(pendingKey);
 
-                for (int i = 0; i < callbacks.Count; i++)
+                // 两阶段分发：先一次性补齐所有等待者的引用份额，再逐个回调。
+                // 不能在循环内"边分配边回调"：过期回调（组件已销毁/OnDisable）会立即 Release，
+                // 若其份额尚未补全，会把 RefCount 归零导致条目被销毁，
+                // 后续有效回调将绑定到已销毁的 Sprite（白图）。
+                if (result.Success && result.Entry != null)
                 {
-                    if (i > 0 && result.Success && result.Entry != null)
+                    for (int i = 1; i < callbacks.Count; i++)
                         result.Entry.RefCount++;
 
-                    callbacks[i]?.Invoke(result);
+                    // 无等待者（onCompleted 为 null 的调用）：加载结果无人消费，归还初始份额，
+                    // 条目释放进脏缓存（像素保留，后续同 key 请求可零拷贝复活）。
+                    if (callbacks.Count == 0)
+                        DynamicAtlasManager.Instance.Release(result.Entry.Key);
                 }
+
+                for (int i = 0; i < callbacks.Count; i++)
+                    callbacks[i]?.Invoke(result);
             };
         }
 

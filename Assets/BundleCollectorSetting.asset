@@ -59,6 +59,14 @@ MonoBehaviour:
         FilterRuleName: CollectAll
         AssetTags: 
         UserData: 
+      - CollectPath: Assets/Project/Art/Sprites/DynamicAtlas
+        CollectorGUID: 29a30146b9dc4c978e0a9141a848fd1b
+        CollectorType: 1
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackDirectory
+        FilterRuleName: CollectAll
+        AssetTags: 
+        UserData: 
     - GroupName: AudioGroup
       GroupDesc: Audio assets addressed by file name
       AssetTags: 

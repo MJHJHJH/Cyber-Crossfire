@@ -9,7 +9,10 @@ namespace DynamicAtlas
     {
         private readonly int _padding;
 
-        public int PageIndex { get; }
+        /// <summary>页索引，恒等于所属分组列表中的下标；空页回收 swap 时由 Manager 更新。</summary>
+        public int PageIndex { get; internal set; }
+        /// <summary>本页活跃条目数（CreateEntry +1 / Release 归零条目 -1），为 0 即空页、可回收。</summary>
+        public int ActiveCount { get; internal set; }
         public int Size { get; }
         public Texture2D Texture { get; }
         public RectanglePacker Packer { get; }
@@ -88,11 +91,23 @@ namespace DynamicAtlas
         /// </summary>
         public void DebugClearFreeAreas()
         {
+            ClearFreeAreasWith(DynamicAtlasGpuFill.GetGrayStamp(Size));
+        }
+
+        /// <summary>
+        /// 内存整理：空闲区像素清为透明并交由 Manager 失效对应脏缓存（显式放弃复活优化）。
+        /// </summary>
+        public void ClearIdlePixels()
+        {
+            ClearFreeAreasWith(DynamicAtlasGpuFill.GetTransparentStamp(Size));
+        }
+
+        private void ClearFreeAreasWith(Texture2D stamp)
+        {
             var freeRects = new List<RectInt>();
             Packer.CopyFreeRectangles(freeRects);
-            Texture2D grayStamp = DynamicAtlasGpuFill.GetGrayStamp(Size);
             for (int i = 0; i < freeRects.Count; i++)
-                DynamicAtlasGpuFill.CopyRect(grayStamp, Texture, freeRects[i]);
+                DynamicAtlasGpuFill.CopyRect(stamp, Texture, freeRects[i]);
         }
 
         public void Destroy()

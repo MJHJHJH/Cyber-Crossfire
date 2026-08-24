@@ -19,7 +19,9 @@ namespace DynamicAtlas
         PackFailed,
         CopyFailed,
         /// <summary>源纹理已是动态图集页，禁止再作为合图输入以免自拷贝污染。</summary>
-        SourceIsAtlasPage
+        SourceIsAtlasPage,
+        /// <summary>图源纹理格式不支持 CopyTexture（须 RGBA32/ARGB32，RenderTexture 放行）。</summary>
+        UnsupportedFormat
     }
 
     public struct AtlasInsertResult
@@ -72,6 +74,10 @@ namespace DynamicAtlas
         public const int MAX_PAGE_SIZE = 4096;
         public const int DEFAULT_PADDING = 2;
         public const float DEFAULT_PIXELS_PER_UNIT = 100f;
+        /// <summary>脏缓存条目数上限，超出后驱逐最老条目（低水位 = 上限的 3/4）。</summary>
+        public const int DEFAULT_DIRTY_CACHE_LIMIT = 512;
+        /// <summary>软释放延迟销毁帧数：Release 引用归零后 Sprite 延迟 N 帧销毁，保护"误释放仍显示"场景。</summary>
+        public const int DEFAULT_SOFT_RELEASE_FRAMES = 3;
 
         /// <summary>
         /// 新建图集页底色；Debug 清空空闲区时恢复为此色。
@@ -89,20 +95,13 @@ namespace DynamicAtlas
             (int)DynamicAtlasGroup.Size4096
         };
 
-        public static TextureFormat PageTextureFormat
-        {
-            get
-            {
-#if UNITY_ANDROID && !UNITY_EDITOR && DYNAMIC_ATLAS_ANDROID_FORMAT
-                return TextureFormat.RGBA32;
-#elif UNITY_IOS && !UNITY_EDITOR && DYNAMIC_ATLAS_IOS_FORMAT
-                return TextureFormat.RGBA32;
-#else
-                // ARGB32 语义：Unity 常用 RGBA32 作为可 CopyTexture 的图集页格式
-                return TextureFormat.RGBA32;
-#endif
-            }
-        }
+        /// <summary>
+        /// 图集页纹理格式，固定 RGBA32。
+        /// 约束链：CopyTexture 要求源与目标同格式；压缩纹理（ETC2/ASTC/BC）的拷贝区域
+        /// 必须 4×4 块对齐，而动态装箱的 Sprite 区域无法保证 → 图集页只能用无压缩 RGBA32；
+        /// 因此图源也必须全平台 RGBA32（由编辑器 DynamicAtlasTexturePostprocessor 强制）。
+        /// </summary>
+        public static readonly TextureFormat PageTextureFormat = TextureFormat.RGBA32;
 
         public static int ToSize(DynamicAtlasGroup group)
         {
