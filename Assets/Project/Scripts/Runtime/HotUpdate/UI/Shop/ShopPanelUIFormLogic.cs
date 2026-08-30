@@ -21,6 +21,7 @@ public sealed class ShopPanelUIFormLogic : MvvmUIFormLogic<ShopPanelViewModel>
 
         AddBinding(viewModel.WeaponSlots.Subscribe(slots =>
         {
+            
             if (slots == null)
                 return;
 

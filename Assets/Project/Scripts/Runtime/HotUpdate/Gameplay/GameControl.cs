@@ -195,9 +195,9 @@ namespace CommandoRobot
             m_GameState = State_Win;
             ShowMessage("Mission Complete");
             yield return new WaitForSeconds(1);
-            yield return new WaitForSeconds(waitTime);
+            // yield return new WaitForSeconds(waitTime);
             //FadeControl.m_Current.StartFadeOut();
-            yield return new WaitForSeconds(2);
+            // yield return new WaitForSeconds(2);
             OpenPanelAsync(WinPanelId).Forget();
         }
 

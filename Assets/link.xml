@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 手动维护：勿写入 HybridCLRGenerate/link.xml（会被 Generate/LinkXml 覆盖） -->
+<!-- ZString 大量泛型方法，IL2CPP + HybridCLR 下需整程序集保留，避免热更侧调用时被裁剪 -->
+<linker>
+  <assembly fullname="ZString" preserve="all" />
+</linker>
