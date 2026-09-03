@@ -87,7 +87,7 @@ namespace GamePlay
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[ProcedureBattle] Switch battle scene failed: {ex.Message}");
+                Debug.LogError($"[ProcedureBattle] Switch battle scene failed: {ex}");
                 return;
             }
 

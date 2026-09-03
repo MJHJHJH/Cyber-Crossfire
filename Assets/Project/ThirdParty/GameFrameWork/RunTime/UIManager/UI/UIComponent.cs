@@ -325,7 +325,7 @@ namespace GameFramework
 
         public bool UnloadPreload(string location) => m_UIManager.UnloadPreload(location);
 
-        public void UnloadAllPreloads() => m_UIManager.UnloadAllPreloads();
+        public void UnloadAllPreloads() => m_UIManager?.UnloadAllPreloads();
 
         public bool IsPreloaded(int panelId)
         {

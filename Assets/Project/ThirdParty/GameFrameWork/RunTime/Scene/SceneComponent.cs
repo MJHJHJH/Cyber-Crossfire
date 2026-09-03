@@ -260,6 +260,9 @@ namespace GameFramework
             if (entry.State != SceneState.Loaded)
                 throw new GameFrameworkException(Utility.Text.Format("Scene '{0}' is not loaded.", location));
 
+            if (entry.Handle == null || !entry.Handle.IsValid)
+                throw new GameFrameworkException(Utility.Text.Format("Scene '{0}' handle is invalid.", location));
+
             if (IsHomeScene(entry.Handle.SceneObject))
                 throw new GameFrameworkException(Utility.Text.Format("Scene '{0}' is home scene, can not unload.", location));
 
@@ -391,7 +394,8 @@ namespace GameFramework
             }
             catch (Exception ex)
             {
-                handle.Release();
+                if (handle != null && handle.IsValid)
+                    handle.Release();
                 _scenes.Remove(location);
                 RefreshFallbackMainCamera();
                 throw new GameFrameworkException(Utility.Text.Format("Load scene '{0}' failure: {1}", location, ex.Message), ex);

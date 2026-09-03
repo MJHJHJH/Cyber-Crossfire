@@ -534,23 +534,25 @@ namespace DynamicAtlas
 
                 for (int i = pages.Count - 1; i >= 0; i--)
                 {
-                    if (pages[i].ActiveCount > 0)
+                    AtlasPage empty = pages[i];
+                    if (empty == null || empty.ActiveCount > 0)
                         continue;
 
                     // 页即将销毁：其上的脏缓存（像素将不存在）必须先失效
                     RemoveDirtyForPage(groupSize, i);
 
-                    // 非尾页回收：尾页移到空位，保持索引连续（低频操作，全量修正可接受）
+                    // 非尾页回收：尾页移到空位，保持索引连续；必须销毁 empty 本身，不能 Destroy 挪过来的尾页
                     int last = pages.Count - 1;
                     if (i != last)
                     {
                         AtlasPage moved = pages[last];
                         pages[i] = moved;
-                        moved.PageIndex = i;
+                        if (moved != null)
+                            moved.PageIndex = i;
                         FixPageIndexReferences(groupSize, last, i);
                     }
 
-                    pages[i].Destroy();
+                    empty.Destroy();
                     pages.RemoveAt(last);
                     collected++;
                 }
@@ -594,13 +596,13 @@ namespace DynamicAtlas
         {
             foreach (KeyValuePair<string, AtlasEntry> pair in _entries)
             {
-                if (pair.Value.GroupSize == groupSize && pair.Value.PageIndex == fromIndex)
+                if (pair.Value != null && pair.Value.GroupSize == groupSize && pair.Value.PageIndex == fromIndex)
                     pair.Value.PageIndex = toIndex;
             }
 
             foreach (KeyValuePair<string, DirtyCacheEntry> pair in _dirtyCache)
             {
-                if (pair.Value.GroupSize == groupSize && pair.Value.PageIndex == fromIndex)
+                if (pair.Value != null && pair.Value.GroupSize == groupSize && pair.Value.PageIndex == fromIndex)
                     pair.Value.PageIndex = toIndex;
             }
         }
@@ -784,7 +786,7 @@ namespace DynamicAtlas
             foreach (KeyValuePair<string, DirtyCacheEntry> pair in _dirtyCache)
             {
                 DirtyCacheEntry dirty = pair.Value;
-                if (dirty.GroupSize == groupSize && dirty.PageIndex == pageIndex)
+                if (dirty != null && dirty.GroupSize == groupSize && dirty.PageIndex == pageIndex)
                     toRemove.Add(pair.Key);
             }
 

@@ -120,7 +120,16 @@ namespace GamePlay
                 await UnloadOutsideGroupAsync(locations, cancellationToken);
 
                 // 旧场景已卸载：其 UI 面板随之销毁，动态图集条目已释放——回收空页并清空闲像素
-                DynamicAtlas.DynamicAtlasManager.Instance.TrimMemory(true);
+                // TrimMemory 失败不应阻断场景切换（图集整理是尽力而为）
+                try
+                {
+                    DynamicAtlas.DynamicAtlasManager.Instance.TrimMemory(true);
+                }
+                catch (Exception trimEx)
+                {
+                    Debug.LogWarning(Utility.Text.Format(
+                        "[ProcedureSceneSwitch] TrimMemory failure: {0}", trimEx.Message));
+                }
 
                 if (!GameFrameWork.Scene.ActivateScene(activeLocation))
                     Debug.LogWarning(Utility.Text.Format(

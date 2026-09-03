@@ -29,7 +29,6 @@ namespace CommandoRobot
 
         public UnityEvent OnDamaged;
 
-
         // Use this for initialization
 
         void Awake()
