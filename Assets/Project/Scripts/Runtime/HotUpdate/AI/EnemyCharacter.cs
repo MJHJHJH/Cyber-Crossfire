@@ -78,7 +78,9 @@ namespace CommandoRobot
 
             GameControl.m_Current.m_EnemyKilledCount++;
 
-            CameraControl.m_Current.StartShake(.2f, .5f);
+            CameraControl.m_Current.PlayShake(
+                CameraShakePreset.Kill,
+                ShakeSettings.Position(0.22f, 0.35f, 32f));
 
             Destroy(gameObject);
         }

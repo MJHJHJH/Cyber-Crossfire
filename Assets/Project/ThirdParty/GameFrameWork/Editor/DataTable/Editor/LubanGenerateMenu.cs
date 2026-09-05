@@ -28,7 +28,11 @@ namespace GameFramework.Editor
 
             if (!EditorUtility.DisplayDialog(
                     "Luban",
-                    "将执行全量导出：\nJson / Bin 代码与数据 + Adapters\n输出到 Assets/DataTable\n\n可能需要数秒到数十秒，期间请等待。",
+                    "将执行全量导出：\nJson / Bin 代码与数据 + Adapters\n输出到 Assets/DataTable\n\n"
+                    + "注意：正式源表目录是\nTools/DataTablesTool/DataTables/Datas/\n"
+                    + "请编辑 Datas 下的 #Sound.xlsx / #Weapon.xlsx 等；\n"
+                    + "Datas_Gen 是临时目录，改它不会进导出结果。\n\n"
+                    + "可能需要数秒到数十秒，期间请等待。",
                     "开始",
                     "取消"))
                 return;

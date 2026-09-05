@@ -64,16 +64,33 @@ namespace CommandoRobot
             m_TimeAlive = 0f;
             m_IsRecycled = false;
             m_Creator = null;
+            ResetVisualEffects();
+        }
 
-            // 复用实例的粒子子物体（particle-1）不会因 SetActive(true) 自动重播
-            // （PlayOnAwake 仅首次激活触发），出池时手动重置并重播；
-            // 已被 DetachOnHit 分离过的实例没有粒子子物体，自然跳过。
-            ParticleSystem particle = GetComponentInChildren<ParticleSystem>(true);
-            if (particle != null)
+        /// <summary>
+        /// 清理并重播拖尾/粒子。池化瞬移前若不清理，World 空间粒子与 TrailRenderer
+        /// 会把旧落点与新出生点连成非子弹轨迹的假拖尾。
+        /// </summary>
+        public void ResetVisualEffects()
+        {
+            TrailRenderer[] trails = GetComponentsInChildren<TrailRenderer>(true);
+            for (int i = 0; i < trails.Length; i++)
             {
+                trails[i].Clear();
+            }
+
+            // 复用实例的粒子（如 particle-1：World + Prewarm + Looping）不会因 SetActive 自动正确复位
+            ParticleSystem[] particles = GetComponentsInChildren<ParticleSystem>(true);
+            for (int i = 0; i < particles.Length; i++)
+            {
+                ParticleSystem particle = particles[i];
+                particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
                 particle.Clear(true);
                 particle.time = 0f;
-                particle.Play(true);
+                if (particle.gameObject.activeInHierarchy)
+                {
+                    particle.Play(true);
+                }
             }
         }
 
@@ -90,6 +107,20 @@ namespace CommandoRobot
 
             m_IsRecycled = true;
             m_Creator = null;
+
+            // 入池前清掉 World 粒子与 Trail 点，避免下次出池前残留可见
+            TrailRenderer[] trails = GetComponentsInChildren<TrailRenderer>(true);
+            for (int i = 0; i < trails.Length; i++)
+            {
+                trails[i].Clear();
+            }
+
+            ParticleSystem[] particles = GetComponentsInChildren<ParticleSystem>(true);
+            for (int i = 0; i < particles.Length; i++)
+            {
+                particles[i].Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                particles[i].Clear(true);
+            }
 
             if (m_DetachObject != null)
             {

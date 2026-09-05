@@ -33,7 +33,10 @@ namespace CommandoRobot
             Destroy(obj1, 6);
 
             DropItem(m_ItemDropCount);
-            CameraControl.m_Current.StartShake(.6f, .2f);
+            CameraControl.m_Current.PlayShake(
+                CameraShakePreset.Kill,
+                ShakeSettings.Position(0.35f, 0.42f, 28f),
+                1.4f);
             //DropItem(20);
 
             Destroy(gameObject);

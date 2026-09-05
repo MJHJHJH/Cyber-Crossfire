@@ -38,7 +38,9 @@ namespace CommandoRobot
 
             transform.position = m_TargetPosition;
             //exlpode
-            CameraControl.m_Current.StartShake(.3f, .15f);
+            CameraControl.m_Current.PlayShake(
+                CameraShakePreset.Kill,
+                ShakeSettings.Position(0.28f, 0.3f, 30f));
             GameObject obj = Instantiate(m_ExplodeParticle);
             obj.transform.position = transform.position;
             Destroy(obj, 3);

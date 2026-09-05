@@ -58,6 +58,7 @@ namespace CommandoRobot
                 projectile.m_Speed = 6;
                 projectile.m_Damage = 1;
                 projectile.m_Range = 50;
+                projectile.m_IsEnemyTeam = true;
             }
         }
     }

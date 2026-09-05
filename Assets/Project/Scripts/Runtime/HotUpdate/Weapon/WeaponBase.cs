@@ -312,10 +312,9 @@ namespace CommandoRobot
             Input_FireHold = false;
         }
 
-        /// <summary>开火瞬间反馈（镜头抖动等），子类可按枪种覆盖。</summary>
+        /// <summary>开火瞬间反馈（镜头抖动等），子类按枪种覆盖并自行调参。</summary>
         protected virtual void OnFireFeedback()
         {
-
         }
 
         /// <summary>普通开火入口：音效 + 子类射击逻辑。</summary>
@@ -364,10 +363,11 @@ namespace CommandoRobot
 
         protected void PlayFireSound()
         {
-            if (m_OwnerCharacter is PlayerCharacter)
-                GameFrameWork.Sound?.PlaySound(SoundIds.PlayerFire);
-            else
-                GameFrameWork.Sound?.PlaySound(SoundIds.EnemyFire);
+            if (_config.FireSound <= 0)
+                return;
+
+            Transform bind = WeaponModel != null ? WeaponModel.transform : transform;
+            GameFrameWork.Sound?.PlaySound(_config.FireSound, bind);
         }
 
         public virtual void CreateProjectile(float deltaAngle)
@@ -386,6 +386,8 @@ namespace CommandoRobot
             projectile.m_Creator = m_Owner;
             projectile.m_Damage = _config.ProjectileDamage;
             projectile.m_Range = _config.ProjectileRange;
+            // 阵营以持有者为准，避免敌人复用玩家子弹 Prefab 时 m_IsEnemyTeam 为 false
+            projectile.m_IsEnemyTeam = m_OwnerCharacter != null && !(m_OwnerCharacter is PlayerCharacter);
         }
 
         public virtual void CreateParticle()

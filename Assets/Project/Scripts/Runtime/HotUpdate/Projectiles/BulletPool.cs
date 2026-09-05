@@ -54,6 +54,12 @@ namespace CommandoRobot
                 return null;
             }
 
+            // OnSpawn 会在旧世界坐标先激活；立刻关掉再设位，避免 World 粒子/拖尾在错误位置预热出假轨迹
+            bullet.SetActive(false);
+            bullet.transform.SetParent(null, false);
+            bullet.transform.position = position;
+            bullet.transform.forward = forward;
+
             ProjectileBase projectile = bullet.GetComponent<ProjectileBase>();
             if (projectile != null)
             {
@@ -62,8 +68,13 @@ namespace CommandoRobot
                 projectile.m_SafetyLifetime = safetyLifetime;
             }
 
-            bullet.transform.position = position;
-            bullet.transform.forward = forward;
+            bullet.SetActive(true);
+            if (projectile != null)
+            {
+                // 激活后（含 PlayOnAwake）再清一次并重播，保证特效从正确出生点开始
+                projectile.ResetVisualEffects();
+            }
+
             s_ActiveBullets[bullet] = poolName;
             return bullet;
         }

@@ -9,7 +9,7 @@ using UnityEngine.UI;
 /// </summary>
 public sealed class YooAssetInitLogic : UIFormLogic, IYooAssetInitView
 {
-    private const float ProgressSpeedPerSecond = 25f;
+    private const float ProgressSpeedPerSecond = 50f; // 0→100 追赶约 2s，即初始化界面的最短展示
 
     [Header("Loading")]
     [SerializeField] private GameObject m_LoadingRoot;

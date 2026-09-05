@@ -138,7 +138,22 @@ namespace CommandoRobot
         IEnumerator Co_HandleGameOver()
         {
             m_GameState = State_Lose;
-            CameraControl.m_Current.StartShake(.4f, .3f);
+            CameraControl.m_Current.PlayShake(
+                CameraShakePreset.Death,
+                new ShakeSettings
+                {
+                    Duration = 0.55f,
+                    AmplitudeMin = 0.35f,
+                    AmplitudeMax = 0.55f,
+                    FrequencyMin = 22f,
+                    FrequencyMax = 30f,
+                    WithZoom = true,
+                    ZoomFov = 44f,
+                    ZoomTransition = 0.08f,
+                    ZoomHold = 0.15f,
+                    WithRotation = true,
+                    RotationAmplitude = 1.5f
+                });
             yield return new WaitForSeconds(2);
             OpenPanelAsync(LosePanelId).Forget();
         }

@@ -161,6 +161,7 @@ namespace CommandoRobot
             projectile.m_Speed = 10;
             projectile.m_Damage = 1;
             projectile.m_Range = 50;
+            projectile.m_IsEnemyTeam = true;
         }
 
         Vector3 FirePointPosition(int index)
@@ -186,6 +187,7 @@ namespace CommandoRobot
                 projectile.m_Speed = 8;
                 projectile.m_Damage = 1;
                 projectile.m_Range = 50;
+                projectile.m_IsEnemyTeam = true;
             }
         }
 

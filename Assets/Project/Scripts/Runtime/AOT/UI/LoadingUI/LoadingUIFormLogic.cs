@@ -8,7 +8,7 @@ using UnityEngine.UI;
 /// </summary>
 public sealed class LoadingUIFormLogic : UIFormLogic
 {
-    private const float ProgressSpeedPerSecond = 25f;
+    private const float ProgressSpeedPerSecond = 100f; // 0→100 追赶 ≤1s，配合 1s 最短展示下限
 
     [Header("Loading")]
     [SerializeField] private GameObject m_LoadingRoot;

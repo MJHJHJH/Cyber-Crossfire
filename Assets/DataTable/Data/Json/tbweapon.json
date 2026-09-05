@@ -22,6 +22,7 @@
     "effect_prefab": "WeaponFire_Pistol_1",
     "weapon_icon": "",
     "gun_prefab": "Gun-Rifle",
+    "fire_sound": 2201,
     "in_shop": true
   },
   {
@@ -47,6 +48,7 @@
     "effect_prefab": "WeaponFire_Pistol_1",
     "weapon_icon": "",
     "gun_prefab": "Gun-Shotgun",
+    "fire_sound": 2202,
     "in_shop": true
   },
   {
@@ -72,6 +74,7 @@
     "effect_prefab": "WeaponFire_Pistol_1",
     "weapon_icon": "",
     "gun_prefab": "Gun-RPG",
+    "fire_sound": 2203,
     "in_shop": true
   },
   {
@@ -97,6 +100,7 @@
     "effect_prefab": "WeaponFire_Pistol_2",
     "weapon_icon": "",
     "gun_prefab": "Gun-Energy",
+    "fire_sound": 2204,
     "in_shop": true
   },
   {
@@ -122,6 +126,7 @@
     "effect_prefab": "WeaponFire_Pistol_1",
     "weapon_icon": "",
     "gun_prefab": "Gun-Sniper",
+    "fire_sound": 2205,
     "in_shop": true
   },
   {
@@ -147,6 +152,7 @@
     "effect_prefab": "WeaponFire_Pistol_1",
     "weapon_icon": "",
     "gun_prefab": "Gun-Crossbow",
+    "fire_sound": 2206,
     "in_shop": true
   },
   {
@@ -172,6 +178,7 @@
     "effect_prefab": "WeaponFire_Pistol_1",
     "weapon_icon": "",
     "gun_prefab": "EnemyGun_Canon_A",
+    "fire_sound": 0,
     "in_shop": false
   }
 ]

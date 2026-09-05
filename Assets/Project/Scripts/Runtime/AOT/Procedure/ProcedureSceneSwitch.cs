@@ -20,7 +20,7 @@ namespace GamePlay
 
         private const string DefaultUiGroup = "Default";
         private const float SuspendReadyProgress = 0.89f;
-        private const float MinLoadingDisplaySeconds = 1.5f;
+        private const float MinLoadingDisplaySeconds = 1f;
         private const float PreloadTimeoutSeconds = 3f;
 
         public static event Action SwitchBegin;

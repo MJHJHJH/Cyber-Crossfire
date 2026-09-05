@@ -5,7 +5,7 @@ namespace GamePlay
 {
     public readonly struct Weapon_Record
     {
-        public Weapon_Record(int id, int price, string name, string weaponKey, bool oneHanded, bool autoFire, float fireDelay, float recoilSpeed, float recoilAngle, int initAmmo, int maxAmmo, int addAmmo, int powerWeaponMaxAmmo, bool infiniteAmmo, float projectileDamage, float projectileSpeed, float projectileRange, string projectilePrefab, string weaponModelPrefab, string effectPrefab, string weaponIcon, string gunPrefab, bool inShop)
+        public Weapon_Record(int id, int price, string name, string weaponKey, bool oneHanded, bool autoFire, float fireDelay, float recoilSpeed, float recoilAngle, int initAmmo, int maxAmmo, int addAmmo, int powerWeaponMaxAmmo, bool infiniteAmmo, float projectileDamage, float projectileSpeed, float projectileRange, string projectilePrefab, string weaponModelPrefab, string effectPrefab, string weaponIcon, string gunPrefab, int fireSound, bool inShop)
         {
             Id = id;
             Price = price;
@@ -29,6 +29,7 @@ namespace GamePlay
             EffectPrefab = effectPrefab;
             WeaponIcon = weaponIcon;
             GunPrefab = gunPrefab;
+            FireSound = fireSound;
             InShop = inShop;
         }
 
@@ -54,6 +55,7 @@ namespace GamePlay
         public string EffectPrefab { get; }
         public string WeaponIcon { get; }
         public string GunPrefab { get; }
+        public int FireSound { get; }
         public bool InShop { get; }
     }
 

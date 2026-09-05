@@ -39,6 +39,7 @@ public sealed partial class Weapon : Luban.BeanBase
         { if(!_buf["effect_prefab"].IsString) { throw new SerializationException(); }  EffectPrefab = _buf["effect_prefab"]; }
         { if(!_buf["weapon_icon"].IsString) { throw new SerializationException(); }  WeaponIcon = _buf["weapon_icon"]; }
         { if(!_buf["gun_prefab"].IsString) { throw new SerializationException(); }  GunPrefab = _buf["gun_prefab"]; }
+        { if(!_buf["fire_sound"].IsNumber) { throw new SerializationException(); }  FireSound = _buf["fire_sound"]; }
         { if(!_buf["in_shop"].IsBoolean) { throw new SerializationException(); }  InShop = _buf["in_shop"]; }
     }
 
@@ -136,6 +137,10 @@ public sealed partial class Weapon : Luban.BeanBase
     /// </summary>
     public readonly string GunPrefab;
     /// <summary>
+    /// 开火音效(TbSound.id,0=无)
+    /// </summary>
+    public readonly int FireSound;
+    /// <summary>
     /// 是否出现在商店/解锁列表
     /// </summary>
     public readonly bool InShop;
@@ -172,6 +177,7 @@ public sealed partial class Weapon : Luban.BeanBase
         + "effectPrefab:" + EffectPrefab + ","
         + "weaponIcon:" + WeaponIcon + ","
         + "gunPrefab:" + GunPrefab + ","
+        + "fireSound:" + FireSound + ","
         + "inShop:" + InShop + ","
         + "}";
     }

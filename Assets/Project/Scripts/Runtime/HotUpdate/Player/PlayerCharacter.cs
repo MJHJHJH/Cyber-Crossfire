@@ -147,7 +147,9 @@ namespace CommandoRobot
 
         public void HandleDamage()
         {
-            CameraControl.m_Current.StartShake(.2f, .1f);
+            CameraControl.m_Current.PlayShake(
+                CameraShakePreset.Hit,
+                ShakeSettings.Position(0.32f, 0.48f, 38f));
         }
 
         void LateUpdate()

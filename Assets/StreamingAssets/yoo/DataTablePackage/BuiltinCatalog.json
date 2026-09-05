@@ -1,11 +1,11 @@
 {
     "FileVersion": 1,
     "PackageName": "DataTablePackage",
-    "PackageVersion": "2026-09-05-589",
+    "PackageVersion": "2026-09-05-1090",
     "Entries": [
         {
-            "BundleGuid": "67e3bc7dd2a6ec46e0bd141038b8438e",
-            "FileName": "67e3bc7dd2a6ec46e0bd141038b8438e.bundle"
+            "BundleGuid": "a8aaf2ce0b6e973ed2b9151036bd1db8",
+            "FileName": "a8aaf2ce0b6e973ed2b9151036bd1db8.bundle"
         }
     ]
 }

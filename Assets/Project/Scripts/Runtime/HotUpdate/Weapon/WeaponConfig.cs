@@ -29,6 +29,8 @@ namespace CommandoRobot
         public string EffectPrefabLocation;
         public string WeaponIconLocation;
         public string GunPrefabLocation;
+        /// <summary>开火音效 TbSound.id，0 表示不播放。</summary>
+        public int FireSound;
         public bool InShop;
 
         public static WeaponConfig FromRecord(Weapon_Record record)
@@ -57,6 +59,7 @@ namespace CommandoRobot
                 EffectPrefabLocation = record.EffectPrefab,
                 WeaponIconLocation = record.WeaponIcon,
                 GunPrefabLocation = record.GunPrefab,
+                FireSound = record.FireSound,
                 InShop = record.InShop,
             };
         }

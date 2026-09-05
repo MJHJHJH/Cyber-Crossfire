@@ -80,12 +80,12 @@ namespace GamePlay
 
         private static Weapon_Record ToRecord(cfg.json.Weapon row)
         {
-            return new Weapon_Record(row.Id, row.Price, row.Name, row.WeaponKey, row.OneHanded, row.AutoFire, row.FireDelay, row.RecoilSpeed, row.RecoilAngle, row.InitAmmo, row.MaxAmmo, row.AddAmmo, row.PowerWeaponMaxAmmo, row.InfiniteAmmo, row.ProjectileDamage, row.ProjectileSpeed, row.ProjectileRange, row.ProjectilePrefab, row.WeaponModelPrefab, row.EffectPrefab, row.WeaponIcon, row.GunPrefab, row.InShop);
+            return new Weapon_Record(row.Id, row.Price, row.Name, row.WeaponKey, row.OneHanded, row.AutoFire, row.FireDelay, row.RecoilSpeed, row.RecoilAngle, row.InitAmmo, row.MaxAmmo, row.AddAmmo, row.PowerWeaponMaxAmmo, row.InfiniteAmmo, row.ProjectileDamage, row.ProjectileSpeed, row.ProjectileRange, row.ProjectilePrefab, row.WeaponModelPrefab, row.EffectPrefab, row.WeaponIcon, row.GunPrefab, row.FireSound, row.InShop);
         }
 
         private static Weapon_Record ToRecord(cfg.bin.Weapon row)
         {
-            return new Weapon_Record(row.Id, row.Price, row.Name, row.WeaponKey, row.OneHanded, row.AutoFire, row.FireDelay, row.RecoilSpeed, row.RecoilAngle, row.InitAmmo, row.MaxAmmo, row.AddAmmo, row.PowerWeaponMaxAmmo, row.InfiniteAmmo, row.ProjectileDamage, row.ProjectileSpeed, row.ProjectileRange, row.ProjectilePrefab, row.WeaponModelPrefab, row.EffectPrefab, row.WeaponIcon, row.GunPrefab, row.InShop);
+            return new Weapon_Record(row.Id, row.Price, row.Name, row.WeaponKey, row.OneHanded, row.AutoFire, row.FireDelay, row.RecoilSpeed, row.RecoilAngle, row.InitAmmo, row.MaxAmmo, row.AddAmmo, row.PowerWeaponMaxAmmo, row.InfiniteAmmo, row.ProjectileDamage, row.ProjectileSpeed, row.ProjectileRange, row.ProjectilePrefab, row.WeaponModelPrefab, row.EffectPrefab, row.WeaponIcon, row.GunPrefab, row.FireSound, row.InShop);
         }
     }
 }

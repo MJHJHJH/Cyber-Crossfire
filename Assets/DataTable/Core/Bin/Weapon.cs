@@ -38,6 +38,7 @@ public sealed partial class Weapon : Luban.BeanBase
         EffectPrefab = _buf.ReadString();
         WeaponIcon = _buf.ReadString();
         GunPrefab = _buf.ReadString();
+        FireSound = _buf.ReadInt();
         InShop = _buf.ReadBool();
     }
 
@@ -135,6 +136,10 @@ public sealed partial class Weapon : Luban.BeanBase
     /// </summary>
     public readonly string GunPrefab;
     /// <summary>
+    /// 开火音效(TbSound.id,0=无)
+    /// </summary>
+    public readonly int FireSound;
+    /// <summary>
     /// 是否出现在商店/解锁列表
     /// </summary>
     public readonly bool InShop;
@@ -171,6 +176,7 @@ public sealed partial class Weapon : Luban.BeanBase
         + "effectPrefab:" + EffectPrefab + ","
         + "weaponIcon:" + WeaponIcon + ","
         + "gunPrefab:" + GunPrefab + ","
+        + "fireSound:" + FireSound + ","
         + "inShop:" + InShop + ","
         + "}";
     }
