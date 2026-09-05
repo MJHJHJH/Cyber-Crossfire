@@ -88,6 +88,7 @@ namespace CommandoRobot
 
         public void StartShake(float t, float r)
         {
+            Debug.Log("StartShake!!!!!");
             if (m_ShakeTimer == 0 || m_ShakeRadius < r)
                 m_ShakeRadius = r;
 

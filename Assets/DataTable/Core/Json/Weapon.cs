@@ -20,6 +20,26 @@ public sealed partial class Weapon : Luban.BeanBase
         { if(!_buf["id"].IsNumber) { throw new SerializationException(); }  Id = _buf["id"]; }
         { if(!_buf["price"].IsNumber) { throw new SerializationException(); }  Price = _buf["price"]; }
         { if(!_buf["name"].IsString) { throw new SerializationException(); }  Name = _buf["name"]; }
+        { if(!_buf["weapon_key"].IsString) { throw new SerializationException(); }  WeaponKey = _buf["weapon_key"]; }
+        { if(!_buf["one_handed"].IsBoolean) { throw new SerializationException(); }  OneHanded = _buf["one_handed"]; }
+        { if(!_buf["auto_fire"].IsBoolean) { throw new SerializationException(); }  AutoFire = _buf["auto_fire"]; }
+        { if(!_buf["fire_delay"].IsNumber) { throw new SerializationException(); }  FireDelay = _buf["fire_delay"]; }
+        { if(!_buf["recoil_speed"].IsNumber) { throw new SerializationException(); }  RecoilSpeed = _buf["recoil_speed"]; }
+        { if(!_buf["recoil_angle"].IsNumber) { throw new SerializationException(); }  RecoilAngle = _buf["recoil_angle"]; }
+        { if(!_buf["init_ammo"].IsNumber) { throw new SerializationException(); }  InitAmmo = _buf["init_ammo"]; }
+        { if(!_buf["max_ammo"].IsNumber) { throw new SerializationException(); }  MaxAmmo = _buf["max_ammo"]; }
+        { if(!_buf["add_ammo"].IsNumber) { throw new SerializationException(); }  AddAmmo = _buf["add_ammo"]; }
+        { if(!_buf["power_weapon_max_ammo"].IsNumber) { throw new SerializationException(); }  PowerWeaponMaxAmmo = _buf["power_weapon_max_ammo"]; }
+        { if(!_buf["infinite_ammo"].IsBoolean) { throw new SerializationException(); }  InfiniteAmmo = _buf["infinite_ammo"]; }
+        { if(!_buf["projectile_damage"].IsNumber) { throw new SerializationException(); }  ProjectileDamage = _buf["projectile_damage"]; }
+        { if(!_buf["projectile_speed"].IsNumber) { throw new SerializationException(); }  ProjectileSpeed = _buf["projectile_speed"]; }
+        { if(!_buf["projectile_range"].IsNumber) { throw new SerializationException(); }  ProjectileRange = _buf["projectile_range"]; }
+        { if(!_buf["projectile_prefab"].IsString) { throw new SerializationException(); }  ProjectilePrefab = _buf["projectile_prefab"]; }
+        { if(!_buf["weapon_model_prefab"].IsString) { throw new SerializationException(); }  WeaponModelPrefab = _buf["weapon_model_prefab"]; }
+        { if(!_buf["effect_prefab"].IsString) { throw new SerializationException(); }  EffectPrefab = _buf["effect_prefab"]; }
+        { if(!_buf["weapon_icon"].IsString) { throw new SerializationException(); }  WeaponIcon = _buf["weapon_icon"]; }
+        { if(!_buf["gun_prefab"].IsString) { throw new SerializationException(); }  GunPrefab = _buf["gun_prefab"]; }
+        { if(!_buf["in_shop"].IsBoolean) { throw new SerializationException(); }  InShop = _buf["in_shop"]; }
     }
 
     public static Weapon DeserializeWeapon(JSONNode _buf)
@@ -32,13 +52,93 @@ public sealed partial class Weapon : Luban.BeanBase
     /// </summary>
     public readonly int Id;
     /// <summary>
-    /// price
+    /// 商店价格
     /// </summary>
     public readonly int Price;
     /// <summary>
-    /// name
+    /// 显示名
     /// </summary>
     public readonly string Name;
+    /// <summary>
+    /// 业务键(拾取/兼容)
+    /// </summary>
+    public readonly string WeaponKey;
+    /// <summary>
+    /// 单手
+    /// </summary>
+    public readonly bool OneHanded;
+    /// <summary>
+    /// 自动开火
+    /// </summary>
+    public readonly bool AutoFire;
+    /// <summary>
+    /// 射击间隔
+    /// </summary>
+    public readonly float FireDelay;
+    /// <summary>
+    /// 后坐力回弹速度
+    /// </summary>
+    public readonly float RecoilSpeed;
+    /// <summary>
+    /// 后坐力角度
+    /// </summary>
+    public readonly float RecoilAngle;
+    /// <summary>
+    /// 初始弹药
+    /// </summary>
+    public readonly int InitAmmo;
+    /// <summary>
+    /// 最大弹药
+    /// </summary>
+    public readonly int MaxAmmo;
+    /// <summary>
+    /// 补给弹药
+    /// </summary>
+    public readonly int AddAmmo;
+    /// <summary>
+    /// 强化弹药上限
+    /// </summary>
+    public readonly int PowerWeaponMaxAmmo;
+    /// <summary>
+    /// 无限弹药
+    /// </summary>
+    public readonly bool InfiniteAmmo;
+    /// <summary>
+    /// 子弹伤害
+    /// </summary>
+    public readonly float ProjectileDamage;
+    /// <summary>
+    /// 子弹速度
+    /// </summary>
+    public readonly float ProjectileSpeed;
+    /// <summary>
+    /// 子弹射程
+    /// </summary>
+    public readonly float ProjectileRange;
+    /// <summary>
+    /// 子弹Prefab location
+    /// </summary>
+    public readonly string ProjectilePrefab;
+    /// <summary>
+    /// 武器模型Prefab location
+    /// </summary>
+    public readonly string WeaponModelPrefab;
+    /// <summary>
+    /// 开火特效Prefab location
+    /// </summary>
+    public readonly string EffectPrefab;
+    /// <summary>
+    /// 图标Sprite location
+    /// </summary>
+    public readonly string WeaponIcon;
+    /// <summary>
+    /// 枪械逻辑Prefab location
+    /// </summary>
+    public readonly string GunPrefab;
+    /// <summary>
+    /// 是否出现在商店/解锁列表
+    /// </summary>
+    public readonly bool InShop;
    
     public const int __ID__ = -1707954628;
     public override int GetTypeId() => __ID__;
@@ -53,6 +153,26 @@ public sealed partial class Weapon : Luban.BeanBase
         + "id:" + Id + ","
         + "price:" + Price + ","
         + "name:" + Name + ","
+        + "weaponKey:" + WeaponKey + ","
+        + "oneHanded:" + OneHanded + ","
+        + "autoFire:" + AutoFire + ","
+        + "fireDelay:" + FireDelay + ","
+        + "recoilSpeed:" + RecoilSpeed + ","
+        + "recoilAngle:" + RecoilAngle + ","
+        + "initAmmo:" + InitAmmo + ","
+        + "maxAmmo:" + MaxAmmo + ","
+        + "addAmmo:" + AddAmmo + ","
+        + "powerWeaponMaxAmmo:" + PowerWeaponMaxAmmo + ","
+        + "infiniteAmmo:" + InfiniteAmmo + ","
+        + "projectileDamage:" + ProjectileDamage + ","
+        + "projectileSpeed:" + ProjectileSpeed + ","
+        + "projectileRange:" + ProjectileRange + ","
+        + "projectilePrefab:" + ProjectilePrefab + ","
+        + "weaponModelPrefab:" + WeaponModelPrefab + ","
+        + "effectPrefab:" + EffectPrefab + ","
+        + "weaponIcon:" + WeaponIcon + ","
+        + "gunPrefab:" + GunPrefab + ","
+        + "inShop:" + InShop + ","
         + "}";
     }
 }

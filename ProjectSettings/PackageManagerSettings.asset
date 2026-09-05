@@ -30,6 +30,7 @@ MonoBehaviour:
     m_Name: package.openupm.com
     m_Url: https://package.openupm.com
     m_Scopes:
+    - com.coplaydev.unity-mcp
     - com.github-glitchenzo.nugetforunity
     - com.tuyoogame.yooasset
     - jp.hadashikick.vcontainer

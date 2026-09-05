@@ -24,13 +24,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5808327779181126818}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5808327779181126816
 MonoBehaviour:
@@ -46,9 +46,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Level: {fileID: 0}
   m_GameplayData: {fileID: 11400000, guid: a021654d626ffe24d91719bf9d7396c0, type: 2}
-  m_Contents: {fileID: 11400000, guid: 0595c63477c299d499fd1d72c22fabd2, type: 2}
+  m_Contents: {fileID: 0}
   m_DeathEff: {fileID: 0}
   m_Pausesd: 0
   m_TotalEnemyCount: 0
   m_EnemyKilledCount: 0
+  m_Boss: {fileID: 0}
+  m_IsBossFight: 0
   m_GameState: 0

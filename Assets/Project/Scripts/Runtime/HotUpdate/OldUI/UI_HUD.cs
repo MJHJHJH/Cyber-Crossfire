@@ -66,7 +66,7 @@ namespace CommandoRobot
 
             if (PlayerCharacter.m_Current.m_CurrentWeapon != null)
             {
-                m_GunNameText.text = PlayerCharacter.m_Current.m_CurrentWeapon.Title;
+                m_GunNameText.text = PlayerCharacter.m_Current.m_CurrentWeapon.Config.Title;
             }
 
             m_GrenadeText.text = "Grenade : " + PlayerCharacter.m_Current.m_GrenadeCount.ToString();

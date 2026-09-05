@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using GameFramework;
 using GamePlay;
 using UnityEngine;
@@ -44,6 +46,11 @@ namespace CommandoRobot
 
         [HideInInspector]
         public int m_WeaponNum = 0;
+
+        private int _setWeaponVersion;
+
+        /// <summary>当前武器已实例化且表驱动资源加载完成，可供开火/轮询使用。</summary>
+        public bool IsWeaponReady => m_CurrentWeapon != null && m_CurrentWeapon.AssetsReady;
 
         bool _animatorParamsCached;
         bool _hasRunBlend;
@@ -137,15 +144,15 @@ namespace CommandoRobot
             if (m_CharBody.m_RecoilBones == null || m_CharBody.m_RecoilBones.Length == 0 || m_CharBody.m_RecoilBones[0] == null)
                 return;
 
-            if (m_CurrentWeapon != null)
-            {
-                float recoil = -m_CurrentWeapon.RecoilAngle * m_CurrentWeapon.RecoilTimer;
-                m_CharBody.m_RecoilBones[0].position += recoil * m_CharBody.m_UpperAimBase.forward;
+            if (!IsWeaponReady)
+                return;
 
-                if (m_CharBody.m_RecoilBones[1] == null)
-                    return;
-                m_CharBody.m_RecoilBones[1].position += recoil * m_CharBody.m_UpperAimBase.forward;
-            }
+            float recoil = -m_CurrentWeapon.Config.RecoilAngle * m_CurrentWeapon.RecoilTimer;
+            m_CharBody.m_RecoilBones[0].position += recoil * m_CharBody.m_UpperAimBase.forward;
+
+            if (m_CharBody.m_RecoilBones[1] == null)
+                return;
+            m_CharBody.m_RecoilBones[1].position += recoil * m_CharBody.m_UpperAimBase.forward;
         }
         public void CheckDeath()
         {
@@ -293,37 +300,89 @@ namespace CommandoRobot
 
         public void SetWeapon(GameObject prefab)
         {
+            SetWeaponAsync(prefab, this.GetCancellationTokenOnDestroy()).Forget();
+        }
+
+        public async UniTask SetWeaponAsync(GameObject prefab, CancellationToken cancellationToken = default)
+        {
             if (!prefab)
                 return;
 
-            if (m_CurrentWeapon != null)
-            {
-                if (m_CurrentWeapon.WeaponModel != null)
-                {
-                    Destroy(m_CurrentWeapon.WeaponModel.gameObject);
-                }
-                Destroy(m_CurrentWeapon.gameObject);
-
-                m_CurrentWeapon = null;
-                m_WeaponNum = 1;
-            }
+            int version = ++_setWeaponVersion;
+            DestroyCurrentWeapon();
 
             WeaponBase wpn = Instantiate(prefab).GetComponent<WeaponBase>();
             m_CurrentWeapon = wpn;
-            m_CurrentWeapon.AddModel();
-            m_CurrentWeapon.WeaponModel.transform.SetParent(m_CharBody.m_GunPoints[0], false);
-            //m_CurrentWeapon.WeaponModel.transform.localScale =.01f* Vector3.one;
-            //m_CurrentWeapon.WeaponModel.transform.localRotation = Quaternion.Euler(-90, 0,-180);
-            m_CurrentWeapon.m_Owner = gameObject;
-            m_CurrentWeapon.m_OwnerCharacter = this;
+            wpn.m_Owner = gameObject;
+            wpn.m_OwnerCharacter = this;
+            wpn.Owner = this is PlayerCharacter ? PlayerControl.m_Main : null;
+
+            try
+            {
+                await wpn.ApplyTableConfigAsync(cancellationToken);
+            }
+            catch (System.OperationCanceledException)
+            {
+                if (m_CurrentWeapon == wpn)
+                    DestroyCurrentWeapon();
+                else
+                    DestroyWeaponInstance(wpn);
+                return;
+            }
+            catch (System.Exception)
+            {
+                if (m_CurrentWeapon == wpn)
+                    DestroyCurrentWeapon();
+                else
+                    DestroyWeaponInstance(wpn);
+                throw;
+            }
+
+            // 已过期（被更新的换枪覆盖）或取消：若仍持有本实例则销毁，避免泄漏
+            if (cancellationToken.IsCancellationRequested || version != _setWeaponVersion)
+            {
+                if (m_CurrentWeapon == wpn)
+                    DestroyCurrentWeapon();
+                else
+                    DestroyWeaponInstance(wpn);
+                return;
+            }
+
+            if (m_CurrentWeapon != wpn)
+                return;
+
+            wpn.AddModel();
+            if (wpn.WeaponModel != null && m_CharBody != null && m_CharBody.m_GunPoints != null && m_CharBody.m_GunPoints.Length > 0)
+                wpn.WeaponModel.transform.SetParent(m_CharBody.m_GunPoints[0], false);
+        }
+
+        private void DestroyCurrentWeapon()
+        {
+            if (m_CurrentWeapon == null)
+                return;
+
+            DestroyWeaponInstance(m_CurrentWeapon);
+            m_CurrentWeapon = null;
+            m_WeaponNum = 1;
+        }
+
+        private static void DestroyWeaponInstance(WeaponBase weapon)
+        {
+            if (weapon == null)
+                return;
+
+            if (weapon.WeaponModel != null)
+                Destroy(weapon.WeaponModel.gameObject);
+
+            Destroy(weapon.gameObject);
         }
 
         public virtual void FireWeapon()
         {
-            if (m_CurrentWeapon != null)
-            {
-                m_CurrentWeapon.Input_FireHold = true;
-            }
+            if (!IsWeaponReady)
+                return;
+
+            m_CurrentWeapon.Input_FireHold = true;
         }
     }
 }

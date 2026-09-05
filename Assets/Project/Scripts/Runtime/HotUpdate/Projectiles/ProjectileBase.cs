@@ -141,7 +141,6 @@ namespace CommandoRobot
                         d.ApplyDamage(m_Damage, transform.forward, 1);
                     }
                     CreateHitParticle();
-                    DetachOnHit();
                     Recycle();
                 }
                 else if (col.gameObject.tag == "Enemy" && !m_IsEnemyTeam)
@@ -152,7 +151,6 @@ namespace CommandoRobot
                         d.ApplyDamage(m_Damage, transform.forward, 1);
                     }
                     CreateHitParticle();
-                    DetachOnHit();
                     Recycle();
                 }
 

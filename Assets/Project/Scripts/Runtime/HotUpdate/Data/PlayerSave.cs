@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using GameFramework;
 using GamePlay;
 using R3;
@@ -217,10 +218,18 @@ namespace GamePlay.Data
         {
             if (GameFrameWork.DataTable != null &&
                 GameFrameWork.DataTable.TryGetTable(out IWeapon table) &&
-                table != null &&
-                table.Count > 0)
+                table != null)
             {
-                return table.Count;
+                int shopCount = 0;
+                IReadOnlyList<Weapon_Record> all = table.All;
+                for (int i = 0; i < all.Count; i++)
+                {
+                    if (all[i].InShop)
+                        shopCount++;
+                }
+
+                if (shopCount > 0)
+                    return shopCount;
             }
 
             return FallbackWeaponCount;
@@ -236,7 +245,7 @@ namespace GamePlay.Data
                 return false;
             }
 
-            if (!table.TryGet(index, out Weapon_Record record))
+            if (!table.TryGet(index, out Weapon_Record record) || !record.InShop)
                 return false;
 
             price = record.Price;

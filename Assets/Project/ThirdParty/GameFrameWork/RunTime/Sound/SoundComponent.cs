@@ -168,6 +168,23 @@ namespace GameFramework
             return PlaySound(soundConfig.Location, groupName, soundConfig.Priority, CreatePlaySoundParams(soundConfig), bindingTransform, default, userData, loadKind);
         }
 
+        /// <summary>
+        /// 按音效配表 ID 在世界坐标位置播放声音（3D 音效用，3D 参数取自配表，不跟随任何物体）。
+        /// 注意：worldPosition 无默认值，避免与 bindingTransform 重载在省略第二参数时产生调用歧义。
+        /// </summary>
+        public int PlaySound(int soundId, Vector3 worldPosition, object userData = null, SoundLoadKind loadKind = SoundLoadKind.YooAsset)
+        {
+            if (!TryGetSoundConfig(soundId, out SoundConfig soundConfig))
+            {
+                FireSoundTableNotFound(soundId);
+                return -1;
+            }
+
+            string groupName = string.IsNullOrEmpty(soundConfig.Group) ? Constant.DefaultSoundGroupName : soundConfig.Group;
+            EnsureSoundGroup(groupName, DefaultSoundAgentCount);
+            return PlaySound(soundConfig.Location, groupName, soundConfig.Priority, CreatePlaySoundParams(soundConfig), null, worldPosition, userData, loadKind);
+        }
+
         public bool StopSound(int serialId)
         {
             return m_SoundManager != null && m_SoundManager.StopSound(serialId);
@@ -532,8 +549,16 @@ namespace GameFramework
         {
             if (e.UserData is PlaySoundInfo playSoundInfo && e.SoundAgent.Helper is SoundAgentHelperBase agentHelper)
             {
-                agentHelper.SetBindingTransform(playSoundInfo.BindingTransform);
-                agentHelper.SetWorldPosition(playSoundInfo.WorldPosition);
+                // 绑定目标与世界坐标二选一：优先跟随 Transform，否则使用世界坐标。
+                // 若两者都调用，SetWorldPosition 会清空绑定状态，导致 3D 音效被钉在世界原点。
+                if (playSoundInfo.BindingTransform != null)
+                {
+                    agentHelper.SetBindingTransform(playSoundInfo.BindingTransform);
+                }
+                else
+                {
+                    agentHelper.SetWorldPosition(playSoundInfo.WorldPosition);
+                }
             }
 
             if (m_EventComponent != null)

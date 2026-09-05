@@ -1,6 +1,23 @@
 {
     "FileVersion": 1,
     "PackageName": "DefaultRawPackage",
-    "PackageVersion": "2026-08-18-1197",
-    "Entries": []
+    "PackageVersion": "2026-09-05-589",
+    "Entries": [
+        {
+            "BundleGuid": "07391aa378ceae15ef866c8b4feecf36",
+            "FileName": "07391aa378ceae15ef866c8b4feecf36.bundle"
+        },
+        {
+            "BundleGuid": "3b4d042bd1e73db90615aa1a248c6765",
+            "FileName": "3b4d042bd1e73db90615aa1a248c6765.bundle"
+        },
+        {
+            "BundleGuid": "7bb61f315033790a2b70bafc470d6e8d",
+            "FileName": "7bb61f315033790a2b70bafc470d6e8d.bundle"
+        },
+        {
+            "BundleGuid": "ed15f6b77f1803b85483fbdb64b9e7c2",
+            "FileName": "ed15f6b77f1803b85483fbdb64b9e7c2.bundle"
+        }
+    ]
 }

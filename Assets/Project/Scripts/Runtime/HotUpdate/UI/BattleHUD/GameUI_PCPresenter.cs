@@ -32,7 +32,7 @@ public sealed class GameUI_PCPresenter : PanelPresenter<IGameUI_PCView>
         View.SetCoinText(PlayerSave.Coin);
 
         if (player.m_CurrentWeapon != null)
-            View.SetGunName(player.m_CurrentWeapon.Title);
+            View.SetGunName(player.m_CurrentWeapon.Config.Title);
 
         View.SetGrenadeText(player.m_GrenadeCount);
 

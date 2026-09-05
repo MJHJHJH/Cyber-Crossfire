@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using CommandoRobot.ScriptableObjects;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using GamePlay.Data;
+using UnityEngine;
 
 
 namespace CommandoRobot
@@ -32,8 +33,6 @@ namespace CommandoRobot
         [HideInInspector]
         public PlayerPowers m_PlayerPowers;
 
-        public Contents m_Contents;
-
         void Awake()
         {
             m_Current = this;
@@ -55,9 +54,39 @@ namespace CommandoRobot
             m_DamageControl.OnDamaged.AddListener(HandleDamage);
             m_InControl = true;
             m_GrenadeCount = 3;
-            m_WeaponPrefab = m_Contents.m_PlayerWeapons[PlayerSave.SelectedWeapon];
-            SetWeapon(m_WeaponPrefab);
-            m_CurrentWeapon.InfiniteAmmo = true;
+            InitDefaultWeaponAsync().Forget();
+        }
+
+        async UniTaskVoid InitDefaultWeaponAsync()
+        {
+            await EquipWeaponAsync((WeaponId)PlayerSave.SelectedWeapon);
+            EnableDefaultWeaponInfiniteAmmo();
+        }
+
+        void EnableDefaultWeaponInfiniteAmmo()
+        {
+            if (!IsWeaponReady)
+                return;
+
+            WeaponConfig cfg = m_CurrentWeapon.Config;
+            cfg.InfiniteAmmo = true;
+            m_CurrentWeapon.Config = cfg;
+        }
+
+        async UniTask EquipWeaponAsync(WeaponId weaponId)
+        {
+            if (GameControl.m_Current == null)
+            {
+                Debug.LogError("[PlayerCharacter] GameControl missing.");
+                return;
+            }
+
+            CancellationToken ct = this.GetCancellationTokenOnDestroy();
+            GameObject prefab = await GameControl.m_Current.GetGunPrefabAsync(weaponId, ct);
+            if (prefab == null || ct.IsCancellationRequested)
+                return;
+
+            await SetWeaponAsync(prefab, ct);
         }
 
         // Update is called once per frame
@@ -69,19 +98,6 @@ namespace CommandoRobot
             UpdateRotation();
             CheckWeaponAmmo();
             CheckDeath();
-            //if (m_WpnPowerLevel == 1)
-            //{
-            //    m_WpnPowerTime -= Time.deltaTime;
-            //    if (m_WpnPowerTime <= 0)
-            //    {
-            //        m_WeaponPowerParticle.SetActive(false);
-            //        SetWeaponPowerLevel(0);
-            //    }
-            //}
-
-
-            //shield
-            //m_ShieldObject.transform.position = transform.position + new Vector3(0, 1, 0);
 
             if (m_WeaponPowerType > 0)
             {
@@ -95,18 +111,18 @@ namespace CommandoRobot
 
         public void CheckWeaponAmmo()
         {
-            if (m_CurrentWeapon == null)
+            if (!IsWeaponReady)
                 return;
 
-            int selected = PlayerSave.SelectedWeapon;
-            if (m_CurrentWeapon.WeaponID != m_Contents.m_PlayerWeapons[selected].GetComponent<WeaponBase>().WeaponID)
-            {
-                if (m_CurrentWeapon.AmmoCount <= 0)
-                {
-                    SetWeapon(GameControl.m_Current.m_Contents.m_PlayerWeapons[selected]);
-                    m_CurrentWeapon.InfiniteAmmo = true;
-                }
-            }
+            WeaponId selected = (WeaponId)PlayerSave.SelectedWeapon;
+            if (m_CurrentWeapon.WeaponId != selected && m_CurrentWeapon.AmmoCount <= 0)
+                SwitchToDefaultWeaponAsync(selected).Forget();
+        }
+
+        async UniTaskVoid SwitchToDefaultWeaponAsync(WeaponId selected)
+        {
+            await EquipWeaponAsync(selected);
+            EnableDefaultWeaponInfiniteAmmo();
         }
 
         public void UpdateControls()
@@ -119,18 +135,14 @@ namespace CommandoRobot
             if (m_MovementInput.magnitude > .1f)
                 m_CharMovement.AddMovement(m_MovementInput);
 
-
             m_Input_Fire = InputControl.m_Main.m_Fire;
-            m_CurrentWeapon.Input_FireHold = InputControl.m_Main.m_Fire;
+            if (IsWeaponReady)
+                m_CurrentWeapon.Input_FireHold = InputControl.m_Main.m_Fire;
 
             if (m_GrenadeCount > 0 && InputControl.m_Main.m_Grenade)
             {
                 ThrowGrenade();
-
             }
-
-
-
         }
 
         public void HandleDamage()
@@ -140,18 +152,11 @@ namespace CommandoRobot
 
         void LateUpdate()
         {
-            float recoil = m_CurrentWeapon.RecoilTimer;
-
             if (InputControl.m_Main.m_MouseAim)
             {
-
                 Vector3 targetPos = InputControl.m_Main.m_WorldAimPosition;
                 Vector3 targetDir = targetPos - transform.position;
                 targetDir.y = 0;
-
-                //Quaternion rot = Quaternion.LookRotation(targetDir);
-                //Quaternion rotInv = Quaternion.Inverse(m_CharBody.m_RotationBase.rotation);
-                //m_CharBody.m_UpperAimBase.rotation = rot* rotInv * m_CharBody.m_UpperAimBase.rotation;
                 m_CharBody.m_UpperAimBase.rotation = Quaternion.LookRotation(targetDir);
             }
             else
@@ -161,10 +166,6 @@ namespace CommandoRobot
                     Vector3 targetPos = m_BestTargetObject.m_TargetCenter.position;
                     Vector3 targetDir = targetPos - transform.position;
                     targetDir.y = 0;
-
-                    //Quaternion rot = Quaternion.LookRotation(targetDir);
-                    //Quaternion rotInv = Quaternion.Inverse(m_CharBody.m_RotationBase.rotation);
-                    //m_CharBody.m_UpperAimBase.rotation = rot * rotInv * m_CharBody.m_UpperAimBase.rotation;
                     m_CharBody.m_UpperAimBase.rotation = Quaternion.LookRotation(targetDir);
                 }
                 else
@@ -172,13 +173,9 @@ namespace CommandoRobot
                     m_CharBody.m_UpperAimBase.rotation = m_CharBody.m_RotationBase.rotation;
                 }
             }
-            
-
-
 
             m_MovementInput = Vector3.zero;
             UpdateRecoilTransforms();
-            //m_CharBody.m_UpperAimBase.rotation = Quaternion.AngleAxis m_CharBody.m_UpperAimBase.rotation;
         }
         public void CheckMelleeAttack()
         {
@@ -248,63 +245,42 @@ namespace CommandoRobot
             else if (itemType == "WeaponShotgun")
             {
                 GameControl.m_Current.ShowMessage("Shotgun");
-                if (m_CurrentWeapon != null && m_CurrentWeapon.WeaponID == "WeaponShotgun")
-                {
+                if (m_CurrentWeapon != null && m_CurrentWeapon.WeaponId == WeaponId.Shotgun)
                     m_CurrentWeapon.AmmoCount += 40;
-                }
                 else
-                {
-                    SetWeapon(GameControl.m_Current.m_Contents.m_PlayerWeapons[1]);
-                }
-
+                    EquipWeaponAsync(WeaponId.Shotgun).Forget();
             }
             else if (itemType == "WeaponRPG")
             {
                 GameControl.m_Current.ShowMessage("Rocket Launcher");
-                if (m_CurrentWeapon != null && m_CurrentWeapon.WeaponID == "WeaponRPG")
-                {
+                if (m_CurrentWeapon != null && m_CurrentWeapon.WeaponId == WeaponId.RPG)
                     m_CurrentWeapon.AmmoCount += 10;
-                }
                 else
-                {
-                    SetWeapon(GameControl.m_Current.m_Contents.m_PlayerWeapons[2]);
-                }
+                    EquipWeaponAsync(WeaponId.RPG).Forget();
             }
             else if (itemType == "WeaponEnergy")
             {
                 GameControl.m_Current.ShowMessage("Energy Rifle");
-                if (m_CurrentWeapon != null && m_CurrentWeapon.WeaponID == "WeaponEnergy")
-                {
+                if (m_CurrentWeapon != null && m_CurrentWeapon.WeaponId == WeaponId.Energy)
                     m_CurrentWeapon.AmmoCount += 10;
-                }
                 else
-                {
-                    SetWeapon(GameControl.m_Current.m_Contents.m_PlayerWeapons[3]);
-                }
+                    EquipWeaponAsync(WeaponId.Energy).Forget();
             }
             else if (itemType == "WeaponSniper")
             {
                 GameControl.m_Current.ShowMessage("Sniper Rifle");
-                if (m_CurrentWeapon != null && m_CurrentWeapon.WeaponID == "WeaponSniper")
-                {
+                if (m_CurrentWeapon != null && m_CurrentWeapon.WeaponId == WeaponId.Sniper)
                     m_CurrentWeapon.AmmoCount += 10;
-                }
                 else
-                {
-                    SetWeapon(GameControl.m_Current.m_Contents.m_PlayerWeapons[4]);
-                }
+                    EquipWeaponAsync(WeaponId.Sniper).Forget();
             }
             else if (itemType == "WeaponCrossbow")
             {
                 GameControl.m_Current.ShowMessage("Crossbow");
-                if (m_CurrentWeapon != null && m_CurrentWeapon.WeaponID == "WeaponCrossbow")
-                {
+                if (m_CurrentWeapon != null && m_CurrentWeapon.WeaponId == WeaponId.Crossbow)
                     m_CurrentWeapon.AmmoCount += 10;
-                }
                 else
-                {
-                    SetWeapon(GameControl.m_Current.m_Contents.m_PlayerWeapons[5]);
-                }
+                    EquipWeaponAsync(WeaponId.Crossbow).Forget();
             }
             else if (itemType == "WeaponGrenade")
             {

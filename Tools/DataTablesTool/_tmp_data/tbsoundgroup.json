@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "Name": "Music",
+    "MixerGroupPath": "Master/Music",
+    "AvoidBeingReplacedBySamePriority": false,
+    "Mute": false,
+    "Volume": 1,
+    "AgentCount": 2
+  },
+  {
+    "id": 2,
+    "Name": "SFX",
+    "MixerGroupPath": "Master/SFX",
+    "AvoidBeingReplacedBySamePriority": false,
+    "Mute": false,
+    "Volume": 1,
+    "AgentCount": 8
+  },
+  {
+    "id": 3,
+    "Name": "Ambient",
+    "MixerGroupPath": "Master/Ambient",
+    "AvoidBeingReplacedBySamePriority": false,
+    "Mute": false,
+    "Volume": 0.5,
+    "AgentCount": 2
+  },
+  {
+    "id": 4,
+    "Name": "UI",
+    "MixerGroupPath": "Master/UI",
+    "AvoidBeingReplacedBySamePriority": false,
+    "Mute": false,
+    "Volume": 1,
+    "AgentCount": 5
+  }
+]

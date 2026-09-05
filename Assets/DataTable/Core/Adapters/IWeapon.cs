@@ -5,16 +5,56 @@ namespace GamePlay
 {
     public readonly struct Weapon_Record
     {
-        public Weapon_Record(int id, int price, string name)
+        public Weapon_Record(int id, int price, string name, string weaponKey, bool oneHanded, bool autoFire, float fireDelay, float recoilSpeed, float recoilAngle, int initAmmo, int maxAmmo, int addAmmo, int powerWeaponMaxAmmo, bool infiniteAmmo, float projectileDamage, float projectileSpeed, float projectileRange, string projectilePrefab, string weaponModelPrefab, string effectPrefab, string weaponIcon, string gunPrefab, bool inShop)
         {
             Id = id;
             Price = price;
             Name = name;
+            WeaponKey = weaponKey;
+            OneHanded = oneHanded;
+            AutoFire = autoFire;
+            FireDelay = fireDelay;
+            RecoilSpeed = recoilSpeed;
+            RecoilAngle = recoilAngle;
+            InitAmmo = initAmmo;
+            MaxAmmo = maxAmmo;
+            AddAmmo = addAmmo;
+            PowerWeaponMaxAmmo = powerWeaponMaxAmmo;
+            InfiniteAmmo = infiniteAmmo;
+            ProjectileDamage = projectileDamage;
+            ProjectileSpeed = projectileSpeed;
+            ProjectileRange = projectileRange;
+            ProjectilePrefab = projectilePrefab;
+            WeaponModelPrefab = weaponModelPrefab;
+            EffectPrefab = effectPrefab;
+            WeaponIcon = weaponIcon;
+            GunPrefab = gunPrefab;
+            InShop = inShop;
         }
 
         public int Id { get; }
         public int Price { get; }
         public string Name { get; }
+        public string WeaponKey { get; }
+        public bool OneHanded { get; }
+        public bool AutoFire { get; }
+        public float FireDelay { get; }
+        public float RecoilSpeed { get; }
+        public float RecoilAngle { get; }
+        public int InitAmmo { get; }
+        public int MaxAmmo { get; }
+        public int AddAmmo { get; }
+        public int PowerWeaponMaxAmmo { get; }
+        public bool InfiniteAmmo { get; }
+        public float ProjectileDamage { get; }
+        public float ProjectileSpeed { get; }
+        public float ProjectileRange { get; }
+        public string ProjectilePrefab { get; }
+        public string WeaponModelPrefab { get; }
+        public string EffectPrefab { get; }
+        public string WeaponIcon { get; }
+        public string GunPrefab { get; }
+        public bool InShop { get; }
     }
 
     public interface IWeapon

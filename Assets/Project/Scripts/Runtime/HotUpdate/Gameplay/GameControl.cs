@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Threading;
 using CommandoRobot.ScriptableObjects;
 using Cysharp.Threading.Tasks;
 using GameFramework;
@@ -20,7 +21,6 @@ namespace CommandoRobot
         public LevelBase m_Level;
 
         public GameplayData m_GameplayData;
-        public Contents m_Contents;
 
         public GameObject m_DeathEff;
         [HideInInspector]
@@ -44,6 +44,7 @@ namespace CommandoRobot
         public int m_GameState = 0;
 
         private IUIForm _pauseForm;
+        private readonly WeaponPrefabCache _gunPrefabCache = new WeaponPrefabCache();
 
         void Awake()
         {
@@ -57,20 +58,40 @@ namespace CommandoRobot
             if (m_Current == this)
                 m_Current = null;
 
-            // 战斗退出/场景卸载：强制回收在途子弹并裁剪空闲对象（内部容错，应用退出时安全）
+            _gunPrefabCache.ReleaseAll();
             BulletPool.ClearBattleBullets();
+        }
+
+        /// <summary>
+        /// 按武器 Id 读表取 gun_prefab location，经 Yoo handle 缓存加载逻辑 Prefab。
+        /// </summary>
+        public async UniTask<GameObject> GetGunPrefabAsync(WeaponId weaponId, CancellationToken cancellationToken = default)
+        {
+            if (GameFrameWork.DataTable == null ||
+                !GameFrameWork.DataTable.TryGetTable(out IWeapon table) ||
+                table == null)
+            {
+                Debug.LogError("[GameControl] IWeapon table unavailable.");
+                return null;
+            }
+
+            if (!table.TryGet((int)weaponId, out Weapon_Record record))
+            {
+                Debug.LogError($"[GameControl] Weapon id not found: {weaponId}");
+                return null;
+            }
+
+            if (string.IsNullOrEmpty(record.GunPrefab))
+            {
+                Debug.LogError($"[GameControl] gun_prefab empty for id={weaponId}");
+                return null;
+            }
+
+            return await _gunPrefabCache.GetAsync(record.GunPrefab, cancellationToken);
         }
 
         void Start()
         {
-            int levelNum = m_GameplayData.LevelNumber;
-
-            //if (m_Contents.m_LevelPrefabs[levelNum] != null)
-            //{
-            //    GameObject levelObj = Instantiate(m_Contents.m_LevelPrefabs[levelNum]);
-            //    m_Level = levelObj.GetComponent<LevelBase>();
-            //}
-
             StartCoroutine(Co_Start());
             m_GameState = State_Start;
         }
@@ -97,35 +118,16 @@ namespace CommandoRobot
                         m_IsBossFight = false;
                         EndLevel(4);
                     }
-                    //if (Time.time > 1)
-                    //{
-                    //    if (m_EnemyKilledCount >= m_TotalEnemyCount)
-                    //    {
-                    //        HandleWin();
-                    //    }
-                    //}
                     break;
             }
-
 
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 if (!m_Pausesd)
-                {
                     PauseGame();
-                }
                 else
-                {
                     ResumeGame();
-                }
             }
-        }
-
-        void FixedUpdate()
-        {
-
-
-
         }
 
         public void HandlePlayerDeath()
@@ -135,14 +137,10 @@ namespace CommandoRobot
 
         IEnumerator Co_HandleGameOver()
         {
-            //m_DeathEff.SetActive(true);
             m_GameState = State_Lose;
             CameraControl.m_Current.StartShake(.4f, .3f);
             yield return new WaitForSeconds(2);
             OpenPanelAsync(LosePanelId).Forget();
-            //FadeControl.m_Current.StartFadeOut();
-            //yield return new WaitForSeconds(2);
-            //SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 
         public void HandleWin()
@@ -195,9 +193,6 @@ namespace CommandoRobot
             m_GameState = State_Win;
             ShowMessage("Mission Complete");
             yield return new WaitForSeconds(1);
-            // yield return new WaitForSeconds(waitTime);
-            //FadeControl.m_Current.StartFadeOut();
-            // yield return new WaitForSeconds(2);
             OpenPanelAsync(WinPanelId).Forget();
         }
 
