@@ -9,6 +9,8 @@ namespace CommandoRobot
     public class ProjectileBase : MonoBehaviour
     {
         public GameObject m_HitParticle;
+        [Tooltip("销毁音效的 sound 表 ID；>0 时子弹销毁(回收)位置播放，0/未填则不播")]
+        public int m_DestroySoundId;
         [HideInInspector]
         public GameObject m_Creator;
 
@@ -31,6 +33,12 @@ namespace CommandoRobot
 
         void Update()
         {
+            // 安全保护：仅“出池激活且未回收”的子弹才推进。
+            // 场景切换强制回收、命中回收后组件被禁用(enabled=false)或对象 inactive，
+            // 同帧窗口内的 Update 一律直接返回，避免已回池实例继续移动/二次回收。
+            if (m_IsRecycled || !isActiveAndEnabled)
+                return;
+
             if (m_TurnSpeed != 0)
             {
                 transform.forward = Quaternion.Euler(0, Time.deltaTime * m_TurnSpeed, 0) * transform.forward;
@@ -138,6 +146,11 @@ namespace CommandoRobot
         {
             if (m_IsRecycled)
                 return;
+
+            // 销毁时在销毁位置播放配置的销毁音效（未填则跳过）；
+            // 场景切换的强制回收走 BulletPool.RecycleBullet 不经此路径，避免卸载时误播
+            if (m_DestroySoundId > 0)
+                GameFrameWork.Sound?.PlaySound(m_DestroySoundId, transform.position);
 
             BulletPool.RecycleBullet(gameObject);
         }

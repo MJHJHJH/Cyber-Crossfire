@@ -208,32 +208,42 @@ namespace CommandoRobot
 
         private static GameObject SpawnOrCreateInstance(IObjectPool<GameObjectObject> pool, string poolName, GameObject prefab)
         {
-            GameObjectObject pooled = pool.Spawn(poolName);
-            GameObject bullet = pooled != null ? pooled.Target as GameObject : null;
-            if (bullet != null)
+            // 循环清理幽灵条目：池内可能残留多个已被场景卸载销毁的注册项（旧战斗场景的
+            // 闲置实例随池根销毁后包装仍在池中），必须逐个清到能拿到有效实例为止，
+            // 否则第一发会命中幽灵返回 null，表现为子弹未激活/不可见。
+            for (int attempt = 0; attempt < 8; attempt++)
             {
-                return bullet;
+                GameObjectObject pooled = pool.Spawn(poolName);
+                GameObject bullet = pooled != null ? pooled.Target as GameObject : null;
+                if (bullet != null)
+                {
+                    return bullet;
+                }
+
+                // 幽灵条目：target 已被销毁。先 Unspawn 使 SpawnCount 归零，再 ReleaseObject 移除，继续尝试。
+                if (pooled != null)
+                {
+                    try
+                    {
+                        pool.Unspawn(pooled);
+                        pool.ReleaseObject(pooled);
+                        continue;
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogWarning(Utility.Text.Format("[BulletPool] Clean ghost bullet '{0}' failure: {1}", poolName, ex.Message));
+                    }
+                }
+
+                // 池空（无闲置可拿）且无幽灵可清：退出循环补建新实例
+                break;
             }
 
-            // 自愈：池空或 Target 已被场景卸载销毁 → 清理幽灵条目（先 Unspawn 使 SpawnCount 归零，再 ReleaseObject 移除）并补建实例
-            if (pooled != null)
-            {
-                try
-                {
-                    pool.Unspawn(pooled);
-                    pool.ReleaseObject(pooled);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogWarning(Utility.Text.Format("[BulletPool] Clean ghost bullet '{0}' failure: {1}", poolName, ex.Message));
-                }
-            }
-
-            bullet = UnityEngine.Object.Instantiate(prefab);
-            bullet.SetActive(false);
-            pool.Register(GameObjectObject.Create(poolName, bullet), false);
-            pooled = pool.Spawn(poolName);
-            return pooled != null ? pooled.Target as GameObject : null;
+            GameObject fresh = UnityEngine.Object.Instantiate(prefab);
+            fresh.SetActive(false);
+            pool.Register(GameObjectObject.Create(poolName, fresh), false);
+            GameObjectObject spawned = pool.Spawn(poolName);
+            return spawned != null ? spawned.Target as GameObject : null;
         }
 
         /// <summary>

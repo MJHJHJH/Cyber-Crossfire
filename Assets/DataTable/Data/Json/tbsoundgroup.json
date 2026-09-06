@@ -15,7 +15,7 @@
     "AvoidBeingReplacedBySamePriority": false,
     "Mute": false,
     "Volume": 1,
-    "AgentCount": 8
+    "AgentCount": 16
   },
   {
     "id": 3,

@@ -40,6 +40,11 @@ public sealed class GameUI_PCUIFormLogic : UIFormLogic, IGameUI_PCView
         base.OnOpen(userData);
         Current = this;
 
+        // 准星等纯展示图形不参与 UI 射线：它跟随鼠标，若 raycastTarget=true 会被事件系统判定为
+        // “指针在 UI 上”，从而屏蔽开火（任何点击都被当作点在 UI 上）。按钮等交互元素保持 raycast。
+        if (m_TargetLockImage != null)
+            m_TargetLockImage.raycastTarget = false;
+
         CacheHealthBasePos();
         BindHealthEvents(true);
 
@@ -155,11 +160,11 @@ public sealed class GameUI_PCUIFormLogic : UIFormLogic, IGameUI_PCView
 
     private Vector2 ScreenPointToCanvas(Vector3 screenPoint)
     {
-        screenPoint.x = screenPoint.x / Screen.width;
-        screenPoint.y = screenPoint.y / Screen.height;
-        screenPoint.x = m_MainCanvas.sizeDelta.x * screenPoint.x;
-        screenPoint.y = m_MainCanvas.sizeDelta.y * screenPoint.y;
-        return Helper.ToVector2(screenPoint);
+        // 拉伸全屏 Canvas 的 sizeDelta 为 (0,0)，须用 rect 实际宽高
+        Rect rect = m_MainCanvas.rect;
+        float x = screenPoint.x / Screen.width * rect.width;
+        float y = screenPoint.y / Screen.height * rect.height;
+        return new Vector2(x, y);
     }
 
     #region HealthBarAnim

@@ -4974,6 +4974,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HitParticle: {fileID: 5599717751194728857, guid: 46ceefd52951aee40a6446cc6aa0eacf,
     type: 3}
+  m_DestroySoundId: 2210
   m_Creator: {fileID: 0}
   m_Speed: 10
   m_Damage: 1

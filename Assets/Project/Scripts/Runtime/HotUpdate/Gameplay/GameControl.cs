@@ -43,6 +43,12 @@ namespace CommandoRobot
         [HideInInspector]
         public int m_GameState = 0;
 
+        /// <summary>游戏是否处于正常运行状态（进行中且未暂停；开局倒计时/胜负结算时返回 false）。</summary>
+        public bool IsGamePlaying
+        {
+            get { return m_GameState == State_Gameplay && !m_Pausesd; }
+        }
+
         private IUIForm _pauseForm;
         private readonly WeaponPrefabCache _gunPrefabCache = new WeaponPrefabCache();
 

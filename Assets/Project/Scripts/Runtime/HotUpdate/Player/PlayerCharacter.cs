@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -29,6 +29,7 @@ namespace CommandoRobot
 
         public GameObject m_GrenadePrefab1;
         public int m_GrenadeCount = 3;
+        public float m_MaxThrowDistance = 20f;
 
         [HideInInspector]
         public PlayerPowers m_PlayerPowers;
@@ -129,6 +130,16 @@ namespace CommandoRobot
         {
             m_Input_Fire = false;
 
+            // 仅游戏正常运行（进行中且未暂停）时监听移动/开火/投掷；暂停界面打开时冻结角色控制
+            GameControl gc = GameControl.m_Current;
+            if (gc != null && !gc.IsGamePlaying)
+            {
+                m_MovementInput = Vector3.zero;
+                if (IsWeaponReady)
+                    m_CurrentWeapon.Input_FireHold = false;
+                return;
+            }
+
             if (!m_InControl) return;
 
             m_MovementInput = InputControl.m_Main.m_Movement;
@@ -154,6 +165,15 @@ namespace CommandoRobot
 
         void LateUpdate()
         {
+            // 暂停/停止界面打开或胜负结算时冻结瞄准旋转，避免角色仍跟随鼠标/目标转动
+            GameControl gc = GameControl.m_Current;
+            if (gc != null && !gc.IsGamePlaying)
+            {
+                m_MovementInput = Vector3.zero;
+                UpdateRecoilTransforms();
+                return;
+            }
+
             if (InputControl.m_Main.m_MouseAim)
             {
                 Vector3 targetPos = InputControl.m_Main.m_WorldAimPosition;
@@ -225,17 +245,42 @@ namespace CommandoRobot
             m_GrenadeCount--;
 
             Vector3 start = transform.position;
-            Vector3 end = transform.position + 20 * m_CharBody.m_UpperAimBase.forward;
-            if (m_BestTargetObject != null)
-            {
-                end = m_BestTargetObject.transform.position;
-            }
+            Vector3 end = ComputeGrenadeTarget(start);
             GameObject obj = Instantiate(m_GrenadePrefab1);
-            obj.transform.position = transform.position;
+            obj.transform.position = start;
             PlayerGrenade g = obj.GetComponent<PlayerGrenade>();
             g.m_StartPosition = start;
             g.m_TargetPosition = end;
             //Destroy(obj, 3);
+        }
+
+        /// <summary>
+        /// 计算手雷落点：鼠标瞄准时抛向鼠标点击的世界位置；
+        /// 超出最大投掷距离则沿“玩家→点击点”的方向截取到最大距离处。
+        /// 非鼠标瞄准（手柄/移动端）时保持原有逻辑：优先抛向锁定目标，否则沿瞄准方向最大距离。
+        /// </summary>
+        Vector3 ComputeGrenadeTarget(Vector3 start)
+        {
+            InputControl input = InputControl.m_Main;
+            if (input != null && input.m_MouseAim)
+            {
+                Vector3 toTarget = input.m_WorldAimPosition - start;
+                toTarget.y = 0;
+                float dist = toTarget.magnitude;
+                if (dist > 0.001f)
+                {
+                    Vector3 dir = toTarget / dist;
+                    dist = Mathf.Min(dist, m_MaxThrowDistance);
+                    Vector3 end = start + dir * dist;
+                    end.y = start.y; // 与起点同高，保证抛物线高度曲线一致
+                    return end;
+                }
+                // 点击点与玩家几乎重合：退化为瞄准方向
+            }
+
+            if (m_BestTargetObject != null)
+                return m_BestTargetObject.transform.position;
+            return start + m_MaxThrowDistance * m_CharBody.m_UpperAimBase.forward;
         }
 
         public void HandlePickup(string itemType, int count)
