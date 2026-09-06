@@ -212,6 +212,12 @@ namespace CommandoRobot
             {
                 GameObject obj = Instantiate(m_HitParticle);
                 obj.transform.position = transform.position;
+
+                // 爆炸粒子继承子弹阵营：玩家子弹的爆炸不伤玩家，敌人子弹的爆炸不伤敌人
+                Explosion explosion = obj.GetComponent<Explosion>();
+                if (explosion != null)
+                    explosion.m_IsEnemyTeam = m_IsEnemyTeam;
+
                 Destroy(obj, 3);
             }
         }

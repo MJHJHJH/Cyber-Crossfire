@@ -82,6 +82,12 @@ namespace CommandoRobot
                 ShakeSettings.Position(0.28f, 0.3f, 30f));
             GameObject obj = Instantiate(m_ExplodeParticle);
             obj.transform.position = transform.position;
+
+            // 手雷为玩家投掷，爆炸标记为玩家阵营：不伤害玩家自己
+            Explosion explosion = obj.GetComponent<Explosion>();
+            if (explosion != null)
+                explosion.m_IsEnemyTeam = false;
+
             GameFrameWork.Sound?.PlaySound(2212, m_TargetPosition);
             Destroy(obj, 3);
             Destroy(gameObject);

@@ -1,5 +1,6 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
+using GameFramework;
 using UnityEngine;
 
 namespace CommandoRobot
@@ -7,6 +8,8 @@ namespace CommandoRobot
     public class Pickup : MonoBehaviour
     {
         public GameObject m_ScoreParticle;
+        [Tooltip("拾取成功音效的 sound 表 ID；>0 时以 2D 播放，0/未填则不播")]
+        public int m_PickupSoundId;
         bool picked = false;
 
         [HideInInspector]
@@ -63,6 +66,16 @@ namespace CommandoRobot
         public virtual void HandlePickup()
         {
             m_TouchedPlayer.HandlePickup(m_ItemType, m_ItemCount);
+            PlayPickupSound();
+        }
+
+        /// <summary>
+        /// 拾取成功音效：以 2D 方式播放（不绑定位置/Transform），未配置则不播。
+        /// </summary>
+        protected void PlayPickupSound()
+        {
+            if (m_PickupSoundId > 0)
+                GameFrameWork.Sound?.PlaySound(m_PickupSoundId);
         }
 
         IEnumerator Co_HandlePick()
